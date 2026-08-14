@@ -1,0 +1,17 @@
+{
+  "name": "@tidalix/harness",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Terminal client for TidaliX — plays a full game against a greedy bot, so the tidal loop can be felt before any UI exists.",
+  "type": "module",
+  "scripts": {
+    "play": "node src/play.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@tidalix/engine": "*"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
