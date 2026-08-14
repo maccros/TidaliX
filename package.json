@@ -1,0 +1,27 @@
+{
+  "name": "tidalix",
+  "private": true,
+  "version": "0.0.1",
+  "description": "TidaliX \u2014 an ocean-themed collectible card game built on real marine species and a shared tidal phase system.",
+  "type": "module",
+  "workspaces": [
+    "engine",
+    "harness",
+    "client"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "play": "npm run build -w @tidalix/engine && npm run play -w @tidalix/harness --",
+    "guide": "npm run build -w @tidalix/engine && node tools/build-guide.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  // Pinned so the Codespace is reproducible on rebuild and for anyone else who
+  // opens the repo. Node 24 matters: the terminal harness runs .ts files
+  // directly via Node's native type stripping, which needs >= 22.18 / >= 23.6.
+  // On the default image without this pin, a rebuild can land on Node 20 and
+  // `npm run play` fails with a syntax error.
+  "name": "TidaliX",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24",
+
+  "postCreateCommand": "npm install",
+
+  // Vite's default, ready for when the browser client lands. Codespaces
+  // forwards it and hands you a URL you can open on a phone.
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": {
+      "label": "TidaliX client",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Use the repo's TypeScript, not the one bundled with VS Code.
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true
+      }
+    }
+  }
+}
