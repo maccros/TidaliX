@@ -164,7 +164,7 @@ function cardRow(id) {
     </div>
     <div class="card__body">
       <p class="card__text">${esc(c.text)}</p>
-      <p class="card__meta"><span class="printed">printed ${c.base[0]}/${c.base[1]}</span>${type}${kw}${spines}${traits}</p>
+      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${kw}${spines}${traits}</p>
       ${auras}
     </div>
     ${strip(c)}
@@ -565,7 +565,7 @@ const html = `<title>TidaliX Field Guide</title>
       <span><span class="swatch swatch--exp"></span> exposed &mdash; takes +${cfg.exposedBonusDamage} damage</span>
       <span><b class="ph__energy">+1&#11041;</b> generates energy each turn</span>
       <span><b class="aura__mark">&#8644;</b> a symbiosis this card offers</span>
-      <span><span class="printed">printed</span> stats before any effect</span>
+      <span><span class="printed">base</span> stats before any effect</span>
     </div>
 
 ${groupsHtml}

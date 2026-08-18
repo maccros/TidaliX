@@ -5,6 +5,8 @@ board runs on a shared tide.
 
 Online-only, web-first, single-player against an AI to start. No netcode yet.
 
+**Play now: https://maccros.github.io/TidaliX/**
+
 ## The tidal system
 
 One shared phase cycles for both players:
@@ -57,14 +59,21 @@ harness/   Terminal client. A debug surface, not the way to play.
 
 ## Play it
 
+**https://maccros.github.io/TidaliX/** — deployed straight from `client/dist`,
+redeployed automatically on every push to `main` via
+[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml). Add
+`?seed=7` to the URL to replay an exact game; the engine is deterministic, so a
+seed always reproduces the same match.
+
+To run it locally instead — for development, or to play from a Codespace:
+
 ```bash
 npm install
 npm run dev                  # then open the forwarded port (5173)
 ```
 
 In a Codespace, VS Code forwards port 5173 and offers the URL — the same link
-opens on a phone. Add `?seed=7` to replay an exact game; the engine is
-deterministic, so a seed always reproduces the same match.
+opens on a phone.
 
 Every affordance in the client is derived from the engine's `legalActions`, so
 the interface cannot offer a move the resolver would reject: what looks
@@ -130,9 +139,10 @@ the resulting state, with no undo and no simulation mode.
 ## Platform
 
 Single-player means **there is no server**. The engine runs entirely in the
-player's tab, so the whole game compiles to static files and deploys to any
-static host — nothing to operate, nothing to pay for while the loop is being
-validated. Targets are desktop and mobile browsers, one codebase, no app store.
+player's tab, so the whole game compiles to static files — currently deployed
+to GitHub Pages, but it would move to any other static host unchanged. Nothing
+to operate, nothing to pay for while the loop is being validated. Targets are
+desktop and mobile browsers, one codebase, no app store.
 
 The engine has no I/O and no rendering imports, so it runs unchanged in Node,
 in a browser, and in a React Native runtime. If multiplayer ever happens, the
@@ -170,7 +180,7 @@ Design contracts the rest of the project can lean on:
 ### Commands
 
 ```bash
-npm test        # 91 tests: 79 engine, 12 client
+npm test        # 92 tests: 80 engine, 12 client
 npm run typecheck
 npm run build
 ```
