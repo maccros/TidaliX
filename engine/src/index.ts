@@ -20,6 +20,7 @@ export type {
   CardInstance,
   CardType,
   EndTurnAction,
+  EnergySource,
   GameAction,
   GameConfig,
   GameEvent,
@@ -28,6 +29,7 @@ export type {
   PlayCardAction,
   PlayerId,
   PlayerState,
+  ReleaseAction,
   RngState,
   TideEffect,
   TidePhase,
@@ -38,6 +40,7 @@ export { CARDS, getCard, hasCard, cardsFavouring, traitsOf, activeSymbioses } fr
 export {
   TIDE_CYCLE,
   advancePhase,
+  cyclesCompleted,
   effectiveStats,
   isDead,
   nextPhase,
@@ -47,6 +50,20 @@ export {
   tideEffectFor,
 } from './tide.js';
 export type { EffectiveStats } from './tide.js';
+
+export {
+  canReleaseThisTurn,
+  conservationIncome,
+  conservedSpecies,
+  cyclesOnBoard,
+  energyCapFor,
+  energyIncome,
+  isMature,
+  speciesIncome,
+  speciesIncomeSources,
+  stepsUntilMature,
+} from './economy.js';
+export type { EnergyIncome, EnergyIncomeLine } from './economy.js';
 
 export { nextRandom, nextInt, shuffle } from './rng.js';
 

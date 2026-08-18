@@ -13,13 +13,18 @@ import type {
 } from './types.js';
 import { CARDS, getCard } from './cards.js';
 import { shuffle } from './rng.js';
-import { effectiveStats } from './tide.js';
+import { effectiveStats, cyclesCompleted } from './tide.js';
+import { isMature, stepsUntilMature } from './economy.js';
 
 export const DEFAULT_CONFIG: GameConfig = {
   startingLife: 25,
   startingHandSize: 4,
   maxHandSize: 8,
   maxBoardSize: 6,
+  // Capacity is the scarce resource now: you open on 2 and it steps up only when
+  // a whole tide cycle has turned. Everything else — the tide, your species, your
+  // conservation pile — is income you have to actually build.
+  startingEnergyCap: 2,
   maxEnergyCap: 10,
   // Unspent plankton keeps, up to a point. This is what makes holding back
   // through a lean phase a real decision instead of a wasted turn.
@@ -32,6 +37,26 @@ export const DEFAULT_CONFIG: GameConfig = {
   // no plankton at all, the flood is the boom, and high water stays rich.
   tideEnergy: { low: 0, rising: 2, high: 1, falling: 0 },
   startingPhase: 'low',
+  // A species must live through one whole cycle before it can be released, and
+  // only one goes back per turn: the pile is a slow, deliberate build, which is
+  // what makes the second win condition a real commitment rather than a pivot.
+  releaseMaturityCycles: 1,
+  releasesPerTurn: 1,
+  // One, not two. At two the bonus was very nearly decorative: it paid a
+  // committed player 3.6 energy across a whole game — 9% of their income — and
+  // did not arrive until round 7.7, in games ending around round 9. At one it
+  // pays 8.5 (20% of income), lands a round earlier, and every single release
+  // is felt immediately. It does not distort who wins: measured over 80 games
+  // the conservation win rate actually moves slightly *down*, from 42 to 37.
+  conservationIncomePer: 1,
+  // Five, measured against a player who is actually building for it: they get
+  // there in roughly half their games, and it never fires by accident — a bot
+  // that merely values the pile alongside everything else finishes it 0% of the
+  // time. The curve is steep, so this number is worth re-measuring after any
+  // change to game length: at six a committed player wins 30% of the time, at
+  // four 75%, at three over 90% — which stops being a second path and starts
+  // being the only one.
+  conservationVictory: 5,
 };
 
 let instanceCounter = 0;
@@ -50,6 +75,7 @@ export function createInstance(definitionId: string, owner: PlayerId): CardInsta
     owner,
     damage: 0,
     playedOnTurn: null,
+    playedOnTideStep: null,
     hasAttacked: false,
   };
 }
@@ -82,6 +108,8 @@ function createPlayer(id: PlayerId, deck: CardInstance[], config: GameConfig): P
     hand: [],
     board: [],
     discard: [],
+    conservation: [],
+    releasesThisTurn: 0,
     fatigue: 0,
   };
 }
@@ -112,6 +140,7 @@ export function createGame(options: CreateGameOptions = {}): GameState {
     turn: 0,
     round: 0,
     phase: config.startingPhase,
+    tideStep: 0,
     activePlayer: startingPlayer,
     players: [players[0]!, players[1]!],
     winner: undefined,
@@ -156,6 +185,10 @@ export interface BoardCardView {
   exposed: boolean;
   reefGuard: boolean;
   canAttack: boolean;
+  /** Whether this species has lived long enough to be released. */
+  mature: boolean;
+  /** Tide steps still to go before it is, or 0 when it already is. */
+  stepsUntilMature: number;
 }
 
 /**
@@ -180,6 +213,8 @@ export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
       exposed: stats.exposed,
       reefGuard: def.keywords?.includes('reef-guard') ?? false,
       canAttack: canAttack(state, inst),
+      mature: isMature(state, inst),
+      stepsUntilMature: stepsUntilMature(state, inst),
     };
   });
 }
@@ -203,12 +238,22 @@ export function tideView(state: GameState): {
   energyBonus: number;
   round: number;
   turn: number;
+  /** Phase advances so far. */
+  step: number;
+  /** Complete cycles so far — the thing the energy ramp actually counts. */
+  cycles: number;
+  /** Phase advances remaining until the next cycle closes. */
+  stepsToNextCycle: number;
 } {
+  const cycles = cyclesCompleted(state.tideStep);
   return {
     phase: state.phase,
     energyBonus: state.config.tideEnergy[state.phase],
     round: state.round,
     turn: state.turn,
+    step: state.tideStep,
+    cycles,
+    stepsToNextCycle: 4 - (state.tideStep % 4),
   };
 }
 

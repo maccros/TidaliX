@@ -20,6 +20,14 @@ Unspent energy **carries over**, up to `config.carryOverCap` (3). Banking throug
 a lean low tide to spend on the flood is a real decision, and the cap is what
 stops it becoming a hoard.
 
+Your **base energy capacity rises once per complete tide cycle**, not once per
+round — four phase advances buy you one more point of ceiling. That single change
+is what makes the reef the engine: capacity is scarce, so the energy that
+matters comes from the tide, from the species you have standing, and from your
+conservation pile, all of which you have to build. Measured over identical
+games, the old per-round ramp minted about 5.2 new energy per turn peaking near
+9; the cycle ramp mints about 3.5, peaking near 5.4.
+
 Each phase does three things:
 
 | | |
@@ -62,11 +70,22 @@ Every affordance in the client is derived from the engine's `legalActions`, so
 the interface cannot offer a move the resolver would reject: what looks
 clickable is exactly what is legal.
 
-Each card carries its full breakdown — printed line, what the tide is doing to
-it, what its neighbours are doing to it — because the numbers are meaningless
-without the reason for them. Symbiosis is drawn as actual lines between the
-cards involved, green for a partnership and red for a crown-of-thorns eating
-your coral.
+Each card carries its full breakdown — its **base** line (the stats printed on
+the card, before anything modifies them), what the tide is doing to it, and what
+its neighbours are doing to it — because the numbers are meaningless without the
+reason for them. **Right-click** (or long-press) any card, including the
+opponent's, to open the full card: the whole tide line laid out at once, so you
+can see that a manta is worthless at low water and a monster at high before you
+commit to it.
+
+Symbiosis is drawn as actual lines between the cards involved, green for a
+partnership and red for a crown-of-thorns eating your coral. Links are only ever
+drawn **within one side** — an aura never reaches across the waterline.
+
+Energy is never shown as a bare total. The dashboard itemises every source
+feeding it — base capacity, carryover, tide, species, conservation — and says
+when your capacity next steps up, because an income you cannot account for is an
+income you cannot plan around.
 
 ### Terminal client
 
@@ -151,7 +170,7 @@ Design contracts the rest of the project can lean on:
 ### Commands
 
 ```bash
-npm test        # 70 tests: 64 engine, 6 client
+npm test        # 91 tests: 79 engine, 12 client
 npm run typecheck
 npm run build
 ```
@@ -184,6 +203,43 @@ Auras are friendly-only and never apply to the card itself. Because they change
 a card's ceiling, a card can now **die when its partner dies** — the same failure
 mode as a falling tide, so death sweeps run to a fixpoint and cascade.
 
+## Conservation
+
+A species that has survived a **complete tide cycle** on your reef can be
+**released** back to the wild. It leaves the board for good and goes to your
+**conservation pile** — a zone that is neither the board nor the discard, and
+the only place a card leaves play as an asset rather than a loss.
+
+| | |
+|---|---|
+| **It frees the slot** | The reef holds six. Releasing is the only way to take a species back off it, so a board full of matured animals is a resource, not a lock-up. |
+| **It pays** | The pile is scored on **distinct species**, and every `config.conservationIncomePer` (1) of them is `+1` standing energy every turn, for the rest of the game. Biodiversity, not volume: six clownfish is one species conserved. |
+| **It wins** | Conserve `config.conservationVictory` (5) distinct species and you win outright, whatever the board looks like. |
+
+The guards are what keep it from being an undo button: a species must live
+through a whole cycle before it can go, and only one goes back per turn.
+
+Five is tuned against a player who is actually building for it. Measured over 80
+games, such a player wins by conservation about **half** the time, and the
+condition never fires by accident — a bot that merely values the pile alongside
+everything else finishes it 0–2% of the time. The curve is steep, so re-measure
+after any change to game length: at six a committed player wins 30% of the time,
+at four 75%, at three over 90% — which stops being a second path and starts
+being the only one.
+
+The income pays per species rather than per pair for the same reason. At one
+per pair it was very nearly decorative — 3.6 energy across an entire game, 9% of
+a player's income, and not arriving until round 7.7 in games that end around
+round 9. Per species it pays 8.5 (20% of income), lands a round earlier, and
+makes every individual release felt, without shifting who wins.
+
+Reachability depends heavily on **how aggressive the opponent is**, which is
+worth knowing before retuning any of these numbers. The placeholder bot weights
+life at twice board value and sends 57% of its attacks at the face, which ends
+games around round 7. Halve that life weight and games run to round 9–10 and
+piles roughly double. Any balance figure measured against a bot is a fact about
+that bot first.
+
 ## Card set — "Reef Flat"
 
 28 real species across the four phases: low-tide flat dwellers, flood hunters,
@@ -202,6 +258,7 @@ by the engine; the keyword list is kept honest so there is no dead card text.
 - [x] Terminal harness — the loop is playable end to end
 - [x] Tide-driven economy, printed `spines` instead of blanket retaliation, symbiosis
 - [x] React client — card detail, stat breakdowns, drawn symbiosis links
+- [x] Cycle-paced energy, itemised income, the conservation pile and its win condition
 - [ ] Play it, and tune the tide until it is fun
 - [ ] Grow the starter set to 30–50 cards and tune the curve
 - [ ] A real single-player AI on top of `legalActions`

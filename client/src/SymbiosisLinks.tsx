@@ -22,7 +22,13 @@ interface Link {
 }
 
 export interface SymbiosisLinksProps {
-  board: readonly CardInstance[];
+  /**
+   * One entry per side. Symbiosis is a relationship between a card and its own
+   * neighbours, so the sides are kept apart here rather than concatenated —
+   * merging them would draw links across the waterline that the engine never
+   * grants.
+   */
+  boards: readonly (readonly CardInstance[])[];
   /** Element the SVG is positioned against. */
   container: HTMLElement | null;
   /** Card element lookup, keyed by instance id. */
@@ -34,7 +40,7 @@ export interface SymbiosisLinksProps {
 }
 
 export function SymbiosisLinks({
-  board,
+  boards,
   container,
   nodes,
   focusId,
@@ -52,27 +58,29 @@ export function SymbiosisLinks({
       const origin = container.getBoundingClientRect();
       const next: Link[] = [];
 
-      for (const link of activeSymbioses(board)) {
-        const from = nodes.get(link.sourceId);
-        const to = nodes.get(link.targetId);
-        if (!from || !to) continue;
+      for (const board of boards) {
+        for (const link of activeSymbioses(board)) {
+          const from = nodes.get(link.sourceId);
+          const to = nodes.get(link.targetId);
+          if (!from || !to) continue;
 
-        const a = from.getBoundingClientRect();
-        const b = to.getBoundingClientRect();
-        const harmful = (link.aura.grants.attack ?? 0) + (link.aura.grants.health ?? 0) < 0;
-        const touchesFocus =
-          focusId === null || link.sourceId === focusId || link.targetId === focusId;
+          const a = from.getBoundingClientRect();
+          const b = to.getBoundingClientRect();
+          const harmful = (link.aura.grants.attack ?? 0) + (link.aura.grants.health ?? 0) < 0;
+          const touchesFocus =
+            focusId === null || link.sourceId === focusId || link.targetId === focusId;
 
-        next.push({
-          key: `${link.sourceId}->${link.targetId}-${link.aura.affects}`,
-          x1: a.left + a.width / 2 - origin.left,
-          y1: a.top + a.height / 2 - origin.top,
-          x2: b.left + b.width / 2 - origin.left,
-          y2: b.top + b.height / 2 - origin.top,
-          aura: link.aura,
-          harmful,
-          dimmed: !touchesFocus,
-        });
+          next.push({
+            key: `${link.sourceId}->${link.targetId}-${link.aura.affects}`,
+            x1: a.left + a.width / 2 - origin.left,
+            y1: a.top + a.height / 2 - origin.top,
+            x2: b.left + b.width / 2 - origin.left,
+            y2: b.top + b.height / 2 - origin.top,
+            aura: link.aura,
+            harmful,
+            dimmed: !touchesFocus,
+          });
+        }
       }
       setLinks(next);
     };
@@ -88,7 +96,7 @@ export function SymbiosisLinks({
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [board, container, nodes, focusId, revision]);
+  }, [boards, container, nodes, focusId, revision]);
 
   if (links.length === 0) return null;
 

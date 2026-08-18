@@ -156,3 +156,8 @@ export function shouldAdvanceTide(state: GameState): boolean {
   // Player 1 ends the round, so the tide steps as the turn passes back to 0.
   return state.activePlayer === 1;
 }
+
+/** Complete tide cycles elapsed since the game opened. */
+export function cyclesCompleted(tideStep: number): number {
+  return Math.floor(tideStep / TIDE_CYCLE.length);
+}

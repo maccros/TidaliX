@@ -12,7 +12,9 @@
 import {
   TIDE_CYCLE,
   boardView,
+  conservedSpecies,
   effectiveStats,
+  energyIncome,
   getCard,
   type BoardCardView,
   type GameEvent,
@@ -109,6 +111,12 @@ function tags(view: BoardCardView, showReady: boolean): string {
   const out: string[] = [];
   if (view.reefGuard) out.push(blue('reef-guard'));
   if (showReady) out.push(view.canAttack ? green('ready') : dim('waiting'));
+  // Only shown on your own side, where releasing is a move you can actually make.
+  if (showReady) {
+    out.push(
+      view.mature ? green('releasable') : dim(`matures in ${view.stepsUntilMature}`),
+    );
+  }
   return out.length > 0 ? '  ' + out.join(dim(' · ')) : '';
 }
 
@@ -128,8 +136,13 @@ export function renderSide(
   const bonus = state.config.tideEnergy[state.phase];
   const flood =
     player === state.activePlayer && bonus > 0 ? dim(` (${p.energyCap} +${bonus} tide)`) : '';
+  const saved = conservedSpecies(p);
+  const conserved =
+    saved > 0
+      ? `   ${green(`❋ ${saved}`)}${dim(`/${state.config.conservationVictory}`)}`
+      : '';
   const lines = [
-    `  ${bold(heading.padEnd(10))} ${red(`♥ ${p.life}`)}   ${magenta(`⬡ ${p.energy}`)}${flood}`,
+    `  ${bold(heading.padEnd(10))} ${red(`♥ ${p.life}`)}   ${magenta(`⬡ ${p.energy}`)}${flood}${conserved}`,
   ];
   const views = boardView(state, player);
   if (views.length === 0) {
@@ -138,6 +151,17 @@ export function renderSide(
     views.forEach((view, i) => lines.push(renderBoardRow(view, labelFor(i), showReady)));
   }
   return lines.join('\n');
+}
+
+/**
+ * The energy income, itemised. The terminal cannot draw the client's panel, but
+ * it can still refuse to show a bare total — five sources feed one number and
+ * the player is owed the split.
+ */
+export function renderIncome(state: GameState, player: PlayerId): string {
+  const income = energyIncome(state, player);
+  const parts = income.lines.map((l) => `${l.source} +${l.amount}`);
+  return dim(`  income next turn: ${parts.join('  ')}  = ${income.total}`);
 }
 
 /**
@@ -185,6 +209,7 @@ export function renderScreen(state: GameState, you: PlayerId, them: PlayerId): s
     rule(),
     '',
     renderSide(state, you, 'YOU', ownLabel, true),
+    renderIncome(state, you),
     '',
     renderHand(state, you),
     '',
@@ -198,7 +223,7 @@ export function renderScreen(state: GameState, you: PlayerId, them: PlayerId): s
 /** Resolve an instance id to a card name by scanning every zone. */
 function nameOf(state: GameState, instanceId: string): string {
   for (const p of state.players) {
-    for (const zone of [p.board, p.hand, p.discard, p.deck]) {
+    for (const zone of [p.board, p.hand, p.discard, p.conservation, p.deck]) {
       const found = zone.find((c) => c.instanceId === instanceId);
       if (found) return getCard(found.definitionId).name;
     }
@@ -232,18 +257,22 @@ export function describe(event: GameEvent, state: GameState, you: PlayerId | nul
       return `  ${who(event.player)} take${s(event.player)} ${bold(String(event.amount))} ${dim(`(♥ ${event.life})`)}`;
     case 'CARD_DESTROYED':
       return `  ${red('✖')} ${getCard(event.definitionId).name} ${dim(`(${whose(event.owner)})`)} is destroyed`;
+    case 'SPECIES_RELEASED':
+      return `  ${green('❋')} ${who(event.player)} release${s(event.player)} ${bold(getCard(event.definitionId).name)} back to the wild ${dim(`(${event.conserved} conserved)`)}`;
     case 'DECK_EMPTY':
       return dim(
         `  ${who(event.player)} draw${s(event.player)} from an empty deck: ${event.fatigueDamage} fatigue`,
       );
     case 'HAND_OVERFLOW':
       return dim(`  ${whose(event.player)} hand is full — a card is discarded`);
-    case 'GAME_OVER':
+    case 'GAME_OVER': {
+      const how = event.reason === 'conservation' ? ' The reef is saved.' : '';
       if (event.winner === null) return bold(yellow('\n  The reef takes them both. A draw.'));
-      if (you === null) return bold(cyan(`\n  ✦ Player ${event.winner} wins.`));
+      if (you === null) return bold(cyan(`\n  ✦ Player ${event.winner} wins.${how}`));
       return event.winner === you
-        ? bold(green('\n  ✦ You win. The reef is yours.'))
-        : bold(red('\n  ✧ The AI wins.'));
+        ? bold(green(`\n  ✦ You win. The reef is yours.${how}`))
+        : bold(red(`\n  ✧ The AI wins.${how}`));
+    }
     default:
       return null; // turn/energy/draw churn stays out of the log
   }
@@ -261,10 +290,13 @@ export const HELP = `
     ${yellow('p')} <n>          play card n from your hand      ${dim('e.g. p 2')}
     ${yellow('a')} <x> <t>      attack with your card x         ${dim('e.g. a b 1  /  a b face')}
                     target a numbered enemy card, or ${yellow('face')}
+    ${yellow('r')} <x>          release your card x to conservation  ${dim('e.g. r b')}
     ${yellow('e')}              end your turn
     ${yellow('?')}              show this help
     ${yellow('q')}              quit
 
   ${dim('Your cards are lettered, the enemy’s are numbered.')}
   ${dim('Stat swings: ▲ the tide favours this card, ▼ it does not, ‼ exposed to bonus damage.')}
+  ${dim('A species that has survived a whole tide cycle can be released to the wild:')}
+  ${dim('it leaves the reef for good, pays a standing income, and counts toward a win.')}
 `;

@@ -10,13 +10,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   TIDE_CYCLE,
   applyAction,
+  canReleaseThisTurn,
+  conservedSpecies,
   createGame,
   effectiveStats,
   getCard,
   legalActions,
   startGame,
   statsFor,
+  stepsUntilMature,
   takeTurn,
+  type CardInstance,
   type GameAction,
   type GameEvent,
   type GameState,
@@ -25,6 +29,8 @@ import {
 } from '@tidalix/engine';
 
 import { CardView, type CardState } from './CardView.tsx';
+import { CardDetail } from './CardDetail.tsx';
+import { EnergyPanel } from './EnergyPanel.tsx';
 import { SymbiosisLinks } from './SymbiosisLinks.tsx';
 
 const YOU: PlayerId = 0;
@@ -65,6 +71,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [state, setState] = useState<GameState>(() => newGame(seed));
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [inspecting, setInspecting] = useState<string | null>(null);
   const [log, setLog] = useState<{ text: string; kind: string }[]>([]);
   const [botThinking, setBotThinking] = useState(false);
 
@@ -87,6 +94,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     setSeed(nextSeed);
     setState(newGame(nextSeed));
     setSelected(null);
+    setInspecting(null);
     setLog([]);
   }, []);
 
@@ -140,6 +148,17 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       ),
     [actions],
   );
+  /** Your species that have matured and may go back to the wild this turn. */
+  const releasable = useMemo(
+    () =>
+      new Set(
+        actions
+          .filter((a): a is Extract<GameAction, { type: 'RELEASE' }> => a.type === 'RELEASE')
+          .map((a) => a.instanceId),
+      ),
+    [actions],
+  );
+
   const targets = useMemo(() => {
     if (!selected) return new Set<string>();
     return new Set(
@@ -173,6 +192,23 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const you = state.players[YOU];
   const bot = state.players[BOT];
 
+  /** Locate whatever is being inspected, wherever it lives. */
+  const inspected = useMemo(() => {
+    if (!inspecting) return null;
+    for (const player of state.players) {
+      const zones = [
+        ['board', player.board],
+        ['hand', player.hand],
+        ['conservation', player.conservation],
+      ] as const;
+      for (const [zone, cards] of zones) {
+        const found = cards.find((c) => c.instanceId === inspecting);
+        if (found) return { instance: found, zone, owner: player.id };
+      }
+    }
+    return null;
+  }, [inspecting, state]);
+
   const handState = (id: string, cost: number): CardState => {
     if (!yourTurn) return 'idle';
     if (playable.has(id)) return 'playable';
@@ -204,7 +240,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
 
       <main className="table" ref={setBoardEl}>
         <SymbiosisLinks
-          board={[...bot.board, ...you.board]}
+          boards={[bot.board, you.board]}
           container={boardEl}
           nodes={nodes.current}
           focusId={hovered}
@@ -233,8 +269,10 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             mine={false}
             cardState={boardState}
             onClick={clickBoardCard}
+            onInspect={setInspecting}
             onHover={setHovered}
             linked={linked}
+            releasable={EMPTY_SET}
             registerRef={registerRef}
           />
         </section>
@@ -248,8 +286,10 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             mine
             cardState={boardState}
             onClick={clickBoardCard}
+            onInspect={setInspecting}
             onHover={setHovered}
             linked={linked}
+            releasable={releasable}
             registerRef={registerRef}
           />
           <PlayerBar
@@ -263,6 +303,17 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
         </section>
       </main>
 
+      <div className="dash">
+        <EnergyPanel state={state} player={YOU} />
+        <ConservationPanel
+          state={state}
+          player={YOU}
+          releasable={releasable}
+          onRelease={(id) => run({ type: 'RELEASE', player: YOU, instanceId: id })}
+          onInspect={setInspecting}
+        />
+      </div>
+
       <section className="hand" aria-label="Your hand">
         {you.hand.map((card) => {
           const def = getCard(card.definitionId);
@@ -275,6 +326,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
               phase={state.phase}
               state={handState(card.instanceId, def.cost)}
               onHover={setHovered}
+              onInspect={() => setInspecting(card.instanceId)}
               onClick={() =>
                 playable.has(card.instanceId) &&
                 run({ type: 'PLAY_CARD', player: YOU, instanceId: card.instanceId })
@@ -298,17 +350,55 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
           New game
         </button>
         <span className="bar__seed">seed {seed}</span>
-        {selected && <span className="bar__hint">Pick a target, or click the card again to cancel.</span>}
+        {selected ? (
+          <span className="bar__hint">Pick a target, or click the card again to cancel.</span>
+        ) : (
+          <span className="bar__hint bar__hint--quiet">Right-click any card for its full detail.</span>
+        )}
         {state.winner !== undefined && (
           <strong className="bar__result">
-            {state.winner === null ? 'A draw.' : state.winner === YOU ? 'You win.' : 'The AI wins.'}
+            {state.winner === null
+              ? 'A draw.'
+              : state.winner === YOU
+                ? 'You win.'
+                : 'The AI wins.'}
           </strong>
         )}
         <LogPanel entries={log} />
       </footer>
+
+      {inspected && (
+        <CardDetail
+          instance={inspected.instance}
+          phase={state.phase}
+          // Only a card on a board has neighbours, so only there is there a
+          // symbiosis figure worth reporting.
+          stats={
+            inspected.zone === 'board'
+              ? statsFor(state, inspected.instance)
+              : inspected.zone === 'hand'
+                ? effectiveStats(inspected.instance, state.phase, getCard(inspected.instance.definitionId))
+                : null
+          }
+          zone={inspected.zone}
+          release={
+            inspected.zone === 'board' && inspected.owner === YOU
+              ? {
+                  mature: stepsUntilMature(state, inspected.instance) === 0,
+                  stepsRemaining: stepsUntilMature(state, inspected.instance),
+                  allowedThisTurn: canReleaseThisTurn(state, YOU),
+                }
+              : null
+          }
+          onClose={() => setInspecting(null)}
+        />
+      )}
     </div>
   );
 }
+
+/** Shared empty set, so the opponent's row does not allocate one every render. */
+const EMPTY_SET: ReadonlySet<string> = new Set();
 
 /* -------------------------------------------------------------------------- */
 
@@ -341,17 +431,21 @@ function Row({
   mine,
   cardState,
   onClick,
+  onInspect,
   onHover,
   linked,
+  releasable,
   registerRef,
 }: {
-  board: readonly import('@tidalix/engine').CardInstance[];
+  board: readonly CardInstance[];
   state: GameState;
   mine: boolean;
   cardState: (id: string, mine: boolean) => CardState;
   onClick: (id: string, mine: boolean) => void;
+  onInspect: (id: string) => void;
   onHover: (id: string | null) => void;
   linked: Set<string>;
+  releasable: ReadonlySet<string>;
   registerRef: (id: string, el: HTMLElement | null) => void;
 }) {
   if (board.length === 0) {
@@ -367,12 +461,94 @@ function Row({
           phase={state.phase}
           state={cardState(card.instanceId, mine)}
           linked={linked.has(card.instanceId)}
+          releasable={releasable.has(card.instanceId)}
           onClick={() => onClick(card.instanceId, mine)}
+          onInspect={() => onInspect(card.instanceId)}
           onHover={onHover}
           registerRef={registerRef}
         />
       ))}
     </div>
+  );
+}
+
+/**
+ * The conservation pile: what you have given back, and what it is worth.
+ *
+ * This is the second win condition, so it gets a permanent readout rather than
+ * living in the log — a player should never have to count a pile themselves to
+ * know how close they are to winning with it.
+ */
+function ConservationPanel({
+  state,
+  player,
+  releasable,
+  onRelease,
+  onInspect,
+}: {
+  state: GameState;
+  player: PlayerId;
+  releasable: ReadonlySet<string>;
+  onRelease: (instanceId: string) => void;
+  onInspect: (instanceId: string) => void;
+}) {
+  const me = state.players[player];
+  const saved = conservedSpecies(me);
+  const target = state.config.conservationVictory;
+  const ready = me.board.filter((c) => releasable.has(c.instanceId));
+
+  return (
+    <section className="conserve" aria-label="Conservation">
+      <header className="conserve__head">
+        <span className="conserve__score">
+          ❋ {saved}
+          {target > 0 && <small> / {target}</small>}
+        </span>
+        <span className="conserve__label">species conserved</span>
+      </header>
+
+      {target > 0 && (
+        <div className="conserve__meter" role="img" aria-label={`${saved} of ${target} species conserved`}>
+          {Array.from({ length: target }, (_, i) => (
+            <span key={i} className={`conserve__pip ${i < saved ? 'is-filled' : ''}`} />
+          ))}
+        </div>
+      )}
+
+      {me.conservation.length > 0 && (
+        <ul className="conserve__pile">
+          {me.conservation.map((c) => (
+            <li key={c.instanceId}>
+              <button type="button" className="conserve__entry" onClick={() => onInspect(c.instanceId)}>
+                {getCard(c.definitionId).name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {ready.length > 0 ? (
+        <div className="conserve__actions">
+          <span className="conserve__prompt">Release back to the wild:</span>
+          {ready.map((c) => (
+            <button
+              key={c.instanceId}
+              type="button"
+              className="btn btn--release"
+              onClick={() => onRelease(c.instanceId)}
+            >
+              {getCard(c.definitionId).name}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="conserve__hint">
+          {target > 0
+            ? `Conserve ${target} distinct species to win. A species must survive a complete tide cycle before you can release it.`
+            : 'A species must survive a complete tide cycle before you can release it.'}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -441,7 +617,7 @@ function LogPanel({ entries }: { entries: { text: string; kind: string }[] }) {
 
 function nameOf(state: GameState, instanceId: string): string {
   for (const p of state.players) {
-    for (const zone of [p.board, p.discard, p.hand, p.deck]) {
+    for (const zone of [p.board, p.discard, p.conservation, p.hand, p.deck]) {
       const found = zone.find((c) => c.instanceId === instanceId);
       if (found) return getCard(found.definitionId).name;
     }
@@ -472,11 +648,23 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
       return { text: `${who(event.player)} took ${event.amount} (♥ ${event.life})`, kind: 'damage' };
     case 'CARD_DESTROYED':
       return { text: `${getCard(event.definitionId).name} destroyed`, kind: 'death' };
-    case 'GAME_OVER':
+    case 'SPECIES_RELEASED':
       return {
-        text: event.winner === null ? 'A draw.' : event.winner === YOU ? 'You win.' : 'The AI wins.',
+        text: `${who(event.player)} released ${getCard(event.definitionId).name} — ${event.conserved} conserved`,
+        kind: 'conserve',
+      };
+    case 'GAME_OVER': {
+      const how = event.reason === 'conservation' ? ' by conservation' : '';
+      return {
+        text:
+          event.winner === null
+            ? 'A draw.'
+            : event.winner === YOU
+              ? `You win${how}.`
+              : `The AI wins${how}.`,
         kind: 'over',
       };
+    }
     default:
       return null;
   }

@@ -429,10 +429,21 @@ const html = `<title>TidaliX Field Guide</title>
       <div class="rule">
         <h4>Energy</h4>
         <ul>
-          <li>A base ramp of <span class="num">1</span> per <b>round</b> &mdash; both players share it &mdash; to a ceiling of <span class="num">${cfg.maxEnergyCap}</span>.</li>
+          <li>You open on a base capacity of <span class="num">${cfg.startingEnergyCap}</span>, and it rises by <span class="num">1</span> per <b>complete tide cycle</b> &mdash; not per round &mdash; to a ceiling of <span class="num">${cfg.maxEnergyCap}</span>. Capacity is scarce on purpose: the reef is meant to be your engine.</li>
           <li>The <b>phase pays on top</b>: <span class="num">0</span> on a drained flat, <span class="num">+${cfg.tideEnergy.rising}</span> on the flood, <span class="num">+${cfg.tideEnergy.high}</span> at high water, <span class="num">0</span> on the drain.</li>
           <li>Unspent energy <b>carries over</b>, up to <span class="num">${cfg.carryOverCap}</span>. Bank through a lean phase, dump on the flood.</li>
           <li>Cards on your board that generate energy add theirs at the start of your turn.</li>
+          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">${cfg.conservationIncomePer}</span> distinct species in it.</li>
+        </ul>
+      </div>
+
+      <div class="rule">
+        <h4>Conservation</h4>
+        <ul>
+          <li>A species that has survived a <b>complete tide cycle</b> on your reef can be <b>released</b> back to the wild.</li>
+          <li>It leaves the board for good into your <b>conservation pile</b> &mdash; neither board nor discard, and the one place a card leaves play as an asset.</li>
+          <li>Only <span class="num">${cfg.releasesPerTurn}</span> goes back per turn, and releasing frees the board slot it held.</li>
+          <li>The pile scores <b>distinct species</b>: biodiversity, not volume. Conserve <span class="num">${cfg.conservationVictory}</span> of them and you <b>win outright</b>.</li>
         </ul>
       </div>
 

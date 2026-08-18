@@ -3,11 +3,14 @@
  *
  * The whole reason this client exists is that a terminal cannot show *why* a
  * card's numbers are what they are. So every card carries its breakdown: the
- * printed line, what the tide is doing to it, and what its neighbours are doing
- * to it, as separate, legible facts.
+ * base line, what the tide is doing to it, and what its neighbours are doing to
+ * it, as separate, legible facts.
+ *
+ * This is still only a summary of the current phase. Right-click (or long-press)
+ * opens `CardDetail`, which lays out the whole tide line at once.
  */
 
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import {
   getCard,
   type CardDefinition,
@@ -33,10 +36,17 @@ export interface CardViewProps {
   /** Highlighted because it is symbiotically linked to the hovered card. */
   linked?: boolean;
   facedown?: boolean;
+  /** Matured on your reef and eligible to be released this turn. */
+  releasable?: boolean;
   onClick?: () => void;
+  /** Open the full card. Bound to right-click and long-press, never to a tap. */
+  onInspect?: () => void;
   onHover?: (instanceId: string | null) => void;
   registerRef?: (instanceId: string, el: HTMLElement | null) => void;
 }
+
+/** How long a press must be held on touch before it counts as an inspect. */
+const LONG_PRESS_MS = 450;
 
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
@@ -55,11 +65,24 @@ export function CardView({
   state,
   linked = false,
   facedown = false,
+  releasable = false,
   onClick,
+  onInspect,
   onHover,
   registerRef,
 }: CardViewProps) {
   const def: CardDefinition = getCard(instance.definitionId);
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pressFired = useRef(false);
+
+  const cancelPress = () => {
+    if (pressTimer.current !== null) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
+  useEffect(() => cancelPress, []);
 
   if (facedown) {
     return <div className="card card--back" aria-label="Opponent card" />;
@@ -68,6 +91,10 @@ export function CardView({
   const tide = deltaLabel(stats.tideBonus);
   const symbiosis = deltaLabel(stats.symbiosisBonus);
   const interactive = state === 'playable' || state === 'ready' || state === 'target';
+  // Not `disabled`: a disabled button swallows pointer events, and inspecting a
+  // card has to work on every card — including the opponent's and your own spent
+  // ones. The click handler enforces playability instead.
+  const inert = !interactive && state !== 'selected';
 
   const classes = [
     'card',
@@ -75,6 +102,7 @@ export function CardView({
     `card--phase-${phase}`,
     linked ? 'is-linked' : '',
     stats.exposed ? 'is-exposed' : '',
+    releasable ? 'is-releasable' : '',
     def.type === 'structure' ? 'card--structure' : '',
   ]
     .filter(Boolean)
@@ -85,8 +113,31 @@ export function CardView({
       type="button"
       className={classes}
       style={{ '--phase': `var(--${phase})` } as CSSProperties}
-      onClick={onClick}
-      disabled={!interactive && state !== 'selected'}
+      onClick={() => {
+        // A long-press already opened the detail view; do not also play the card.
+        if (pressFired.current) {
+          pressFired.current = false;
+          return;
+        }
+        if (!inert) onClick?.();
+      }}
+      onContextMenu={(e) => {
+        if (!onInspect) return;
+        e.preventDefault();
+        onInspect();
+      }}
+      onPointerDown={(e) => {
+        if (!onInspect || e.pointerType !== 'touch') return;
+        pressFired.current = false;
+        pressTimer.current = setTimeout(() => {
+          pressFired.current = true;
+          onInspect();
+        }, LONG_PRESS_MS);
+      }}
+      onPointerUp={cancelPress}
+      onPointerCancel={cancelPress}
+      onPointerLeave={cancelPress}
+      aria-disabled={inert}
       onMouseEnter={() => onHover?.(instance.instanceId)}
       onMouseLeave={() => onHover?.(null)}
       onFocus={() => onHover?.(instance.instanceId)}
@@ -120,6 +171,11 @@ export function CardView({
             +{stats.energy} energy
           </span>
         )}
+        {releasable && (
+          <span className="tag tag--release" title="matured — can be released to conservation">
+            releasable
+          </span>
+        )}
         {def.traits?.map((t) => (
           <span key={t} className="tag tag--trait">
             {t}
@@ -140,8 +196,8 @@ export function CardView({
           {stats.attack}
         </span>
         <span className="card__breakdown">
-          <span className="card__printed">
-            printed {def.attack}/{def.health}
+          <span className="card__printed" title="the card's own stats, before tide and symbiosis">
+            base {def.attack}/{def.health}
           </span>
           {tide && (
             <span className="chip chip--tide" title={`${phase} tide`}>

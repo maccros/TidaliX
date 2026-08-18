@@ -120,6 +120,14 @@ function parseCommand(input: string, state: GameState): Command {
       };
     }
 
+    case 'r':
+    case 'release': {
+      const index = OWN_LABELS.indexOf(rest[0] ?? '');
+      const card = index === -1 ? undefined : me.board[index];
+      if (!card) return { kind: 'error', message: `No card '${rest[0] ?? '?'}' on your board.` };
+      return { kind: 'action', action: { type: 'RELEASE', player: YOU, instanceId: card.instanceId } };
+    }
+
     case '':
     case undefined:
       return { kind: 'error', message: '' };

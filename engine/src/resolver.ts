@@ -23,11 +23,20 @@ import type {
   GameState,
   PlayCardAction,
   PlayerId,
+  ReleaseAction,
   GameAction,
 } from './types.js';
 import { getCard } from './cards.js';
 import { cloneState, canAttack, opponentOf } from './state.js';
 import { effectiveStats, nextPhase, shouldAdvanceTide, statsFor } from './tide.js';
+import {
+  canReleaseThisTurn,
+  conservationIncome,
+  conservedSpecies,
+  energyCapFor,
+  isMature,
+  speciesIncome,
+} from './economy.js';
 
 function err(error: ActionErrorCode, message: string): ActionResult {
   return { ok: false, error, message };
@@ -67,8 +76,10 @@ function beginTurn(draft: GameState, events: GameEvent[]): void {
   // a lean phase is worth doing, not enough to hoard into a single blowout turn.
   const carried = Math.min(player.energy, draft.config.carryOverCap);
 
-  // The base ramp is the game's clock; the tide is what makes the economy move.
-  player.energyCap = Math.min(draft.round, draft.config.maxEnergyCap);
+  // Base capacity steps up once per *complete tide cycle*, not once per round.
+  // That is deliberate: a slow ceiling is what forces the reef to be the engine.
+  // Everything after this line is income the player built for themselves.
+  player.energyCap = energyCapFor(draft);
   player.energy = player.energyCap;
   events.push({
     type: 'ENERGY_GAINED',
@@ -88,15 +99,24 @@ function beginTurn(draft: GameState, events: GameEvent[]): void {
     events.push({ type: 'ENERGY_GAINED', player: player.id, amount: tideBonus, source: 'tide' });
   }
 
-  const cardBonus = player.board.reduce(
-    (sum, inst) => sum + statsFor(draft, inst).energy,
-    0,
-  );
+  const cardBonus = speciesIncome(draft, player.id);
   if (cardBonus > 0) {
     player.energy += cardBonus;
     events.push({ type: 'ENERGY_GAINED', player: player.id, amount: cardBonus, source: 'card' });
   }
 
+  const conservationBonus = conservationIncome(draft, player.id);
+  if (conservationBonus > 0) {
+    player.energy += conservationBonus;
+    events.push({
+      type: 'ENERGY_GAINED',
+      player: player.id,
+      amount: conservationBonus,
+      source: 'conservation',
+    });
+  }
+
+  player.releasesThisTurn = 0;
   for (const inst of player.board) inst.hasAttacked = false;
 
   draw(draft, player.id, events);
@@ -142,6 +162,8 @@ export function applyAction(state: GameState, action: GameAction): ActionResult 
       return playCard(state, action);
     case 'ATTACK':
       return attack(state, action);
+    case 'RELEASE':
+      return release(state, action);
     case 'END_TURN':
       return endTurn(state, action);
   }
@@ -175,6 +197,8 @@ function playCard(state: GameState, action: PlayCardAction): ActionResult {
 
   draftPlayer.energy -= def.cost;
   card.playedOnTurn = draft.turn;
+  // Stamped in tide steps so maturity survives a config change of tide pace.
+  card.playedOnTideStep = draft.tideStep;
   card.hasAttacked = false;
   draftPlayer.board.push(card);
 
@@ -315,6 +339,71 @@ function attack(state: GameState, action: AttackAction): ActionResult {
   return { ok: true, state: draft, events };
 }
 
+/**
+ * Release a matured species from the board back into the wild.
+ *
+ * The card goes to the conservation pile — a third destination that is neither
+ * the board nor the discard. It is out of play for good, but it is an asset
+ * rather than a loss: the pile pays a standing income and, filled far enough,
+ * it wins the game outright.
+ *
+ * Two guards keep this from being a free undo: the species must have survived a
+ * complete tide cycle, and only so many go back per turn. Releasing a damaged
+ * card is legal and costs you nothing extra — the animal is returned to the
+ * ocean, not to your hand, so there is nothing to heal.
+ */
+function release(state: GameState, action: ReleaseAction): ActionResult {
+  const player = state.players[action.player];
+  const index = player.board.findIndex((c) => c.instanceId === action.instanceId);
+  if (index === -1) {
+    return err('CARD_NOT_ON_BOARD', `Card ${action.instanceId} is not on your reef.`);
+  }
+
+  if (!canReleaseThisTurn(state, action.player)) {
+    return err(
+      'RELEASE_LIMIT_REACHED',
+      `You may release ${state.config.releasesPerTurn} species per turn.`,
+    );
+  }
+
+  const instance = player.board[index]!;
+  const def = getCard(instance.definitionId);
+  if (!isMature(state, instance)) {
+    const cycles = state.config.releaseMaturityCycles;
+    return err(
+      'NOT_MATURE',
+      `${def.name} must survive ${cycles} complete tide ${cycles === 1 ? 'cycle' : 'cycles'} before it can be released.`,
+    );
+  }
+
+  const draft = cloneState(state);
+  const events: GameEvent[] = [];
+  const draftPlayer = draft.players[action.player];
+  const [released] = draftPlayer.board.splice(index, 1);
+  const card = released!;
+
+  card.damage = 0;
+  card.playedOnTurn = null;
+  card.playedOnTideStep = null;
+  card.hasAttacked = false;
+  draftPlayer.conservation.push(card);
+  draftPlayer.releasesThisTurn += 1;
+
+  events.push({
+    type: 'SPECIES_RELEASED',
+    player: action.player,
+    instanceId: card.instanceId,
+    definitionId: card.definitionId,
+    conserved: conservedSpecies(draftPlayer),
+  });
+
+  // Losing a card off the board re-stats its neighbours: anything that was only
+  // standing because of the released species goes down with it.
+  sweepDeaths(draft, events);
+
+  return { ok: true, state: draft, events };
+}
+
 function endTurn(state: GameState, action: EndTurnAction): ActionResult {
   const draft = cloneState(state);
   const events: GameEvent[] = [];
@@ -324,6 +413,7 @@ function endTurn(state: GameState, action: EndTurnAction): ActionResult {
   if (shouldAdvanceTide(draft)) {
     const from = draft.phase;
     draft.phase = nextPhase(from);
+    draft.tideStep += 1;
     events.push({ type: 'TIDE_CHANGED', from, to: draft.phase });
     // The new phase re-stats both boards; anything whose ceiling fell below its
     // marked damage drowns (or dries out) right here.
@@ -395,15 +485,35 @@ function damagePlayer(
   checkWinner(draft, events);
 }
 
+/**
+ * Resolve both win conditions.
+ *
+ * Life is checked first, so a player who is already dead cannot be saved by a
+ * pile they filled on the same beat. Conservation is checked second and works
+ * the same way: fill the pile far enough and you have won, whatever the board
+ * looks like. Both are evaluated for both players at once, so a genuine tie is
+ * a draw rather than an ordering accident.
+ */
 function checkWinner(draft: GameState, events: GameEvent[]): void {
   if (draft.winner !== undefined) return;
   const [a, b] = draft.players;
+
   const aDead = a.life <= 0;
   const bDead = b.life <= 0;
-  if (!aDead && !bDead) return;
+  if (aDead || bDead) {
+    draft.winner = aDead && bDead ? null : aDead ? 1 : 0;
+    events.push({ type: 'GAME_OVER', winner: draft.winner, reason: 'life' });
+    return;
+  }
 
-  draft.winner = aDead && bDead ? null : aDead ? 1 : 0;
-  events.push({ type: 'GAME_OVER', winner: draft.winner });
+  const target = draft.config.conservationVictory;
+  if (target <= 0) return;
+  const aSaved = conservedSpecies(a) >= target;
+  const bSaved = conservedSpecies(b) >= target;
+  if (!aSaved && !bSaved) return;
+
+  draft.winner = aSaved && bSaved ? null : aSaved ? 0 : 1;
+  events.push({ type: 'GAME_OVER', winner: draft.winner, reason: 'conservation' });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -445,6 +555,14 @@ export function legalActions(state: GameState): GameAction[] {
         attackerId: attacker.instanceId,
         targetId,
       });
+    }
+  }
+
+  if (canReleaseThisTurn(state, player.id)) {
+    for (const inst of player.board) {
+      if (isMature(state, inst)) {
+        actions.push({ type: 'RELEASE', player: player.id, instanceId: inst.instanceId });
+      }
     }
   }
 

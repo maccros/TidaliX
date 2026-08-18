@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { applyAction, legalActions, startGame } from '../src/resolver.js';
-import { boardView, createGame, resetInstanceIds } from '../src/state.js';
+import { DEFAULT_CONFIG, boardView, createGame, resetInstanceIds } from '../src/state.js';
+import { conservedSpecies, energyIncome } from '../src/economy.js';
 import type {
   ActionResult,
   GameAction,
@@ -111,24 +112,45 @@ describe('game setup', () => {
 });
 
 describe('turn lifecycle', () => {
-  it('opens on turn one for player 0 with one energy and a fresh card', () => {
+  it('opens on turn one for player 0 with the starting cap and a fresh card', () => {
     const { state, events } = stackedGame([], []);
     expect(state.turn).toBe(1);
     expect(state.round).toBe(1);
     expect(state.activePlayer).toBe(0);
-    expect(state.players[0].energy).toBe(1);
+    expect(state.players[0].energy).toBe(DEFAULT_CONFIG.startingEnergyCap);
     expect(state.players[0].hand).toHaveLength(1);
     expect(events.map((e) => e.type)).toContain('CARD_DRAWN');
   });
 
-  it('ramps energy by one per round, shared across both players', () => {
+  it('raises the cap once per complete tide cycle, not once per round', () => {
+    // The tide steps once per round, so a cycle is four rounds — eight turns.
     let s = stackedGame([], []).state;
     const caps: number[] = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 12; i++) {
       caps.push(s.players[s.activePlayer].energyCap);
       s = must(s, { type: 'END_TURN', player: s.activePlayer }).state;
     }
-    expect(caps).toEqual([1, 1, 2, 2, 3, 3, 4, 4]);
+    // Rounds 1-4 sit at the starting cap; only when the cycle closes does it move.
+    expect(caps).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3]);
+  });
+
+  it('counts cycles off the tide, so a faster tide ramps the economy faster', () => {
+    let s = stackedGame([], [], { config: { tideAdvancesEvery: 'turn' } }).state;
+    const caps: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      caps.push(s.players[s.activePlayer].energyCap);
+      s = must(s, { type: 'END_TURN', player: s.activePlayer }).state;
+    }
+    // One phase per turn means a cycle closes every four turns, not every eight.
+    expect(caps).toEqual([2, 2, 2, 2, 3, 3, 3, 3, 4, 4]);
+  });
+
+  it('never raises the cap past its ceiling', () => {
+    let s = stackedGame([], [], { config: { tideAdvancesEvery: 'turn', maxEnergyCap: 3 } }).state;
+    for (let i = 0; i < 30; i++) {
+      s = must(s, { type: 'END_TURN', player: s.activePlayer }).state;
+    }
+    expect(s.players[s.activePlayer].energyCap).toBe(3);
   });
 
   it('advances the tide once per round by default, not once per turn', () => {
@@ -151,13 +173,13 @@ describe('turn lifecycle', () => {
     expect(seen).toEqual(['low', 'rising', 'high', 'falling']);
   });
 
-  it('pays the flood bonus on top of the ramp, and carries unspent plankton', () => {
+  it('pays the flood bonus on top of the cap, and carries unspent plankton', () => {
     const s = until(stackedGame([], []).state, (g) => g.phase === 'rising');
     const active = s.players[s.activePlayer];
     expect(s.round).toBe(2);
-    expect(active.energyCap).toBe(2); // the round ramp
-    // 2 ramp + 1 carried from an unspent turn 1 + 2 from the flood.
-    expect(active.energy).toBe(5);
+    expect(active.energyCap).toBe(2); // still the starting cap — no cycle has closed
+    // 2 cap + 2 carried from an unspent turn 1 + 2 from the flood.
+    expect(active.energy).toBe(6);
     expect(s.config.tideEnergy.rising).toBe(2);
   });
 
@@ -231,7 +253,7 @@ describe('playing cards', () => {
 
     expect(next.players[0].hand).toHaveLength(0);
     expect(next.players[0].board.map((c) => c.instanceId)).toEqual([card.instanceId]);
-    expect(next.players[0].energy).toBe(0);
+    expect(next.players[0].energy).toBe(state.players[0].energy - 1);
     expect(events).toContainEqual(
       expect.objectContaining({ type: 'CARD_PLAYED', definitionId: 'clown-anemonefish' }),
     );
@@ -272,7 +294,8 @@ describe('playing cards', () => {
 
   it('refuses to overfill the reef', () => {
     let s = stackedGame([], [], { config: { startingHandSize: 0, maxBoardSize: 1 } }).state;
-    s = until(s, canAct(0, 2));
+    // Two cheap cards in hand and the energy for both, so only the board can refuse.
+    s = until(s, (g) => canAct(0, 2)(g) && g.players[0].hand.length >= 2);
     const first = s.players[0].hand[0]!;
     s = must(s, { type: 'PLAY_CARD', player: 0, instanceId: first.instanceId }).state;
     const second = s.players[0].hand[0]!;
@@ -525,7 +548,7 @@ describe('win conditions', () => {
 
     expect(after.players[1].life).toBeLessThanOrEqual(0);
     expect(after.winner).toBe(0);
-    expect(events).toContainEqual({ type: 'GAME_OVER', winner: 0 });
+    expect(events).toContainEqual({ type: 'GAME_OVER', winner: 0, reason: 'life' });
     expectError(applyAction(after, { type: 'END_TURN', player: 0 }), 'GAME_OVER');
   });
 });
