@@ -195,6 +195,22 @@ barracuda does not. Set `config.defenderStrikesBack` to restore mutual trades.
 Exposure amplifies spines too — attacking with a stranded card into a spined one
 is doubly punishing, which is the point of the vulnerability window.
 
+### Toxins
+
+Three animals are printed **`toxic`**: the blackspotted puffer, the red lionfish
+and the crown-of-thorns starfish. Destroy one by attacking it and your attacker
+dies too — *eating* it is what kills you. The rule is deliberately narrow, and
+the edges are the design:
+
+- It fires only on a **kill**. Wounding a toxic animal costs you nothing extra.
+- It is **defensive**. A toxic animal that attacks and kills poisons nothing,
+  because nothing swallowed it.
+- It cannot be **out-healed**. The toxin is marked on the instance, not dealt as
+  damage, so no aura or rising tide saves the eater.
+- Three predators are printed **`toxin-immune`** — the coral grouper, the giant
+  moray and the green sea turtle, all of which really do eat toxic prey. Immunity
+  is to the venom, not to the wound: they still take spines.
+
 ## Symbiosis
 
 Cards carry biological **traits** (`coral`, `reef-fish`, `megafauna`, `anemone`,
@@ -205,9 +221,15 @@ other:
 | | |
 |---|---|
 | Anemone ↔ anemonefish | The anemone gives its resident `+0/+2`; the fish gives back `+1/+0` by driving off polyp-eaters. |
-| Corals → reef fish | Staghorn and table coral each shelter reef fish for `+0/+1`, and they stack. |
+| Staghorn coral → reef fish | `+0/+2`. A nursery of branches nothing large can reach into. |
+| Table coral → reef fish | `+1/+1`. Shade is somewhere to hunt from as well as hide in. |
+| Coral ↔ coral | `+0/+1` each way. The reef is a structure two corals build together, so stacking them is a plan rather than a duplicate. |
 | Cleaner wrasse → megafauna | `+0/+2` to every manta, shark and turtle you control. |
 | Crown-of-thorns → coral | `+0/-3`. A real relationship, and not a kind one. |
+
+The corals carry the archetype: they also pay energy on the flood as well as at
+high water, and gain health at high tide. They are still the first thing to bake
+when the flat drains, and a crown-of-thorns still eats them alive.
 
 Auras are friendly-only and never apply to the card itself. Because they change
 a card's ceiling, a card can now **die when its partner dies** — the same failure
@@ -223,25 +245,48 @@ the only place a card leaves play as an asset rather than a loss.
 | | |
 |---|---|
 | **It frees the slot** | The reef holds six. Releasing is the only way to take a species back off it, so a board full of matured animals is a resource, not a lock-up. |
-| **It pays** | The pile is scored on **distinct species**, and every `config.conservationIncomePer` (1) of them is `+1` standing energy every turn, for the rest of the game. Biodiversity, not volume: six clownfish is one species conserved. |
-| **It wins** | Conserve `config.conservationVictory` (5) distinct species and you win outright, whatever the board looks like. |
+| **It pays** | The pile is scored on **distinct lineages**, and every `config.conservationIncomePer` (1) of them is `+1` standing energy every turn, for the rest of the game. |
+| **It wins** | Protect `config.conservationVictory` (5) distinct lineages and you win outright, whatever the board looks like. |
 
 The guards are what keep it from being an undo button: a species must live
 through a whole cycle before it can go, and only one goes back per turn.
 
-Five is tuned against a player who is actually building for it. Measured over 80
-games, such a player wins by conservation about **half** the time, and the
-condition never fires by accident — a bot that merely values the pile alongside
-everything else finishes it 0–2% of the time. The curve is steep, so re-measure
-after any change to game length: at six a committed player wins 30% of the time,
-at four 75%, at three over 90% — which stops being a second path and starts
-being the only one.
+### Lineages, not names
 
-The income pays per species rather than per pair for the same reason. At one
-per pair it was very nearly decorative — 3.6 energy across an entire game, 9% of
-a player's income, and not arriving until round 7.7 in games that end around
-round 9. Per species it pays 8.5 (20% of income), lands a round earlier, and
-makes every individual release felt, without shifting who wins.
+Every card carries exactly one **`taxon`** — fish, sharks & rays, crustaceans,
+echinoderms, cephalopods, molluscs, corals & anemones, reptiles — and the pile is
+scored on how many *different* ones are in it. A trait says how an animal
+behaves and can be worn several at once; a taxon says what it is, and it is
+singular on purpose. Six different reef fish are one branch of the tree
+protected, and a reef with only fish in it is not a reef anyone saved. Getting
+paid means going out and protecting a crab, a coral, an urchin, an octopus —
+animals that want completely different things from the tide.
+
+### What the numbers actually do
+
+Measured over 100 games against a player committed to the pile, the move from
+species to lineages costs that player **nothing**: their pile scores 1.51 cards,
+1.51 species and 1.51 lineages, because a committed player never releases two
+animals of the same branch anyway. The metric changes what a *careless* pile is
+worth, which is the point, and leaves a deliberate one untouched.
+
+What limits the pile is **time**, not the metric. Maturity is a full cycle (4
+tide steps) and only one species goes back per turn, against a game that ends
+around round 7.7 — so there is physically room for about three releases, and
+three is the peak observed. Five is therefore currently out of reach, and was
+before this change too:
+
+| Starting life | Mean rounds | Mean lineages | Peak | Pile wins |
+|---|---|---|---|---|
+| 25 (default) | 7.8 | 1.50 | 3 | 0% |
+| 40 | 9.7 | 2.07 | 4 | 0% |
+| 60 | 11.8 | 2.48 | 5 | 2% |
+
+Raising how much the bot *wants* the pile from weight 40 to 200 moves those
+numbers not at all — it is already taking every release the clock allows. Closing
+the gap is a game-length decision (starting life, maturity cycles, or releases
+per turn), not a tweak to the victory number, so the number is left as it stands
+and the finding recorded here.
 
 Reachability depends heavily on **how aggressive the opponent is**, which is
 worth knowing before retuning any of these numbers. The placeholder bot weights
@@ -257,7 +302,8 @@ high-water residents, drain ambushers, the armed and venomous, and the reef
 structures themselves. Every card carries its binomial name, and its tide line
 has to match the animal — if they disagree, the card is wrong.
 
-Implemented keywords are `surge` (may attack the turn it is played) and
+Implemented keywords are `surge` (may attack the turn it is played),
+`toxic`, `toxin-immune`, and
 `reef-guard` (must be dealt with before anything behind it). Both are resolved
 by the engine; the keyword list is kept honest so there is no dead card text.
 

@@ -26,7 +26,15 @@ export type CardState =
   | 'ready'
   | 'selected'
   | 'target'
-  | 'spent';
+  /** Has attacked already this turn. */
+  | 'spent'
+  /**
+   * Has no attack to spend in the first place — a coral, an anemone, the clam.
+   * Kept distinct from `spent` because these are the cards that hold the reef's
+   * symbiosis together, and dimming them like used-up attackers hid every
+   * relationship on the board behind the cards that grant them.
+   */
+  | 'support';
 
 export interface CardViewProps {
   instance: CardInstance;
@@ -90,6 +98,8 @@ export function CardView({
 
   const tide = deltaLabel(stats.tideBonus);
   const symbiosis = deltaLabel(stats.symbiosisBonus);
+  const toxic = def.keywords?.includes('toxic') ?? false;
+  const immune = def.keywords?.includes('toxin-immune') ?? false;
   const interactive = state === 'playable' || state === 'ready' || state === 'target';
   // Not `disabled`: a disabled button swallows pointer events, and inspecting a
   // card has to work on every card — including the opponent's and your own spent
@@ -103,6 +113,8 @@ export function CardView({
     linked ? 'is-linked' : '',
     stats.exposed ? 'is-exposed' : '',
     releasable ? 'is-releasable' : '',
+    toxic ? 'is-toxic' : '',
+    instance.poisoned ? 'is-poisoned' : '',
     def.type === 'structure' ? 'card--structure' : '',
   ]
     .filter(Boolean)
@@ -143,7 +155,15 @@ export function CardView({
       onFocus={() => onHover?.(instance.instanceId)}
       onBlur={() => onHover?.(null)}
       ref={(el) => registerRef?.(instance.instanceId, el)}
-      aria-label={`${def.name}, ${stats.attack} attack, ${stats.health} health`}
+      aria-label={[
+        def.name,
+        `${stats.attack} attack`,
+        `${stats.health} health`,
+        toxic ? 'toxic' : '',
+        state === 'support' ? 'no attack this phase' : '',
+      ]
+        .filter(Boolean)
+        .join(', ')}
     >
       <header className="card__top">
         <span className="card__cost">{def.cost}</span>
@@ -164,6 +184,16 @@ export function CardView({
         {stats.spines > 0 && (
           <span className="tag tag--spines" title="damages anything that attacks it">
             spines {stats.spines}
+          </span>
+        )}
+        {toxic && (
+          <span className="tag tag--toxic" title="kills whatever destroys it in combat, unless that animal is immune">
+            toxic
+          </span>
+        )}
+        {immune && (
+          <span className="tag tag--immune" title="can destroy a toxic animal and survive it">
+            toxin-immune
           </span>
         )}
         {stats.energy > 0 && (
@@ -212,6 +242,11 @@ export function CardView({
           {stats.exposed && (
             <span className="chip chip--exposed" title="takes +1 damage from attacks">
               exposed
+            </span>
+          )}
+          {instance.poisoned && (
+            <span className="chip chip--poisoned" title="poisoned — it dies as the board settles">
+              poisoned
             </span>
           )}
         </span>

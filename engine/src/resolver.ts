@@ -26,16 +26,15 @@ import type {
   ReleaseAction,
   GameAction,
 } from './types.js';
-import { getCard } from './cards.js';
+import { getCard, isToxic, isToxinImmune } from './cards.js';
 import { cloneState, canAttack, opponentOf } from './state.js';
 import { effectiveStats, nextPhase, shouldAdvanceTide, statsFor } from './tide.js';
 import {
   canReleaseThisTurn,
-  conservationIncome,
-  conservedSpecies,
+  conservedCount,
   energyCapFor,
+  energyIncome,
   isMature,
-  speciesIncome,
 } from './economy.js';
 
 function err(error: ActionErrorCode, message: string): ActionResult {
@@ -72,49 +71,31 @@ function beginTurn(draft: GameState, events: GameEvent[]): void {
     phase: draft.phase,
   });
 
-  // Unspent plankton keeps, but only so much of it — enough that banking through
-  // a lean phase is worth doing, not enough to hoard into a single blowout turn.
-  const carried = Math.min(player.energy, draft.config.carryOverCap);
+  // Income is not re-derived here. `energyIncome` is asked what is owed and the
+  // resolver pays exactly that, line by line — the same call the client shows
+  // the player. Two implementations of "what do I earn" is one implementation
+  // too many, and the one on screen is the one that gets trusted.
+  //
+  // It has to be asked *before* the bank is touched, because the carried line
+  // reads whatever is still unspent from last turn.
+  const income = energyIncome(draft, player.id);
 
   // Base capacity steps up once per *complete tide cycle*, not once per round.
   // That is deliberate: a slow ceiling is what forces the reef to be the engine.
-  // Everything after this line is income the player built for themselves.
   player.energyCap = energyCapFor(draft);
-  player.energy = player.energyCap;
-  events.push({
-    type: 'ENERGY_GAINED',
-    player: player.id,
-    amount: player.energyCap,
-    source: 'turn',
-  });
-
-  if (carried > 0) {
-    player.energy += carried;
-    events.push({ type: 'ENERGY_GAINED', player: player.id, amount: carried, source: 'carried' });
-  }
-
-  const tideBonus = draft.config.tideEnergy[draft.phase];
-  if (tideBonus > 0) {
-    player.energy += tideBonus;
-    events.push({ type: 'ENERGY_GAINED', player: player.id, amount: tideBonus, source: 'tide' });
-  }
-
-  const cardBonus = speciesIncome(draft, player.id);
-  if (cardBonus > 0) {
-    player.energy += cardBonus;
-    events.push({ type: 'ENERGY_GAINED', player: player.id, amount: cardBonus, source: 'card' });
-  }
-
-  const conservationBonus = conservationIncome(draft, player.id);
-  if (conservationBonus > 0) {
-    player.energy += conservationBonus;
+  player.energy = 0;
+  for (const line of income.lines) {
+    player.energy += line.amount;
     events.push({
       type: 'ENERGY_GAINED',
       player: player.id,
-      amount: conservationBonus,
-      source: 'conservation',
+      amount: line.amount,
+      source: line.source,
     });
   }
+  // The receipt, kept so the player can be shown what they actually collected
+  // this turn beside what they are projected to collect next turn.
+  player.incomeThisTurn = income.lines;
 
   player.releasesThisTurn = 0;
   for (const inst of player.board) inst.hasAttacked = false;
@@ -302,6 +283,27 @@ function attack(state: GameState, action: AttackAction): ActionResult {
       cause: 'attack',
     });
 
+    // Eating something toxic kills you. This is settled here, at the moment of
+    // the kill, rather than left to the sweep: whether the defender died is a
+    // fact about *this* attack, and by the time the board is swept a falling
+    // tide or a lost aura could have killed it instead — which is not eating it.
+    //
+    // Defensive only. A toxic card that attacks and kills poisons nothing,
+    // because nothing swallowed it. And no amount of healing saves the eater:
+    // the toxin is marked on the instance, not dealt as damage.
+    if (
+      isToxic(draftTarget.definitionId) &&
+      !isToxinImmune(draftAttacker.definitionId) &&
+      targetStats.health - dealt <= 0
+    ) {
+      draftAttacker.poisoned = true;
+      events.push({
+        type: 'SPECIES_POISONED',
+        sourceId: draftTarget.instanceId,
+        victimId: draftAttacker.instanceId,
+      });
+    }
+
     // Only armed animals hit back. A defender's body is not a weapon: spines,
     // nematocysts and venom are, and they are printed on the card that has them.
     // Both sources land even if the defender is dying — a puffer that dies still
@@ -386,6 +388,7 @@ function release(state: GameState, action: ReleaseAction): ActionResult {
   card.playedOnTurn = null;
   card.playedOnTideStep = null;
   card.hasAttacked = false;
+  card.poisoned = false;
   draftPlayer.conservation.push(card);
   draftPlayer.releasesThisTurn += 1;
 
@@ -394,7 +397,7 @@ function release(state: GameState, action: ReleaseAction): ActionResult {
     player: action.player,
     instanceId: card.instanceId,
     definitionId: card.definitionId,
-    conserved: conservedSpecies(draftPlayer),
+    conserved: conservedCount(draftPlayer),
   });
 
   // Losing a card off the board re-stats its neighbours: anything that was only
@@ -452,13 +455,18 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
       for (const inst of player.board) {
         // Stats are measured against the board as it stands at the start of this
         // pass, so simultaneous deaths resolve together rather than in order.
-        if (effectiveStats(inst, draft.phase, getCard(inst.definitionId), player.board).health <= 0) {
+        const outOfHealth =
+          effectiveStats(inst, draft.phase, getCard(inst.definitionId), player.board).health <= 0;
+        // A toxin is not damage and cannot be out-healed: once marked, the card
+        // is dead on the next sweep whatever its health has since become.
+        if (outOfHealth || inst.poisoned) {
           player.discard.push(inst);
           events.push({
             type: 'CARD_DESTROYED',
             instanceId: inst.instanceId,
             definitionId: inst.definitionId,
             owner: inst.owner,
+            cause: inst.poisoned ? 'toxin' : 'damage',
           });
           killedSomething = true;
         } else {
@@ -508,8 +516,8 @@ function checkWinner(draft: GameState, events: GameEvent[]): void {
 
   const target = draft.config.conservationVictory;
   if (target <= 0) return;
-  const aSaved = conservedSpecies(a) >= target;
-  const bSaved = conservedSpecies(b) >= target;
+  const aSaved = conservedCount(a) >= target;
+  const bSaved = conservedCount(b) >= target;
   if (!aSaved && !bSaved) return;
 
   draft.winner = aSaved && bSaved ? null : aSaved ? 0 : 1;

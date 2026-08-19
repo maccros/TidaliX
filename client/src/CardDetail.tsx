@@ -13,6 +13,7 @@
 
 import { useEffect, useRef } from 'react';
 import {
+  TAXON_LABEL,
   TIDE_CYCLE,
   effectiveStats,
   getCard,
@@ -34,7 +35,15 @@ export interface CardDetailProps {
   /** Where the card is, which decides what is worth explaining. */
   zone: 'hand' | 'board' | 'conservation';
   /** Release readiness, for a card on your own board. */
-  release?: { mature: boolean; stepsRemaining: number; allowedThisTurn: boolean } | null;
+  release?: {
+    mature: boolean;
+    stepsRemaining: number;
+    allowedThisTurn: boolean;
+    /** Whether this card's lineage is already in the pile. */
+    lineageHeld: boolean;
+    /** Standing income the pile would pay after releasing it. */
+    incomeAfter: number;
+  } | null;
   onClose: () => void;
 }
 
@@ -78,6 +87,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           <span className="detail__title">
             <b className="detail__name">{def.name}</b>
             <i className="detail__species">{def.species}</i>
+            <span className="detail__taxon">{TAXON_LABEL[def.taxon]}</span>
           </span>
           <button
             type="button"
@@ -163,6 +173,26 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </section>
         )}
 
+        {(def.keywords?.includes('toxic') || def.keywords?.includes('toxin-immune')) && (
+          <section className="detail__section">
+            <h3 className="detail__h">Toxin</h3>
+            {def.keywords?.includes('toxic') && (
+              <p className="detail__toxin">
+                <b>Toxic.</b> Anything that destroys this animal by attacking it dies too —
+                eating it is what kills you. A predator with <em>toxin-immune</em> is the
+                exception, and so is anything that merely wounds it: the toxin only answers a
+                kill.
+              </p>
+            )}
+            {def.keywords?.includes('toxin-immune') && (
+              <p className="detail__toxin">
+                <b>Toxin-immune.</b> It can destroy a <em>toxic</em> animal and swim away. Spines
+                still hurt it — immunity is to the venom, not to the wound.
+              </p>
+            )}
+          </section>
+        )}
+
         {def.auras && def.auras.length > 0 && (
           <section className="detail__section">
             <h3 className="detail__h">Symbiosis it offers</h3>
@@ -210,17 +240,29 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
             <p className="detail__release">
               {release.mature ? (
                 release.allowedThisTurn ? (
-                  <span className="good">
-                    Ready to release — it has survived a complete tide cycle.
-                  </span>
+                  <span className="good">Ready to release.</span>
                 ) : (
                   <span>Ready, but you have already released a species this turn.</span>
                 )
               ) : (
                 <>
                   Needs {release.stepsRemaining} more tide{' '}
-                  {release.stepsRemaining === 1 ? 'phase' : 'phases'} on the reef before it can
-                  be released.
+                  {release.stepsRemaining === 1 ? 'phase' : 'phases'} on the reef first.
+                </>
+              )}
+            </p>
+            {/* What the release is worth, which is the part that is easy to get
+                wrong: the pile pays for lineages, so a second fish pays nothing. */}
+            <p className="detail__lineage">
+              {release.lineageHeld ? (
+                <>
+                  You already protect <b>{TAXON_LABEL[def.taxon]}</b>. Releasing this adds a
+                  species to the pile but no income — the pile pays per lineage.
+                </>
+              ) : (
+                <>
+                  A lineage you do not hold: <b>{TAXON_LABEL[def.taxon]}</b>. Releasing it takes
+                  the pile&rsquo;s standing income to <b>+{release.incomeAfter} energy a turn</b>.
                 </>
               )}
             </p>
@@ -230,7 +272,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
         {zone === 'conservation' && (
           <section className="detail__section">
             <p className="detail__release good">
-              Released back to the wild. It counts toward your conservation score.
+              Released back to the wild, protecting the <b>{TAXON_LABEL[def.taxon]}</b> lineage.
             </p>
           </section>
         )}

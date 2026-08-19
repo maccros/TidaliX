@@ -25,17 +25,33 @@ export type {
   GameConfig,
   GameEvent,
   GameState,
+  EnergyIncome,
+  EnergyIncomeLine,
   Keyword,
   PlayCardAction,
   PlayerId,
   PlayerState,
   ReleaseAction,
   RngState,
+  Taxon,
   TideEffect,
   TidePhase,
 } from './types.js';
 
-export { CARDS, getCard, hasCard, cardsFavouring, traitsOf, activeSymbioses } from './cards.js';
+export { TAXON_LABEL } from './types.js';
+
+export {
+  CARDS,
+  activeSymbioses,
+  allTaxa,
+  cardsFavouring,
+  getCard,
+  hasCard,
+  isToxic,
+  isToxinImmune,
+  taxonOf,
+  traitsOf,
+} from './cards.js';
 
 export {
   TIDE_CYCLE,
@@ -44,26 +60,31 @@ export {
   effectiveStats,
   isDead,
   nextPhase,
+  phaseAtTurnOf,
   shouldAdvanceTide,
   statsFor,
   symbiosisFor,
   tideEffectFor,
+  tideStepsUntilTurnOf,
 } from './tide.js';
 export type { EffectiveStats } from './tide.js';
 
 export {
   canReleaseThisTurn,
   conservationIncome,
+  conservedCount,
   conservedSpecies,
+  conservedTaxa,
   cyclesOnBoard,
   energyCapFor,
   energyIncome,
   isMature,
+  nextTurnIncome,
   speciesIncome,
   speciesIncomeSources,
   stepsUntilMature,
+  taxaToNextIncome,
 } from './economy.js';
-export type { EnergyIncome, EnergyIncomeLine } from './economy.js';
 
 export { nextRandom, nextInt, shuffle } from './rng.js';
 

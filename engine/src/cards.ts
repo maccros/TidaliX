@@ -9,7 +9,7 @@
  * Design rule: if a card's tide line contradicts the animal, fix the card.
  */
 
-import type { Aura, CardDefinition, TidePhase, Trait } from './types.js';
+import type { Aura, CardDefinition, Taxon, TidePhase, Trait } from './types.js';
 
 export const CARDS: readonly CardDefinition[] = [
   /* ---------------------------------------------------------------- */
@@ -20,6 +20,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Atlantic Mudskipper',
     species: 'Periophthalmus barbarus',
     type: 'creature',
+    taxon: 'fish',
     cost: 1,
     attack: 1,
     health: 2,
@@ -35,6 +36,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Sally Lightfoot Crab',
     species: 'Grapsus grapsus',
     type: 'creature',
+    taxon: 'crustacean',
     cost: 2,
     attack: 2,
     health: 2,
@@ -51,6 +53,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Horn-eyed Ghost Crab',
     species: 'Ocypode ceratophthalma',
     type: 'creature',
+    taxon: 'crustacean',
     cost: 3,
     attack: 3,
     health: 2,
@@ -67,6 +70,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Common Octopus',
     species: 'Octopus vulgaris',
     type: 'creature',
+    taxon: 'cephalopod',
     cost: 4,
     attack: 3,
     health: 4,
@@ -82,6 +86,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Rock-boring Urchin',
     species: 'Echinometra mathaei',
     type: 'creature',
+    taxon: 'echinoderm',
     cost: 2,
     attack: 0,
     health: 5,
@@ -102,6 +107,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Peacock Mantis Shrimp',
     species: 'Odontodactylus scyllarus',
     type: 'creature',
+    taxon: 'crustacean',
     cost: 3,
     attack: 4,
     health: 2,
@@ -117,21 +123,24 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Coral Grouper',
     species: 'Plectropomus leopardus',
     type: 'creature',
+    taxon: 'fish',
     cost: 4,
     attack: 4,
     health: 4,
+    keywords: ['toxin-immune'],
     traits: ['reef-fish'],
     tide: {
       rising: { attack: 1 },
       high: { attack: 1 },
     },
-    text: 'Hunts the flooding channels, sometimes shoulder to shoulder with a moray.',
+    text: 'One of the few animals that will take a lionfish, spines and all.',
   },
   {
     id: 'mangrove-jack',
     name: 'Mangrove Jack',
     species: 'Lutjanus argentimaculatus',
     type: 'creature',
+    taxon: 'fish',
     cost: 3,
     attack: 3,
     health: 3,
@@ -147,6 +156,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Moorish Idol',
     species: 'Zanclus cornutus',
     type: 'creature',
+    taxon: 'fish',
     cost: 2,
     attack: 2,
     health: 2,
@@ -165,6 +175,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Reef Manta Ray',
     species: 'Mobula alfredi',
     type: 'creature',
+    taxon: 'shark-ray',
     cost: 5,
     attack: 4,
     health: 6,
@@ -180,6 +191,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Blacktip Reef Shark',
     species: 'Carcharhinus melanopterus',
     type: 'creature',
+    taxon: 'shark-ray',
     cost: 4,
     attack: 4,
     health: 3,
@@ -196,6 +208,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Whitetip Reef Shark',
     species: 'Triaenodon obesus',
     type: 'creature',
+    taxon: 'shark-ray',
     cost: 3,
     attack: 3,
     health: 3,
@@ -211,10 +224,11 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Green Sea Turtle',
     species: 'Chelonia mydas',
     type: 'creature',
+    taxon: 'reptile',
     cost: 5,
     attack: 3,
     health: 7,
-    keywords: ['reef-guard'],
+    keywords: ['reef-guard', 'toxin-immune'],
     traits: ['megafauna'],
     tide: {
       high: { health: 2 },
@@ -226,6 +240,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Bumphead Parrotfish',
     species: 'Bolbometopon muricatum',
     type: 'creature',
+    taxon: 'fish',
     cost: 6,
     attack: 6,
     health: 6,
@@ -241,6 +256,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Giant Trevally',
     species: 'Caranx ignobilis',
     type: 'creature',
+    taxon: 'fish',
     cost: 5,
     attack: 5,
     health: 4,
@@ -261,6 +277,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Great Barracuda',
     species: 'Sphyraena barracuda',
     type: 'creature',
+    taxon: 'fish',
     cost: 4,
     attack: 5,
     health: 2,
@@ -276,15 +293,17 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Giant Moray',
     species: 'Gymnothorax javanicus',
     type: 'creature',
+    taxon: 'fish',
     cost: 4,
     attack: 4,
     health: 4,
+    keywords: ['toxin-immune'],
     traits: ['reef-fish'],
     tide: {
       falling: { attack: 1 },
       low: { health: 1 },
     },
-    text: 'A second set of jaws in the throat drags the catch down whole.',
+    text: 'A second set of jaws in the throat drags the catch down whole, venom and all.',
   },
 
   /* ---------------------------------------------------------------- */
@@ -295,6 +314,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Clown Anemonefish',
     species: 'Amphiprion ocellaris',
     type: 'creature',
+    taxon: 'fish',
     cost: 1,
     attack: 1,
     health: 3,
@@ -317,6 +337,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Clown Triggerfish',
     species: 'Balistoides conspicillum',
     type: 'creature',
+    taxon: 'fish',
     cost: 3,
     attack: 3,
     health: 3,
@@ -332,6 +353,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Regal Blue Tang',
     species: 'Paracanthurus hepatus',
     type: 'creature',
+    taxon: 'fish',
     cost: 2,
     attack: 2,
     health: 3,
@@ -346,6 +368,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Bluestreak Cleaner Wrasse',
     species: 'Labroides dimidiatus',
     type: 'creature',
+    taxon: 'fish',
     cost: 2,
     attack: 1,
     health: 2,
@@ -372,6 +395,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Staghorn Coral',
     species: 'Acropora cervicornis',
     type: 'structure',
+    taxon: 'cnidarian',
     cost: 2,
     attack: 0,
     health: 5,
@@ -379,12 +403,18 @@ export const CARDS: readonly CardDefinition[] = [
     auras: [
       {
         affects: 'reef-fish',
+        grants: { health: 2 },
+        note: 'a nursery of branches nothing large can reach into',
+      },
+      {
+        affects: 'coral',
         grants: { health: 1 },
-        note: 'shelter in the branches',
+        note: 'cements onto the framework beside it',
       },
     ],
     tide: {
-      high: { energy: 1 },
+      rising: { energy: 1 },
+      high: { health: 1, energy: 1 },
       low: { exposed: true },
     },
     text: 'The fastest-growing branching coral on the reef, and the first to bleach.',
@@ -394,6 +424,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Bubble-tip Anemone',
     species: 'Entacmaea quadricolor',
     type: 'structure',
+    taxon: 'cnidarian',
     cost: 2,
     attack: 0,
     health: 4,
@@ -418,6 +449,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Giant Clam',
     species: 'Tridacna gigas',
     type: 'structure',
+    taxon: 'mollusc',
     cost: 3,
     attack: 0,
     health: 8,
@@ -437,24 +469,28 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Blackspotted Puffer',
     species: 'Arothron nigropunctatus',
     type: 'creature',
+    taxon: 'fish',
     cost: 3,
     attack: 2,
     health: 5,
+    keywords: ['toxic'],
     traits: ['reef-fish'],
     spines: 3,
     tide: {
       rising: { health: 1 },
     },
-    text: 'Swallows water until it is a spined ball nothing can get its jaws around.',
+    text: 'Carries enough tetrodotoxin in its liver to kill whatever swallows it.',
   },
   {
     id: 'red-lionfish',
     name: 'Red Lionfish',
     species: 'Pterois volitans',
     type: 'creature',
+    taxon: 'fish',
     cost: 4,
     attack: 4,
     health: 3,
+    keywords: ['toxic'],
     traits: ['reef-fish'],
     spines: 2,
     tide: {
@@ -468,9 +504,11 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Crown-of-thorns Starfish',
     species: 'Acanthaster planci',
     type: 'creature',
+    taxon: 'echinoderm',
     cost: 4,
     attack: 3,
     health: 6,
+    keywords: ['toxic'],
     traits: ['echinoderm'],
     spines: 3,
     auras: [
@@ -490,6 +528,7 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Table Coral',
     species: 'Acropora hyacinthus',
     type: 'structure',
+    taxon: 'cnidarian',
     cost: 4,
     attack: 0,
     health: 7,
@@ -497,12 +536,18 @@ export const CARDS: readonly CardDefinition[] = [
     auras: [
       {
         affects: 'reef-fish',
+        grants: { attack: 1, health: 1 },
+        note: 'a whole storey of shade to hunt out of',
+      },
+      {
+        affects: 'coral',
         grants: { health: 1 },
-        note: 'a whole storey of shade over the reef',
+        note: 'thickens the framework around it',
       },
     ],
     tide: {
-      high: { energy: 1 },
+      rising: { energy: 1 },
+      high: { health: 1, energy: 1 },
       low: { exposed: true },
     },
     text: 'Grows outward into a plate wide enough to shade a hundred fish.',
@@ -510,6 +555,33 @@ export const CARDS: readonly CardDefinition[] = [
 ];
 
 const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) => [c.id, c]));
+
+/** The lineage a card belongs to. What the conservation pile is scored on. */
+export function taxonOf(definitionId: string): Taxon {
+  return getCard(definitionId).taxon;
+}
+
+/** Every lineage the set contains, so a client can show the pile's full board. */
+export function allTaxa(): Taxon[] {
+  const seen = new Set<Taxon>();
+  for (const c of CARDS) seen.add(c.taxon);
+  return [...seen];
+}
+
+/**
+ * Whether eating this card kills the eater.
+ *
+ * Read off the definition rather than the instance: a toxin is printed on the
+ * animal, and nothing in the game grants or removes one.
+ */
+export function isToxic(definitionId: string): boolean {
+  return getCard(definitionId).keywords?.includes('toxic') ?? false;
+}
+
+/** Whether this card can eat a toxic one and walk away. */
+export function isToxinImmune(definitionId: string): boolean {
+  return getCard(definitionId).keywords?.includes('toxin-immune') ?? false;
+}
 
 /** All traits a card carries, for clients that group or filter by them. */
 export function traitsOf(definitionId: string): readonly Trait[] {

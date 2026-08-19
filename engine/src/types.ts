@@ -21,7 +21,15 @@ export type Keyword =
   /** May attack the turn it is played. */
   | 'surge'
   /** Enemies must attack this before anything else on its side. */
-  | 'reef-guard';
+  | 'reef-guard'
+  /**
+   * Eating this animal kills the eater. Any card that destroys it by attacking
+   * it is destroyed too, unless that card is `toxin-immune`. Purely defensive:
+   * a toxic card that attacks and kills poisons nobody, because nothing ate it.
+   */
+  | 'toxic'
+  /** Can eat a `toxic` card without dying for it. */
+  | 'toxin-immune';
 
 /**
  * Biological tags used to target symbiosis. A trait only earns its place here if
@@ -38,6 +46,37 @@ export type Trait =
   | 'echinoderm'
   | 'cephalopod'
   | 'mollusc';
+
+/**
+ * The lineage a species belongs to — one per card, and every card has one.
+ *
+ * This is what the conservation pile is scored on. A trait says how an animal
+ * *behaves* and can be worn several at once; a taxon says what it *is*, and it
+ * is singular on purpose: a pile of six reef fish is one lineage protected, no
+ * matter how many different fish they are. Real biodiversity is measured across
+ * branches of the tree, not across names on a list.
+ */
+export type Taxon =
+  | 'fish'
+  | 'shark-ray'
+  | 'crustacean'
+  | 'echinoderm'
+  | 'cephalopod'
+  | 'mollusc'
+  | 'cnidarian'
+  | 'reptile';
+
+/** Player-facing names for each lineage. */
+export const TAXON_LABEL: Record<Taxon, string> = {
+  fish: 'Fish',
+  'shark-ray': 'Sharks & rays',
+  crustacean: 'Crustaceans',
+  echinoderm: 'Echinoderms',
+  cephalopod: 'Cephalopods',
+  mollusc: 'Molluscs',
+  cnidarian: 'Corals & anemones',
+  reptile: 'Reptiles',
+};
 
 export interface StatBonus {
   attack?: number;
@@ -60,6 +99,25 @@ export type EnergySource =
   | 'card'
   /** Standing income from the conservation pile. */
   | 'conservation';
+
+/** One itemised line of a player's turn income. */
+export interface EnergyIncomeLine {
+  source: EnergySource;
+  amount: number;
+  /** Player-facing explanation of where this line came from. */
+  detail: string;
+}
+
+export interface EnergyIncome {
+  lines: EnergyIncomeLine[];
+  total: number;
+  /**
+   * The tide phase this income was (or will be) collected in. A projection is
+   * worthless without it: the whole point is that next turn's phase is not this
+   * turn's phase.
+   */
+  phase: TidePhase;
+}
 
 /**
  * A standing effect this card has on its neighbours — the symbiosis system.
@@ -100,6 +158,8 @@ export interface CardDefinition {
   /** Real binomial name. The whole set is built on actual marine species. */
   species: string;
   type: CardType;
+  /** The lineage this species belongs to. What the conservation pile scores. */
+  taxon: Taxon;
   cost: number;
   attack: number;
   health: number;
@@ -137,6 +197,12 @@ export interface CardInstance {
   playedOnTideStep: number | null;
   /** Whether it has already attacked during the current turn. */
   hasAttacked: boolean;
+  /**
+   * Marked when this card ate something toxic. It is dead the moment the board
+   * is next swept — no amount of healing or symbiosis saves it, which is the
+   * whole point of a toxin: it is not damage, it is a decision you already made.
+   */
+  poisoned: boolean;
 }
 
 export interface PlayerState {
@@ -153,13 +219,23 @@ export interface PlayerState {
    * Species released back to the wild. A third destination that is neither the
    * board nor the discard: these cards are out of play for good, but they are an
    * asset rather than a loss — they pay a standing income and they are a way to
-   * win. Scored by *distinct* species, so biodiversity beats volume.
+   * win. Scored by *distinct lineages*, so protecting a whole reef beats
+   * protecting one branch of it six times over.
    */
   conservation: CardInstance[];
   /** Releases already made this turn, against `config.releasesPerTurn`. */
   releasesThisTurn: number;
   /** Damage taken on the next draw from an empty deck. */
   fatigue: number;
+  /**
+   * What this player actually collected at the start of their current turn.
+   *
+   * A historical record rather than a derivation — it is the one economic fact
+   * the live state cannot reproduce, because by the time you look, the phase has
+   * moved and the board has changed. The client shows it beside the projection
+   * for next turn so the two are never confused for each other.
+   */
+  incomeThisTurn: EnergyIncomeLine[];
 }
 
 export interface GameConfig {
@@ -205,12 +281,13 @@ export interface GameConfig {
   /** Releases allowed per turn. One keeps the pile a slow, deliberate build. */
   releasesPerTurn: number;
   /**
-   * Distinct species in the conservation pile needed for each +1 of standing
-   * energy income. A protected reef feeds you.
+   * Distinct *lineages* in the conservation pile needed for each +1 of standing
+   * energy income. A protected reef feeds you — and it only counts as protected
+   * if you have protected more than one branch of it.
    */
   conservationIncomePer: number;
   /**
-   * Distinct species conserved to win outright. The second win condition: play
+   * Distinct lineages conserved to win outright. The second win condition: play
    * for damage, or play for the reef. Zero disables it.
    */
   conservationVictory: number;
@@ -312,13 +389,27 @@ export type GameEvent =
       cause: 'attack' | 'spines' | 'retaliation';
     }
   | { type: 'PLAYER_DAMAGED'; player: PlayerId; amount: number; life: number }
-  | { type: 'CARD_DESTROYED'; instanceId: string; definitionId: string; owner: PlayerId }
+  | {
+      type: 'SPECIES_POISONED';
+      /** The toxic card that was eaten. */
+      sourceId: string;
+      /** The eater, which is now dead whatever its health says. */
+      victimId: string;
+    }
+  | {
+      type: 'CARD_DESTROYED';
+      instanceId: string;
+      definitionId: string;
+      owner: PlayerId;
+      /** Whether it ran out of health or ate something it should not have. */
+      cause: 'damage' | 'toxin';
+    }
   | {
       type: 'SPECIES_RELEASED';
       player: PlayerId;
       instanceId: string;
       definitionId: string;
-      /** Distinct species in the pile after this release. */
+      /** Distinct lineages in the pile after this release. */
       conserved: number;
     }
   | {

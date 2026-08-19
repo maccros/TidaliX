@@ -105,6 +105,14 @@ button { font: inherit; color: inherit; }
 .tide__income { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-faint); }
 .tide__note { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }
 .tide__note b { color: var(--ink); text-transform: capitalize; }
+.tide__cycle {
+  margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline;
+  font-size: 0.72rem; color: var(--ink-faint);
+}
+.tide__cyclecount {
+  font-family: var(--mono); color: var(--accent); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
 
 /* ---- Table ---- */
 .table {
@@ -135,12 +143,14 @@ button { font: inherit; color: inherit; }
   pointer-events: none; z-index: 2; overflow: visible;
 }
 .symbiosis__link {
-  fill: none; stroke: var(--good); stroke-width: 2; stroke-linecap: round;
-  stroke-dasharray: 4 5; opacity: 0.75;
+  fill: none; stroke: var(--good); stroke-width: 2.5; stroke-linecap: round;
+  stroke-dasharray: 5 4; opacity: 0.95;
   animation: drift 1.6s linear infinite;
 }
 .symbiosis__link--harmful { stroke: var(--warn); }
-.symbiosis__link--dim { opacity: 0.16; animation: none; }
+/* Dimmed, not erased. A link you cannot see is a rule the player cannot learn,
+   so focusing one relationship must not hide the rest of the reef's wiring. */
+.symbiosis__link--dim { opacity: 0.34; animation: none; }
 @keyframes drift { to { stroke-dashoffset: -18; } }
 @media (prefers-reduced-motion: reduce) {
   .symbiosis__link { animation: none; }
@@ -174,8 +184,23 @@ button { font: inherit; color: inherit; }
   border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); transform: translateY(-3px);
 }
 .card--target { border-color: var(--warn); box-shadow: 0 0 0 2px var(--warn); cursor: crosshair; }
-.card--spent { opacity: 0.7; }
-.card.is-linked { box-shadow: 0 0 0 2px var(--good); }
+.card--spent { opacity: 0.62; }
+/*
+ * A card with no attack to give. It is not used up — it is the reef — so it
+ * keeps full contrast and takes a quiet green edge instead of being faded out
+ * along with the spent attackers. Every symbiosis on the board is granted by one
+ * of these, and dimming them dimmed the whole system.
+ */
+.card--support {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--good) 38%, var(--line));
+  background: color-mix(in srgb, var(--good) 5%, var(--surface));
+}
+.card--support .card__aura { font-weight: 600; }
+.card.is-linked {
+  box-shadow: 0 0 0 2px var(--good);
+  background: color-mix(in srgb, var(--good) 9%, var(--surface));
+}
 /* A matured species: quietly marked, never shouting over an attack prompt. */
 .card.is-releasable { border-color: color-mix(in srgb, var(--good) 65%, var(--line)); }
 .card[aria-disabled='true'] { cursor: default; }
@@ -184,6 +209,9 @@ button { font: inherit; color: inherit; }
     -45deg, transparent 0 6px, color-mix(in srgb, var(--warn) 13%, transparent) 6px 8px
   );
 }
+/* Marked so an attack can be reconsidered *before* it is declared. */
+.card.is-toxic { border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.card.is-poisoned { opacity: 0.55; filter: grayscale(0.5); }
 
 .card__top { display: flex; gap: 0.45rem; align-items: flex-start; }
 .card__cost {
@@ -210,6 +238,11 @@ button { font: inherit; color: inherit; }
   color: var(--good); border-color: var(--good);
   background: color-mix(in srgb, var(--good) 14%, transparent); font-weight: 700;
 }
+.tag--toxic {
+  color: var(--warn); border-color: var(--warn); font-weight: 700;
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
+}
+.tag--immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
 
 .card__aura {
   margin: 0; font-size: 0.62rem; color: var(--good);
@@ -240,6 +273,7 @@ button { font: inherit; color: inherit; }
 .chip--tide { background: color-mix(in srgb, var(--phase) 22%, transparent); color: var(--ink); }
 .chip--symbiosis { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--ink); }
 .chip--exposed { background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--warn); font-weight: 700; }
+.chip--poisoned { background: var(--warn); color: var(--surface); font-weight: 700; }
 
 /* ---- Player bars ---- */
 .player {
@@ -271,63 +305,117 @@ button { font: inherit; color: inherit; }
   background: var(--surface); border: 1px solid var(--line-soft);
 }
 
-.energy__head { display: flex; align-items: baseline; gap: 0.6rem; }
+.energy__head { display: flex; align-items: baseline; gap: 0.5rem; }
 .energy__now {
-  font-family: var(--mono); font-weight: 700; font-size: 1.15rem; color: var(--accent);
+  font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--accent);
 }
-.energy__next { font-size: 0.74rem; color: var(--ink-faint); font-family: var(--mono); }
+.energy__nowlabel { font-size: 0.72rem; color: var(--ink-faint); }
+
+/*
+ * Two blocks, deliberately unlike each other. The top one is history and the
+ * bottom one is a guess, and the whole reason the panel was rebuilt is that a
+ * player could not tell which number they were reading.
+ */
+.energy__block { border-top: 1px solid var(--line-soft); padding-top: 0.4rem; }
+.energy__block--next {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  padding-left: 0.5rem; margin-left: -0.1rem;
+}
+.energy__h {
+  margin: 0 0 0.25rem; font-size: 0.72rem; font-weight: 700; color: var(--ink-soft);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  display: flex; align-items: baseline; gap: 0.4rem;
+}
+.energy__sum {
+  margin-left: auto; font-family: var(--mono); font-size: 0.9rem; color: var(--accent);
+}
+.energy__phase { font-style: normal; text-transform: capitalize; color: var(--c, var(--accent)); }
+.energy__phase--low { --c: var(--low); }
+.energy__phase--rising { --c: var(--rising); }
+.energy__phase--high { --c: var(--high); }
+.energy__phase--falling { --c: var(--falling); }
 
 .energy__lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
 .energy__line {
-  display: grid; grid-template-columns: 2rem 7.5rem 1fr; gap: 0.4rem;
-  align-items: baseline; font-size: 0.74rem;
+  display: grid; grid-template-columns: 1.7rem auto 1fr; gap: 0.4rem; align-items: baseline;
+  font-size: 0.76rem;
 }
 .energy__amount {
-  font-family: var(--mono); font-weight: 700; text-align: right;
-  font-variant-numeric: tabular-nums; color: var(--accent);
+  font-family: var(--mono); font-weight: 700; text-align: right; color: var(--accent);
+  font-variant-numeric: tabular-nums;
 }
 .energy__label { font-weight: 600; }
 .energy__detail { color: var(--ink-faint); font-size: 0.7rem; }
-/* Each source gets its own accent so the eye can track one line across turns. */
+.energy__line--none { display: block; font-size: 0.72rem; color: var(--ink-faint); font-style: italic; }
+
 .energy__line--tide .energy__amount { color: var(--rising); }
 .energy__line--card .energy__amount { color: var(--high); }
 .energy__line--conservation .energy__amount { color: var(--good); }
 .energy__line--carried .energy__amount { color: var(--ink-faint); }
-.energy__ramp {
-  margin: 0.15rem 0 0; font-size: 0.7rem; color: var(--ink-faint);
-  border-top: 1px solid var(--line-soft); padding-top: 0.35rem;
+
+.energy__spent, .energy__caveat {
+  margin: 0.3rem 0 0; font-size: 0.68rem; color: var(--ink-faint); line-height: 1.4;
 }
-.energy__ramp b { color: var(--accent); font-family: var(--mono); }
 
 .conserve__head { display: flex; align-items: baseline; gap: 0.5rem; }
 .conserve__score {
-  font-family: var(--mono); font-weight: 700; font-size: 1.15rem; color: var(--good);
+  font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--good);
 }
 .conserve__score small { font-size: 0.75rem; color: var(--ink-faint); font-weight: 400; }
 .conserve__label { font-size: 0.74rem; color: var(--ink-faint); }
-.conserve__meter { display: flex; gap: 3px; }
-.conserve__pip {
-  flex: 1; height: 6px; border-radius: 3px;
-  background: var(--sunken); border: 1px solid var(--line-soft);
+.conserve__label small { display: block; font-size: 0.68rem; }
+
+/* Standing income reads as a rate, not as an event in the log. */
+.conserve__boost {
+  margin: 0; font-size: 0.76rem; color: var(--ink-soft); line-height: 1.4;
+  padding: 0.3rem 0.45rem; border-radius: var(--radius);
+  background: var(--sunken);
 }
-.conserve__pip.is-filled { background: var(--good); border-color: var(--good); }
-.conserve__pile {
+.conserve__boost.is-paying {
+  background: color-mix(in srgb, var(--good) 13%, var(--sunken));
+  color: var(--ink);
+}
+.conserve__boost b { color: var(--good); font-family: var(--mono); }
+.conserve__next { color: var(--ink-faint); }
+
+/* The eight branches of the tree. Held ones fill in; the rest are the ask. */
+.conserve__taxa {
   list-style: none; margin: 0; padding: 0;
-  display: flex; flex-wrap: wrap; gap: 0.25rem;
+  display: flex; flex-wrap: wrap; gap: 3px;
+}
+.conserve__taxon {
+  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 0.18em 0.4em; border-radius: 2px;
+  border: 1px dashed var(--line); color: var(--ink-faint);
+}
+.conserve__taxon.is-held {
+  border-style: solid; border-color: var(--good); color: var(--surface);
+  background: var(--good); font-weight: 700;
+}
+
+.conserve__pile {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem;
 }
 .conserve__entry {
-  border: 1px solid var(--line-soft); background: var(--sunken);
-  border-radius: 2px; padding: 0.08em 0.4em; cursor: pointer;
-  font-family: var(--serif); font-size: 0.7rem; color: var(--ink-soft);
+  font: inherit; font-size: 0.7rem; color: var(--ink-soft); cursor: pointer;
+  background: var(--sunken); border: 1px solid var(--line-soft); border-radius: 2px;
+  padding: 0.15rem 0.35rem;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.05rem;
+}
+.conserve__entrytaxon {
+  font-family: var(--mono); font-size: 0.52rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--good);
 }
 .conserve__entry:hover { color: var(--ink); border-color: var(--good); }
 .conserve__actions { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
 .conserve__prompt { font-size: 0.74rem; color: var(--ink-soft); }
-.btn--release {
-  padding: 0.2rem 0.55rem; font-size: 0.78rem;
-  border-color: var(--good); color: var(--good);
+.btn--release small {
+  display: block; font-family: var(--mono); font-size: 0.52rem; font-weight: 400;
+  text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85;
 }
-.btn--release:hover:not(:disabled) { background: color-mix(in srgb, var(--good) 14%, transparent); }
+/* A release that adds a lineage you do not hold is the one worth taking. */
+.btn--release-new { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+
 .conserve__hint { margin: 0; font-size: 0.7rem; color: var(--ink-faint); line-height: 1.4; }
 
 /* ---- Card detail ---- */
@@ -443,6 +531,7 @@ button { font: inherit; color: inherit; }
 .log__line--conserve { color: var(--good); font-weight: 700; }
 .log__line--death { color: var(--warn); }
 .log__line--spines { color: var(--warn); }
+.log__line--toxin { color: var(--warn); font-weight: 700; }
 .log__line--over { color: var(--ink); font-weight: 700; }
 .log__line--error { color: var(--warn); font-style: italic; }
 
@@ -450,3 +539,18 @@ button { font: inherit; color: inherit; }
   .card { width: 11rem; }
   .tide__track { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ---- Detail: lineage and toxin ---- */
+.detail__taxon {
+  font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--good); margin-top: 0.15rem;
+}
+.detail__toxin {
+  margin: 0 0 0.4rem; font-size: 0.8rem; line-height: 1.5; color: var(--ink-soft);
+  border-left: 2px solid var(--warn); padding-left: 0.55rem;
+}
+.detail__toxin b { color: var(--warn); }
+.detail__lineage {
+  margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.5; color: var(--ink-soft);
+}
+.detail__lineage b { color: var(--good); }

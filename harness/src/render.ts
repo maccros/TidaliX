@@ -12,9 +12,9 @@
 import {
   TIDE_CYCLE,
   boardView,
-  conservedSpecies,
+  conservedCount,
+  nextTurnIncome,
   effectiveStats,
-  energyIncome,
   getCard,
   type BoardCardView,
   type GameEvent,
@@ -110,6 +110,10 @@ const fmt = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 function tags(view: BoardCardView, showReady: boolean): string {
   const out: string[] = [];
   if (view.reefGuard) out.push(blue('reef-guard'));
+  // Toxicity has to be legible before an attack is declared, not after.
+  if (view.toxic) out.push(red('toxic'));
+  if (view.toxinImmune) out.push(green('immune'));
+  if (view.poisoned) out.push(red('POISONED'));
   if (showReady) out.push(view.canAttack ? green('ready') : dim('waiting'));
   // Only shown on your own side, where releasing is a move you can actually make.
   if (showReady) {
@@ -136,7 +140,7 @@ export function renderSide(
   const bonus = state.config.tideEnergy[state.phase];
   const flood =
     player === state.activePlayer && bonus > 0 ? dim(` (${p.energyCap} +${bonus} tide)`) : '';
-  const saved = conservedSpecies(p);
+  const saved = conservedCount(p);
   const conserved =
     saved > 0
       ? `   ${green(`❋ ${saved}`)}${dim(`/${state.config.conservationVictory}`)}`
@@ -154,14 +158,23 @@ export function renderSide(
 }
 
 /**
- * The energy income, itemised. The terminal cannot draw the client's panel, but
- * it can still refuse to show a bare total — five sources feed one number and
- * the player is owed the split.
+ * The energy income, itemised — this turn's receipt and next turn's forecast.
+ *
+ * The terminal cannot draw the client's panel, but it can still refuse to show a
+ * bare total, and it must not repeat the client's old mistake of labelling the
+ * *current* phase's figures "next turn". The forecast is priced in the phase the
+ * player's next turn will actually open in, and says which phase that is.
  */
 export function renderIncome(state: GameState, player: PlayerId): string {
-  const income = energyIncome(state, player);
-  const parts = income.lines.map((l) => `${l.source} +${l.amount}`);
-  return dim(`  income next turn: ${parts.join('  ')}  = ${income.total}`);
+  const collected = state.players[player].incomeThisTurn;
+  const next = nextTurnIncome(state, player);
+  const fmt = (lines: readonly { source: string; amount: number }[]) =>
+    lines.length > 0 ? lines.map((l) => `${l.source} +${l.amount}`).join('  ') : 'nothing';
+  const earned = collected.reduce((sum, l) => sum + l.amount, 0);
+  return [
+    dim(`  earned this turn:  ${fmt(collected)}  = ${earned}`),
+    dim(`  next turn (${next.phase}): ${fmt(next.lines)}  ≈ ${next.total}`),
+  ].join('\n');
 }
 
 /**

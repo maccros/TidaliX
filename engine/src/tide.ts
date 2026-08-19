@@ -9,6 +9,7 @@ import type {
   CardDefinition,
   CardInstance,
   GameState,
+  PlayerId,
   StatBonus,
   TideEffect,
   TidePhase,
@@ -160,4 +161,36 @@ export function shouldAdvanceTide(state: GameState): boolean {
 /** Complete tide cycles elapsed since the game opened. */
 export function cyclesCompleted(tideStep: number): number {
   return Math.floor(tideStep / TIDE_CYCLE.length);
+}
+
+/**
+ * How many times the tide will step forward before `playerId` next takes a turn.
+ *
+ * This is the piece that makes an income *projection* honest. A player planning
+ * their next turn is planning for a different phase than the one they are
+ * looking at, and how different depends on the tide pace: on `round` the tide
+ * steps only as player 1 hands the turn back, so both players open their next
+ * turn one phase along; on `turn` it steps at every hand-off, so your own next
+ * turn is two phases away while your opponent's is one.
+ *
+ * Counted by walking the turn order rather than by a table of special cases, so
+ * it stays correct if the pace rule ever grows a third option.
+ */
+export function tideStepsUntilTurnOf(state: GameState, playerId: PlayerId): number {
+  // Whoever is active must end their turn; if that is the player asking, the
+  // opponent takes a turn and ends it too before the asker comes back around.
+  const enders: PlayerId[] =
+    state.activePlayer === playerId
+      ? [playerId, playerId === 0 ? 1 : 0]
+      : [state.activePlayer];
+
+  if (state.config.tideAdvancesEvery === 'turn') return enders.length;
+  // On `round` the tide steps as player 1 passes the turn back — see
+  // `shouldAdvanceTide`, which this must agree with.
+  return enders.filter((p) => p === 1).length;
+}
+
+/** The phase `playerId` will open their next turn in. */
+export function phaseAtTurnOf(state: GameState, playerId: PlayerId): TidePhase {
+  return advancePhase(state.phase, tideStepsUntilTurnOf(state, playerId));
 }

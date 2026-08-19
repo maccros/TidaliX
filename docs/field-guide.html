@@ -107,6 +107,9 @@
   .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
   .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
   .kw--spines { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); font-weight: 700; }
+  .kw--toxic { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
+  .kw--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
+  .kw--taxon { color: var(--good, var(--rising)); border-color: color-mix(in srgb, var(--rising) 45%, transparent); text-transform: none; }
   .kw--trait { opacity: .75; text-transform: lowercase; letter-spacing: .02em; }
 
   .aura { margin: 0; display: flex; gap: .45rem; font-size: .8rem; color: var(--good); align-items: baseline; }
@@ -221,7 +224,7 @@
           <li>The <b>phase pays on top</b>: <span class="num">0</span> on a drained flat, <span class="num">+2</span> on the flood, <span class="num">+1</span> at high water, <span class="num">0</span> on the drain.</li>
           <li>Unspent energy <b>carries over</b>, up to <span class="num">3</span>. Bank through a lean phase, dump on the flood.</li>
           <li>Cards on your board that generate energy add theirs at the start of your turn.</li>
-          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">1</span> distinct species in it.</li>
+          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">1</span> distinct <b>lineage</b> in it &mdash; a fish, a coral, a crab and a shark are four; four different fish are one.</li>
         </ul>
       </div>
 
@@ -231,7 +234,8 @@
           <li>A species that has survived a <b>complete tide cycle</b> on your reef can be <b>released</b> back to the wild.</li>
           <li>It leaves the board for good into your <b>conservation pile</b> &mdash; neither board nor discard, and the one place a card leaves play as an asset.</li>
           <li>Only <span class="num">1</span> goes back per turn, and releasing frees the board slot it held.</li>
-          <li>The pile scores <b>distinct species</b>: biodiversity, not volume. Conserve <span class="num">5</span> of them and you <b>win outright</b>.</li>
+          <li>The pile scores <b>distinct lineages</b>, not names: biodiversity is measured across branches of the tree, so a pile of six reef fish is one branch protected. Protect <span class="num">5</span> of the 8 lineages in the set and you <b>win outright</b>.</li>
+          <li class="rules__lineages">The lineages: <b>Fish</b>, <b>Crustaceans</b>, <b>Cephalopods</b>, <b>Echinoderms</b>, <b>Sharks &amp; rays</b>, <b>Reptiles</b>, <b>Corals &amp; anemones</b>, <b>Molluscs</b>.</li>
         </ul>
       </div>
 
@@ -272,6 +276,7 @@
         <ul>
           <li>Some cards are <b>exposed</b> in some phases &mdash; stranded, bleaching, out of their element.</li>
           <li>An exposed card takes <b>+1 damage</b> from every attack against it, <b>and from spines</b>.</li>
+          <li>Destroy a <b>toxic</b> animal by attacking it and your attacker dies too &mdash; eating it is what kills you. Wounding one costs nothing extra, a toxic animal that attacks poisons nobody, and a predator printed <b>toxin-immune</b> eats it and swims away.</li>
           <li>So attacking with a stranded card into an armed one is punished twice.</li>
           <li>Exposure is a window, not a state: it opens and closes with the tide.</li>
         </ul>
@@ -335,9 +340,16 @@
       <tr class="">
         <td class="sym__from">Staghorn Coral</td>
         <td><code>reef-fish</code></td>
-        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__grant"><b>0/+2</b></td>
         <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Great Barracuda, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
-        <td class="sym__note">shelter in the branches</td>
+        <td class="sym__note">a nursery of branches nothing large can reach into</td>
+      </tr>
+      <tr class="">
+        <td class="sym__from">Staghorn Coral</td>
+        <td><code>coral</code></td>
+        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__who">Table Coral</td>
+        <td class="sym__note">cements onto the framework beside it</td>
       </tr>
       <tr class="">
         <td class="sym__from">Bubble-tip Anemone</td>
@@ -356,9 +368,16 @@
       <tr class="">
         <td class="sym__from">Table Coral</td>
         <td><code>reef-fish</code></td>
-        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__grant"><b>+1/+1</b></td>
         <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Great Barracuda, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
-        <td class="sym__note">a whole storey of shade over the reef</td>
+        <td class="sym__note">a whole storey of shade to hunt out of</td>
+      </tr>
+      <tr class="">
+        <td class="sym__from">Table Coral</td>
+        <td><code>coral</code></td>
+        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__who">Staghorn Coral</td>
+        <td class="sym__note">thickens the framework around it</td>
       </tr>
         </tbody>
       </table>
@@ -388,7 +407,7 @@
     <div class="wants__col wants--high">
       <h4 class="wants__phase">high</h4>
       <p class="wants__income">pays +1 energy</p>
-      <ul class="wants__list"><li>Coral Grouper</li><li>Reef Manta Ray</li><li>Blacktip Reef Shark</li><li>Whitetip Reef Shark</li><li>Green Sea Turtle</li><li>Bumphead Parrotfish</li></ul>
+      <ul class="wants__list"><li>Coral Grouper</li><li>Reef Manta Ray</li><li>Blacktip Reef Shark</li><li>Whitetip Reef Shark</li><li>Green Sea Turtle</li><li>Bumphead Parrotfish</li><li>Staghorn Coral</li><li>Table Coral</li></ul>
     </div>
     <div class="wants__col wants--falling">
       <h4 class="wants__phase">falling</h4>
@@ -432,7 +451,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Breathes through its skin and walks the drained flat on its fins.</p>
-      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -468,7 +487,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Grazes the splash zone faster than the surge can catch it.</p>
-      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">crustacean</span></p>
+      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">crustacean</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -504,7 +523,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Runs down the wrack line the moment the water pulls back.</p>
-      <p class="card__meta"><span class="printed">base 3/2</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">crustacean</span></p>
+      <p class="card__meta"><span class="printed">base 3/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">crustacean</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -540,7 +559,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Crosses open rock between pools to raid the stranded ones.</p>
-      <p class="card__meta"><span class="printed">base 3/4</span><span class="kw kw--trait">cephalopod</span></p>
+      <p class="card__meta"><span class="printed">base 3/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Cephalopods</span><span class="kw kw--trait">cephalopod</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -576,7 +595,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Grinds itself a socket in the limestone and does not leave it.</p>
-      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="damages anything that attacks it">spines 2</span><span class="kw kw--trait">echinoderm</span></p>
+      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Echinoderms</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="damages anything that attacks it">spines 2</span><span class="kw kw--trait">echinoderm</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -621,7 +640,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Strikes at the speed of a bullet; the cavitation does the rest.</p>
-      <p class="card__meta"><span class="printed">base 4/2</span><span class="kw kw--trait">crustacean</span></p>
+      <p class="card__meta"><span class="printed">base 4/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--trait">crustacean</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -656,8 +675,8 @@
       </div>
     </div>
     <div class="card__body">
-      <p class="card__text">Hunts the flooding channels, sometimes shoulder to shoulder with a moray.</p>
-      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__text">One of the few animals that will take a lionfish, spines and all.</p>
+      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -693,7 +712,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Rides the push into the roots and takes whatever the water brings.</p>
-      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -729,7 +748,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Picks sponge from the fresh water climbing the reef crest.</p>
-      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -774,7 +793,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Barrel-rolls through plankton where the flood stacks it against the reef.</p>
-      <p class="card__meta"><span class="printed">base 4/6</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 4/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait">megafauna</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -810,7 +829,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Works the flat in water barely deep enough to cover its fin.</p>
-      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait">megafauna</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -846,7 +865,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Wedges into a cave by day, then pours through the coral by night.</p>
-      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait">megafauna</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -882,7 +901,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Crosses the crest at high water to graze the seagrass behind it.</p>
-      <p class="card__meta"><span class="printed">base 3/7</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 3/7</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Reptiles</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait">megafauna</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -918,7 +937,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Headbutts living coral apart and excretes the reef as sand.</p>
-      <p class="card__meta"><span class="printed">base 6/6</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 6/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">megafauna</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -954,7 +973,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Ambushes the flat at speed, and waits in the channel for the drain.</p>
-      <p class="card__meta"><span class="printed">base 5/4</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 5/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">megafauna</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -999,7 +1018,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Holds station where the flat empties and takes what it funnels out.</p>
-      <p class="card__meta"><span class="printed">base 5/2</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 5/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1034,8 +1053,8 @@
       </div>
     </div>
     <div class="card__body">
-      <p class="card__text">A second set of jaws in the throat drags the catch down whole.</p>
-      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__text">A second set of jaws in the throat drags the catch down whole, venom and all.</p>
+      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1067,7 +1086,7 @@
 <section class="group">
   <header class="group__head">
     <h3 class="group__title">Armed — animals that punish being attacked</h3>
-    <p class="group__blurb">A defender does not strike back in TidaliX. A body is not a weapon: only these animals are, through a printed spines value that damages whatever attacks them. Attack one with a card the tide has left exposed and you pay for it twice.</p>
+    <p class="group__blurb">A defender does not strike back in TidaliX. A body is not a weapon: only these animals are, through a printed spines value that damages whatever attacks them. Attack one with a card the tide has left exposed and you pay for it twice. All three are also toxic — kill one and whatever ate it dies of the toxin, unless it is one of the few predators printed as toxin-immune.</p>
   </header>
   <div class="cards">
     <article class="card">
@@ -1079,8 +1098,8 @@
       </div>
     </div>
     <div class="card__body">
-      <p class="card__text">Swallows water until it is a spined ball nothing can get its jaws around.</p>
-      <p class="card__meta"><span class="printed">base 2/5</span><span class="kw kw--spines" title="damages anything that attacks it">spines 3</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__text">Carries enough tetrodotoxin in its liver to kill whatever swallows it.</p>
+      <p class="card__meta"><span class="printed">base 2/5</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxic">toxic</span><span class="kw kw--spines" title="damages anything that attacks it">spines 3</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1116,7 +1135,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Herds prey into a corner with its fans. The venom is for whatever tries it.</p>
-      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--spines" title="damages anything that attacks it">spines 2</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxic">toxic</span><span class="kw kw--spines" title="damages anything that attacks it">spines 2</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1152,7 +1171,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Everts its stomach over the coral and leaves white skeleton behind.</p>
-      <p class="card__meta"><span class="printed">base 3/6</span><span class="kw kw--spines" title="damages anything that attacks it">spines 3</span><span class="kw kw--trait">echinoderm</span></p>
+      <p class="card__meta"><span class="printed">base 3/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Echinoderms</span><span class="kw kw--toxic">toxic</span><span class="kw kw--spines" title="damages anything that attacks it">spines 3</span><span class="kw kw--trait">echinoderm</span></p>
       <p class="aura aura--harmful">
         <span class="aura__mark">&#10005;</span>
         <span>every friendly <b>coral</b> gets <b>0/-3</b>
@@ -1201,7 +1220,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Never more than a body length from its host, whatever the water does.</p>
-      <p class="card__meta"><span class="printed">base 1/3</span><span class="kw kw--trait">reef-fish</span><span class="kw kw--trait">anemonefish</span></p>
+      <p class="card__meta"><span class="printed">base 1/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span><span class="kw kw--trait">anemonefish</span></p>
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
         <span>every friendly <b>anemone</b> gets <b>+1/0</b>
@@ -1241,7 +1260,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Locks its dorsal spine in a crevice and refuses to be pulled out.</p>
-      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1277,7 +1296,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Scalpels at the base of the tail, carried everywhere it goes.</p>
-      <p class="card__meta"><span class="printed">base 2/3</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 2/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1313,7 +1332,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Runs a cleaning station that even the sharks queue for.</p>
-      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--trait">reef-fish</span><span class="kw kw--trait">cleaner</span></p>
+      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span><span class="kw kw--trait">cleaner</span></p>
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
         <span>every friendly <b>megafauna</b> gets <b>0/+2</b>
@@ -1349,7 +1368,7 @@
 <section class="group">
   <header class="group__head">
     <h3 class="group__title">Structures — the reef itself</h3>
-    <p class="group__blurb">They do not attack. They hold ground, generate energy at high water, shelter the fish that live in them, and bake when the tide goes out — every one of them is exposed at low tide.</p>
+    <p class="group__blurb">They do not attack. They hold ground, pay energy on the flood and at high water, shelter the fish that live in them, and bake when the tide goes out — every one of them is exposed at low tide. The two corals also build into each other: each is worth more health with another coral beside it, which is the closest thing in the set to a reef being a structure rather than a pile of cards.</p>
   </header>
   <div class="cards">
     <article class="card">
@@ -1362,11 +1381,15 @@
     </div>
     <div class="card__body">
       <p class="card__text">The fastest-growing branching coral on the reef, and the first to bleach.</p>
-      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--structure">structure</span><span class="kw kw--trait">coral</span></p>
+      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--trait">coral</span></p>
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
-        <span>every friendly <b>reef-fish</b> gets <b>0/+1</b>
-        <span class="aura__note">shelter in the branches</span></span>
+        <span>every friendly <b>reef-fish</b> gets <b>0/+2</b>
+        <span class="aura__note">a nursery of branches nothing large can reach into</span></span>
+      </p><p class="aura">
+        <span class="aura__mark">&#8644;</span>
+        <span>every friendly <b>coral</b> gets <b>0/+1</b>
+        <span class="aura__note">cements onto the framework beside it</span></span>
       </p>
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1378,11 +1401,11 @@
       <div class="ph ph--rising">
         <span class="ph__name">rising</span>
         <span class="ph__stat">0<span class="ph__slash">/</span>5</span>
-        <span class="ph__flags"></span>
+        <span class="ph__flags"><span class="ph__energy" title="generates 1 energy each turn">+1&#11041;</span></span>
       </div>
-      <div class="ph ph--high">
+      <div class="ph ph--high is-peak">
         <span class="ph__name">high</span>
-        <span class="ph__stat">0<span class="ph__slash">/</span>5</span>
+        <span class="ph__stat">0<span class="ph__slash">/</span>6</span>
         <span class="ph__flags"><span class="ph__energy" title="generates 1 energy each turn">+1&#11041;</span></span>
       </div>
       <div class="ph ph--falling">
@@ -1402,11 +1425,15 @@
     </div>
     <div class="card__body">
       <p class="card__text">Grows outward into a plate wide enough to shade a hundred fish.</p>
-      <p class="card__meta"><span class="printed">base 0/7</span><span class="kw kw--structure">structure</span><span class="kw kw--trait">coral</span></p>
+      <p class="card__meta"><span class="printed">base 0/7</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--trait">coral</span></p>
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
-        <span>every friendly <b>reef-fish</b> gets <b>0/+1</b>
-        <span class="aura__note">a whole storey of shade over the reef</span></span>
+        <span>every friendly <b>reef-fish</b> gets <b>+1/+1</b>
+        <span class="aura__note">a whole storey of shade to hunt out of</span></span>
+      </p><p class="aura">
+        <span class="aura__mark">&#8644;</span>
+        <span>every friendly <b>coral</b> gets <b>0/+1</b>
+        <span class="aura__note">thickens the framework around it</span></span>
       </p>
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">
@@ -1418,11 +1445,11 @@
       <div class="ph ph--rising">
         <span class="ph__name">rising</span>
         <span class="ph__stat">0<span class="ph__slash">/</span>7</span>
-        <span class="ph__flags"></span>
+        <span class="ph__flags"><span class="ph__energy" title="generates 1 energy each turn">+1&#11041;</span></span>
       </div>
-      <div class="ph ph--high">
+      <div class="ph ph--high is-peak">
         <span class="ph__name">high</span>
-        <span class="ph__stat">0<span class="ph__slash">/</span>7</span>
+        <span class="ph__stat">0<span class="ph__slash">/</span>8</span>
         <span class="ph__flags"><span class="ph__energy" title="generates 1 energy each turn">+1&#11041;</span></span>
       </div>
       <div class="ph ph--falling">
@@ -1442,7 +1469,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Withdraws its tentacles when the water leaves, and waits.</p>
-      <p class="card__meta"><span class="printed">base 0/4</span><span class="kw kw--structure">structure</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="damages anything that attacks it">spines 1</span><span class="kw kw--trait">anemone</span></p>
+      <p class="card__meta"><span class="printed">base 0/4</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="damages anything that attacks it">spines 1</span><span class="kw kw--trait">anemone</span></p>
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
         <span>every friendly <b>anemonefish</b> gets <b>0/+2</b>
@@ -1482,7 +1509,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Farms algae in its own mantle. A metre of shell does the rest.</p>
-      <p class="card__meta"><span class="printed">base 0/8</span><span class="kw kw--structure">structure</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--trait">mollusc</span></p>
+      <p class="card__meta"><span class="printed">base 0/8</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--trait">mollusc</span></p>
       
     </div>
     <div class="strip" role="group" aria-label="Stats by tide phase">

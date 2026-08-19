@@ -19,16 +19,28 @@
  *   conservation what you have given back, scored by biodiversity
  */
 
-import type { CardInstance, EnergySource, GameState, PlayerId, PlayerState } from './types.js';
+import type {
+  CardInstance,
+  EnergyIncome,
+  EnergyIncomeLine,
+  GameState,
+  PlayerId,
+  PlayerState,
+  Taxon,
+  TidePhase,
+} from './types.js';
 import { getCard } from './cards.js';
-import { cyclesCompleted, statsFor } from './tide.js';
+import { cyclesCompleted, effectiveStats, phaseAtTurnOf, tideStepsUntilTurnOf } from './tide.js';
+
+export type { EnergyIncome, EnergyIncomeLine } from './types.js';
 
 /**
  * Distinct species in a player's conservation pile.
  *
- * Biodiversity, not volume: a pile of six clownfish is one species conserved,
- * and it is worth exactly that. Counted on the binomial name rather than the
- * card id so two printings of the same animal could never be double-counted.
+ * Counted on the binomial name rather than the card id, so two printings of the
+ * same animal could never be double-counted. This is a *display* figure — how
+ * many different animals are in the pile. What the pile is actually scored on is
+ * `conservedTaxa`.
  */
 export function conservedSpecies(player: PlayerState): number {
   const seen = new Set<string>();
@@ -36,11 +48,48 @@ export function conservedSpecies(player: PlayerState): number {
   return seen.size;
 }
 
+/**
+ * The distinct lineages in a player's conservation pile, in the order they were
+ * first protected.
+ *
+ * This is the number that pays and the number that wins. Scoring on lineage
+ * rather than on species is what makes the pile a genuine biodiversity problem:
+ * six different reef fish are still just fish, and a reef with only fish in it
+ * is not a reef anyone saved. Getting paid means going out and protecting a
+ * crab, a coral, an urchin, an octopus — animals that want entirely different
+ * things from the tide, which is exactly the tension the pile is there to create.
+ */
+export function conservedTaxa(player: PlayerState): Taxon[] {
+  const seen: Taxon[] = [];
+  for (const inst of player.conservation) {
+    const taxon = getCard(inst.definitionId).taxon;
+    if (!seen.includes(taxon)) seen.push(taxon);
+  }
+  return seen;
+}
+
+/** How many distinct lineages are protected — the score that pays and wins. */
+export function conservedCount(player: PlayerState): number {
+  return conservedTaxa(player).length;
+}
+
 /** Standing energy income owed to the conservation pile each turn. */
 export function conservationIncome(state: GameState, playerId: PlayerId): number {
   const per = state.config.conservationIncomePer;
   if (per <= 0) return 0;
-  return Math.floor(conservedSpecies(state.players[playerId]) / per);
+  return Math.floor(conservedCount(state.players[playerId]) / per);
+}
+
+/**
+ * Lineages still missing from the pile before the next point of income lands.
+ *
+ * The pile is only motivating if the player can see what it is asking them for,
+ * so this is surfaced rather than left as arithmetic they have to do themselves.
+ */
+export function taxaToNextIncome(state: GameState, playerId: PlayerId): number {
+  const per = state.config.conservationIncomePer;
+  if (per <= 0) return 0;
+  return per - (conservedCount(state.players[playerId]) % per);
 }
 
 /**
@@ -48,44 +97,34 @@ export function conservationIncome(state: GameState, playerId: PlayerId): number
  * than once per round — this is the change that makes energy something you build
  * toward instead of something that simply arrives.
  */
-export function energyCapFor(state: GameState): number {
+export function energyCapFor(state: GameState, tideStep: number = state.tideStep): number {
   const { startingEnergyCap, maxEnergyCap } = state.config;
-  return Math.min(startingEnergyCap + cyclesCompleted(state.tideStep), maxEnergyCap);
-}
-
-/** One itemised line of a player's turn income. */
-export interface EnergyIncomeLine {
-  source: EnergySource;
-  amount: number;
-  /** Player-facing explanation of where this line came from. */
-  detail: string;
-}
-
-export interface EnergyIncome {
-  lines: EnergyIncomeLine[];
-  total: number;
+  return Math.min(startingEnergyCap + cyclesCompleted(tideStep), maxEnergyCap);
 }
 
 /**
- * What `playerId` will collect at the start of their next turn, itemised.
+ * Income for `playerId` as it would be paid in `phase`, at `tideStep`.
  *
- * `carried` is the one line that depends on the moment you ask: it is whatever
- * is unspent right now, so it moves as the player spends. That is the point —
- * they can watch banking work.
+ * The one function that knows what a turn's income *is*. The resolver pays out
+ * of it, the panel shows it, and the projection for next turn is the same call
+ * with a different phase — so a number on screen and a number in the bank cannot
+ * drift apart, and neither can this turn's income and next turn's estimate.
  */
-export function energyIncome(state: GameState, playerId: PlayerId): EnergyIncome {
+function incomeAt(
+  state: GameState,
+  playerId: PlayerId,
+  phase: TidePhase,
+  tideStep: number,
+): EnergyIncome {
   const player = state.players[playerId];
   const lines: EnergyIncomeLine[] = [];
 
-  const base = energyCapFor(state);
-  const cycles = cyclesCompleted(state.tideStep);
+  const base = energyCapFor(state, tideStep);
   lines.push({
     source: 'turn',
     amount: base,
     detail:
-      base >= state.config.maxEnergyCap
-        ? 'base capacity (at maximum)'
-        : `base capacity — ${cycles} tide ${cycles === 1 ? 'cycle' : 'cycles'} complete`,
+      base >= state.config.maxEnergyCap ? 'base capacity, at maximum' : 'base capacity',
   });
 
   const carried = Math.min(player.energy, state.config.carryOverCap);
@@ -97,14 +136,14 @@ export function energyIncome(state: GameState, playerId: PlayerId): EnergyIncome
     });
   }
 
-  const tide = state.config.tideEnergy[state.phase];
+  const tide = state.config.tideEnergy[phase];
   if (tide > 0) {
-    lines.push({ source: 'tide', amount: tide, detail: `the ${state.phase} tide` });
+    lines.push({ source: 'tide', amount: tide, detail: `the ${phase} tide` });
   }
 
-  const fromCards = speciesIncome(state, playerId);
+  const contributors = speciesIncomeSources(state, playerId, phase);
+  const fromCards = contributors.reduce((sum, c) => sum + c.amount, 0);
   if (fromCards > 0) {
-    const contributors = speciesIncomeSources(state, playerId);
     lines.push({
       source: 'card',
       amount: fromCards,
@@ -114,35 +153,66 @@ export function energyIncome(state: GameState, playerId: PlayerId): EnergyIncome
 
   const conserved = conservationIncome(state, playerId);
   if (conserved > 0) {
+    const taxa = conservedCount(player);
     lines.push({
       source: 'conservation',
       amount: conserved,
-      detail: `${conservedSpecies(player)} species conserved`,
+      detail: `${taxa} ${taxa === 1 ? 'lineage' : 'lineages'} protected`,
     });
   }
 
-  return { lines, total: lines.reduce((sum, l) => sum + l.amount, 0) };
+  return { lines, total: lines.reduce((sum, l) => sum + l.amount, 0), phase };
 }
 
-/** Energy generated by species standing on `playerId`'s board this phase. */
-export function speciesIncome(state: GameState, playerId: PlayerId): number {
-  return state.players[playerId].board.reduce(
-    (sum, inst) => sum + statsFor(state, inst).energy,
-    0,
-  );
+/**
+ * What `playerId` collects if their turn begins right now, in the live phase.
+ *
+ * This is what the resolver pays at the top of a turn. It is *not* what to show
+ * a player who is planning ahead — for that, see `nextTurnIncome`.
+ */
+export function energyIncome(state: GameState, playerId: PlayerId): EnergyIncome {
+  return incomeAt(state, playerId, state.phase, state.tideStep);
+}
+
+/**
+ * What `playerId` will collect at the start of their **next** turn, itemised.
+ *
+ * The phase is the one that will actually be live when that turn opens, not the
+ * one on the board now — the tide will have moved by then, and it moves the two
+ * largest lines with it: what the phase itself pays, and what the species
+ * standing on the reef generate. Showing the current phase's figures here was a
+ * plan for a turn that never happens.
+ *
+ * Two things it cannot know, and does not pretend to: the board may not survive
+ * the opponent's turn, and `carried` moves every time the player spends. The
+ * second is a feature — it is how a player watches banking work.
+ */
+export function nextTurnIncome(state: GameState, playerId: PlayerId): EnergyIncome {
+  const steps = tideStepsUntilTurnOf(state, playerId);
+  return incomeAt(state, playerId, phaseAtTurnOf(state, playerId), state.tideStep + steps);
+}
+
+/** Energy generated by species standing on `playerId`'s board in `phase`. */
+export function speciesIncome(
+  state: GameState,
+  playerId: PlayerId,
+  phase: TidePhase = state.phase,
+): number {
+  return speciesIncomeSources(state, playerId, phase).reduce((sum, c) => sum + c.amount, 0);
 }
 
 /** Which species are paying, so the UI can name them rather than show a bare total. */
 export function speciesIncomeSources(
   state: GameState,
   playerId: PlayerId,
+  phase: TidePhase = state.phase,
 ): { instanceId: string; name: string; amount: number }[] {
+  const board = state.players[playerId].board;
   const out: { instanceId: string; name: string; amount: number }[] = [];
-  for (const inst of state.players[playerId].board) {
-    const amount = statsFor(state, inst).energy;
-    if (amount > 0) {
-      out.push({ instanceId: inst.instanceId, name: getCard(inst.definitionId).name, amount });
-    }
+  for (const inst of board) {
+    const def = getCard(inst.definitionId);
+    const amount = effectiveStats(inst, phase, def, board).energy;
+    if (amount > 0) out.push({ instanceId: inst.instanceId, name: def.name, amount });
   }
   return out;
 }

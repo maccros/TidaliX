@@ -15,6 +15,7 @@ import { CARDS, getCard } from './cards.js';
 import { shuffle } from './rng.js';
 import { effectiveStats, cyclesCompleted } from './tide.js';
 import { isMature, stepsUntilMature } from './economy.js';
+import type { Taxon } from './types.js';
 
 export const DEFAULT_CONFIG: GameConfig = {
   startingLife: 25,
@@ -42,20 +43,30 @@ export const DEFAULT_CONFIG: GameConfig = {
   // what makes the second win condition a real commitment rather than a pivot.
   releaseMaturityCycles: 1,
   releasesPerTurn: 1,
-  // One, not two. At two the bonus was very nearly decorative: it paid a
-  // committed player 3.6 energy across a whole game — 9% of their income — and
-  // did not arrive until round 7.7, in games ending around round 9. At one it
-  // pays 8.5 (20% of income), lands a round earlier, and every single release
-  // is felt immediately. It does not distort who wins: measured over 80 games
-  // the conservation win rate actually moves slightly *down*, from 42 to 37.
+  // One lineage, one energy. The pile is scored on lineage rather than species
+  // now, which already makes each point of this income much harder to earn — a
+  // second reef fish adds nothing where a second *species* used to add one — so
+  // there is no room to make the rate stingier on top of that. Every point is
+  // felt the turn it lands, and every point demands a genuinely different animal.
   conservationIncomePer: 1,
-  // Five, measured against a player who is actually building for it: they get
-  // there in roughly half their games, and it never fires by accident — a bot
-  // that merely values the pile alongside everything else finishes it 0% of the
-  // time. The curve is steep, so this number is worth re-measuring after any
-  // change to game length: at six a committed player wins 30% of the time, at
-  // four 75%, at three over 90% — which stops being a second path and starts
-  // being the only one.
+  // Five lineages out of the eight the set contains.
+  //
+  // Re-measured after the move from species to lineages, and the honest finding
+  // is that the metric is not what makes this hard. A player committed to the
+  // pile never releases two animals of the same lineage anyway, so across 100
+  // games their pile scores identically either way — 1.51 cards, 1.51 species,
+  // 1.51 lineages. What limits the pile is *time*: a species needs a full cycle
+  // (4 tide steps) to mature and only one goes back per turn, against a game
+  // that ends around round 7.7. There is physically room for about three
+  // releases, and the peak observed is three.
+  //
+  // So five is currently out of reach, and was before this change too. It scales
+  // with game length and nothing else — at 40 starting life the peak is four, at
+  // 60 it is five and the pile wins 2% of games; raising how much the bot wants
+  // the pile from weight 40 to 200 moves the number not at all, because it is
+  // already taking every release the clock allows. Closing that gap is a
+  // game-length decision (starting life, maturity cycles, or releases per turn),
+  // not a tweak to this number, so it is left as it stands and flagged here.
   conservationVictory: 5,
 };
 
@@ -77,6 +88,7 @@ export function createInstance(definitionId: string, owner: PlayerId): CardInsta
     playedOnTurn: null,
     playedOnTideStep: null,
     hasAttacked: false,
+    poisoned: false,
   };
 }
 
@@ -111,6 +123,7 @@ function createPlayer(id: PlayerId, deck: CardInstance[], config: GameConfig): P
     conservation: [],
     releasesThisTurn: 0,
     fatigue: 0,
+    incomeThisTurn: [],
   };
 }
 
@@ -184,6 +197,14 @@ export interface BoardCardView {
   printedHealth: number;
   exposed: boolean;
   reefGuard: boolean;
+  /** Eating this card kills the eater. */
+  toxic: boolean;
+  /** This card can eat a toxic one and survive it. */
+  toxinImmune: boolean;
+  /** Already marked by a toxin — dead on the next sweep, whatever its health. */
+  poisoned: boolean;
+  /** The lineage it would add to a conservation pile. */
+  taxon: Taxon;
   canAttack: boolean;
   /** Whether this species has lived long enough to be released. */
   mature: boolean;
@@ -212,6 +233,10 @@ export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
       printedHealth: def.health,
       exposed: stats.exposed,
       reefGuard: def.keywords?.includes('reef-guard') ?? false,
+      toxic: def.keywords?.includes('toxic') ?? false,
+      toxinImmune: def.keywords?.includes('toxin-immune') ?? false,
+      poisoned: inst.poisoned,
+      taxon: def.taxon,
       canAttack: canAttack(state, inst),
       mature: isMature(state, inst),
       stepsUntilMature: stepsUntilMature(state, inst),

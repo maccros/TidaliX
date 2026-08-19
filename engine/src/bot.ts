@@ -12,7 +12,7 @@
 
 import { applyAction, legalActions } from './resolver.js';
 import { boardView, opponentOf } from './state.js';
-import { conservedSpecies } from './economy.js';
+import { conservedCount } from './economy.js';
 import type { GameAction, GameEvent, GameState, PlayerId } from './types.js';
 
 /** Rough worth of a card sitting on the board, in its current phase. */
@@ -27,21 +27,27 @@ function boardValue(state: GameState, player: PlayerId): number {
 /**
  * How much a step toward the conservation win is worth to `me`.
  *
+ * Scored on lineages now, which the bot gets for free: `conservedCount` simply
+ * stops rewarding it for releasing a sixth reef fish. It has no notion of
+ * *planning* for a spread of lineages — that is a real gap, and the reason a
+ * player who does plan for it beats the bot to the pile.
+ *
  * Releasing always looks like a loss to a board-value-only score — the card
  * leaves — so without this the bot would simply never touch the second win
  * condition, and a player would never see the mechanic used against them.
  * Progress is worth more the closer the pile gets to the target, so the bot
  * finishes a pile it has started rather than abandoning it halfway.
  *
- * The weight is set where the bot visibly plays the pile (about three releases
- * a game, up from one) without it becoming a cheese: measured over 80 games it
- * still never *wins* by conservation in self-play, because its own aggression
- * ends games before a pile of six can close. Winning that way takes a player
- * who actually builds for it — which is the intent.
+ * The weight is set where the bot visibly plays the pile without it becoming a
+ * cheese: measured over 120 games of self-play it wins by conservation in 1% of
+ * them, because its own aggression ends games around round 7.7 — long before a
+ * pile of five can close. Raising the weight does not change that; see the note
+ * on `conservationVictory` in state.ts for why the ceiling is the clock rather
+ * than the bot's appetite.
  */
 function conservationValue(state: GameState, me: PlayerId): number {
   const target = state.config.conservationVictory;
-  const saved = conservedSpecies(state.players[me]);
+  const saved = conservedCount(state.players[me]);
   if (target <= 0) return saved * 6; // no win condition, but the income still counts
   return saved * 12 + (saved / target) ** 2 * 60;
 }

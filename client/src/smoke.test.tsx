@@ -8,7 +8,7 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { DEFAULT_CONFIG } from '@tidalix/engine';
+import { DEFAULT_CONFIG, allTaxa } from '@tidalix/engine';
 import { App } from './App.tsx';
 
 let container: HTMLDivElement;
@@ -87,15 +87,99 @@ describe('client', () => {
     }
   });
 
-  it('shows the conservation pile and its victory target', () => {
+  it('separates what was earned this turn from what next turn will pay', () => {
+    render();
+    const panel = container.querySelector('.energy')!;
+    const past = panel.querySelector('.energy__block--past');
+    const next = panel.querySelector('.energy__block--next');
+
+    expect(past?.textContent).toContain('Earned this turn');
+    expect(next?.textContent).toContain('Next turn');
+    // Both halves are itemised, and neither is a bare number.
+    expect(past!.querySelectorAll('.energy__line').length).toBeGreaterThan(0);
+    expect(next!.querySelectorAll('.energy__line').length).toBeGreaterThan(0);
+  });
+
+  it('prices the forecast in the phase that turn will actually open in', async () => {
+    const { nextTurnIncome, createGame, startGame } = await import('@tidalix/engine');
+    render();
+    // The game opens at low water; the player's next turn is on the rising tide,
+    // and the panel must name that phase rather than the one on the board.
+    const state = startGame(createGame({ seed: 3 })).state;
+    const projected = nextTurnIncome(state, 0);
+    expect(state.phase).toBe('low');
+    expect(projected.phase).toBe('rising');
+
+    const next = container.querySelector('.energy__block--next')!;
+    expect(next.querySelector('.energy__phase')?.textContent).toBe('rising');
+    // And the tide line is priced at the rising rate, which low water does not pay.
+    expect(next.textContent).toContain('the rising tide');
+  });
+
+  it('shows the conservation pile, its victory target and what it pays', () => {
     render();
     const panel = container.querySelector('.conserve');
     expect(panel).not.toBeNull();
-    expect(panel!.textContent).toContain('species conserved');
-    // One pip per species needed to win, so the goal is countable at a glance.
-    expect(panel!.querySelectorAll('.conserve__pip').length).toBe(
-      DEFAULT_CONFIG.conservationVictory,
-    );
+    expect(panel!.textContent).toContain('lineages protected');
+    expect(panel!.textContent).toContain(`/ ${DEFAULT_CONFIG.conservationVictory}`);
+    // The pile is scored on lineage, so every lineage in the set is listed —
+    // the ones you hold and, just as importantly, the ones you do not.
+    expect(panel!.querySelectorAll('.conserve__taxon').length).toBe(allTaxa().length);
+    expect(panel!.querySelectorAll('.conserve__taxon.is-held').length).toBe(0);
+  });
+
+  it('states the conservation boost as a standing rate, not a footnote', () => {
+    render();
+    const boost = container.querySelector('.conserve__boost');
+    expect(boost).not.toBeNull();
+    // With an empty pile it has to say what protecting a lineage would buy.
+    expect(boost!.textContent).toContain('+1 energy every turn');
+  });
+
+  it('does not grey out a reef-builder just because it cannot attack', () => {
+    // Corals, anemones and the clam have no attack at all. They were rendering
+    // in the same spent state as an attacker that had already swung, which faded
+    // out every card that grants a symbiosis. They get their own state now.
+    //
+    // Seeds are swept rather than fixed because this needs a 0-attack card that
+    // is affordable on turn one, and which opening hand delivers one is an
+    // accident of the shuffle, not the thing under test.
+    for (let seed = 1; seed <= 40; seed++) {
+      root.unmount();
+      container.remove();
+      container = document.createElement('div');
+      document.body.appendChild(container);
+      root = createRoot(container);
+      render(seed);
+
+      const playable = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')];
+      const reefBuilder = playable.find(
+        (c) => c.querySelector('.stat--attack')?.textContent === '0',
+      );
+      if (!reefBuilder) continue;
+
+      act(() => reefBuilder.click());
+      const support = container.querySelector('.side--you .card--support');
+      expect(support).not.toBeNull();
+      expect(support!.classList.contains('card--spent')).toBe(false);
+      // Still fully legible: it is the reef, not a used-up attacker.
+      expect(support!.querySelector('.card__name')?.textContent?.length ?? 0).toBeGreaterThan(0);
+      return;
+    }
+    throw new Error('no affordable 0-attack card in any of 40 opening hands');
+  });
+
+  it('marks a toxic animal on its face, before anyone attacks it', async () => {
+    const { CARDS } = await import('@tidalix/engine');
+    // The rule only works if it is visible in advance: you cannot decline to eat
+    // something you did not know was poisonous.
+    const toxic = CARDS.filter((c) => c.keywords?.includes('toxic'));
+    expect(toxic.length).toBeGreaterThan(0);
+    for (const card of toxic) {
+      expect(card.keywords).not.toContain('toxin-immune');
+    }
+    // And there is a predator for them, or the keyword is a dead end.
+    expect(CARDS.some((c) => c.keywords?.includes('toxin-immune'))).toBe(true);
   });
 
   it('draws symbiosis links only between cards on the same side', async () => {

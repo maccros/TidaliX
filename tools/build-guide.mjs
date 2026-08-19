@@ -9,7 +9,7 @@
  *   npm run guide            -> docs/field-guide.html
  */
 import { writeFileSync } from 'node:fs';
-import { CARDS, DEFAULT_CONFIG, TIDE_CYCLE, effectiveStats } from '../engine/dist/index.js';
+import { CARDS, DEFAULT_CONFIG, TAXON_LABEL, TIDE_CYCLE, effectiveStats } from '../engine/dist/index.js';
 
 const P = [...TIDE_CYCLE];
 
@@ -23,7 +23,9 @@ const DATA = {
       owner: 0,
       damage: 0,
       playedOnTurn: null,
+      playedOnTideStep: null,
       hasAttacked: false,
+      poisoned: false,
     };
     const per = {};
     for (const p of P) {
@@ -35,6 +37,7 @@ const DATA = {
       name: c.name,
       species: c.species,
       type: c.type,
+      taxon: c.taxon,
       cost: c.cost,
       base: [c.attack, c.health],
       kw: c.keywords ?? [],
@@ -83,7 +86,7 @@ const GROUPS = [
     phase: null,
     title: 'Armed — animals that punish being attacked',
     blurb:
-      'A defender does not strike back in TidaliX. A body is not a weapon: only these animals are, through a printed spines value that damages whatever attacks them. Attack one with a card the tide has left exposed and you pay for it twice.',
+      'A defender does not strike back in TidaliX. A body is not a weapon: only these animals are, through a printed spines value that damages whatever attacks them. Attack one with a card the tide has left exposed and you pay for it twice. All three are also toxic — kill one and whatever ate it dies of the toxin, unless it is one of the few predators printed as toxin-immune.',
     ids: ['blackspotted-puffer', 'red-lionfish', 'crown-of-thorns-starfish'],
   },
   {
@@ -97,7 +100,7 @@ const GROUPS = [
     phase: null,
     title: 'Structures — the reef itself',
     blurb:
-      'They do not attack. They hold ground, generate energy at high water, shelter the fish that live in them, and bake when the tide goes out — every one of them is exposed at low tide.',
+      'They do not attack. They hold ground, pay energy on the flood and at high water, shelter the fish that live in them, and bake when the tide goes out — every one of them is exposed at low tide. The two corals also build into each other: each is worth more health with another coral beside it, which is the closest thing in the set to a reef being a structure rather than a pile of cards.',
     ids: ['staghorn-coral', 'table-coral', 'bubble-tip-anemone', 'giant-clam'],
   },
 ];
@@ -140,6 +143,7 @@ function cardRow(id) {
     ? `<span class="kw kw--spines" title="damages anything that attacks it">spines ${c.spines}</span>`
     : '';
   const traits = c.traits.map((t) => `<span class="kw kw--trait">${t}</span>`).join('');
+  const taxon = `<span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">${esc(TAXON_LABEL[c.taxon])}</span>`;
 
   const auras = c.auras
     .map((a) => {
@@ -164,7 +168,7 @@ function cardRow(id) {
     </div>
     <div class="card__body">
       <p class="card__text">${esc(c.text)}</p>
-      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${kw}${spines}${traits}</p>
+      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${taxon}${kw}${spines}${traits}</p>
       ${auras}
     </div>
     ${strip(c)}
@@ -319,6 +323,9 @@ const html = `<title>TidaliX Field Guide</title>
   .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
   .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
   .kw--spines { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); font-weight: 700; }
+  .kw--toxic { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
+  .kw--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
+  .kw--taxon { color: var(--good, var(--rising)); border-color: color-mix(in srgb, var(--rising) 45%, transparent); text-transform: none; }
   .kw--trait { opacity: .75; text-transform: lowercase; letter-spacing: .02em; }
 
   .aura { margin: 0; display: flex; gap: .45rem; font-size: .8rem; color: var(--good); align-items: baseline; }
@@ -433,7 +440,7 @@ const html = `<title>TidaliX Field Guide</title>
           <li>The <b>phase pays on top</b>: <span class="num">0</span> on a drained flat, <span class="num">+${cfg.tideEnergy.rising}</span> on the flood, <span class="num">+${cfg.tideEnergy.high}</span> at high water, <span class="num">0</span> on the drain.</li>
           <li>Unspent energy <b>carries over</b>, up to <span class="num">${cfg.carryOverCap}</span>. Bank through a lean phase, dump on the flood.</li>
           <li>Cards on your board that generate energy add theirs at the start of your turn.</li>
-          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">${cfg.conservationIncomePer}</span> distinct species in it.</li>
+          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">${cfg.conservationIncomePer}</span> distinct <b>lineage</b> in it &mdash; a fish, a coral, a crab and a shark are four; four different fish are one.</li>
         </ul>
       </div>
 
@@ -443,7 +450,8 @@ const html = `<title>TidaliX Field Guide</title>
           <li>A species that has survived a <b>complete tide cycle</b> on your reef can be <b>released</b> back to the wild.</li>
           <li>It leaves the board for good into your <b>conservation pile</b> &mdash; neither board nor discard, and the one place a card leaves play as an asset.</li>
           <li>Only <span class="num">${cfg.releasesPerTurn}</span> goes back per turn, and releasing frees the board slot it held.</li>
-          <li>The pile scores <b>distinct species</b>: biodiversity, not volume. Conserve <span class="num">${cfg.conservationVictory}</span> of them and you <b>win outright</b>.</li>
+          <li>The pile scores <b>distinct lineages</b>, not names: biodiversity is measured across branches of the tree, so a pile of six reef fish is one branch protected. Protect <span class="num">${cfg.conservationVictory}</span> of the ${new Set(CARDS.map((c) => c.taxon)).size} lineages in the set and you <b>win outright</b>.</li>
+          <li class="rules__lineages">The lineages: ${[...new Set(CARDS.map((c) => c.taxon))].map((t) => `<b>${esc(TAXON_LABEL[t])}</b>`).join(', ')}.</li>
         </ul>
       </div>
 
@@ -484,6 +492,7 @@ const html = `<title>TidaliX Field Guide</title>
         <ul>
           <li>Some cards are <b>exposed</b> in some phases &mdash; stranded, bleaching, out of their element.</li>
           <li>An exposed card takes <b>+${cfg.exposedBonusDamage} damage</b> from every attack against it, <b>and from spines</b>.</li>
+          <li>Destroy a <b>toxic</b> animal by attacking it and your attacker dies too &mdash; eating it is what kills you. Wounding one costs nothing extra, a toxic animal that attacks poisons nobody, and a predator printed <b>toxin-immune</b> eats it and swims away.</li>
           <li>So attacking with a stranded card into an armed one is punished twice.</li>
           <li>Exposure is a window, not a state: it opens and closes with the tide.</li>
         </ul>

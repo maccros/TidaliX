@@ -13,10 +13,13 @@ import { createGame, resetInstanceIds } from '../src/state.js';
 import {
   canReleaseThisTurn,
   conservationIncome,
+  conservedCount,
   conservedSpecies,
+  conservedTaxa,
   cyclesOnBoard,
   isMature,
   stepsUntilMature,
+  taxaToNextIncome,
 } from '../src/economy.js';
 import type { ActionResult, GameAction, GameEvent, GameState, PlayerId } from '../src/types.js';
 import type { CreateGameOptions } from '../src/state.js';
@@ -193,29 +196,59 @@ describe('release maturity', () => {
 });
 
 describe('conservation scoring', () => {
+  /** A pile built by hand, so scoring can be tested without playing a game out. */
+  function pileOf(state: GameState, definitionIds: string[]) {
+    return {
+      ...state.players[0],
+      conservation: definitionIds.map((definitionId, i) => ({
+        instanceId: `p${i}`,
+        definitionId,
+        owner: 0 as PlayerId,
+        damage: 0,
+        playedOnTurn: null,
+        playedOnTideStep: null,
+        hasAttacked: false,
+        poisoned: false,
+      })),
+    };
+  }
+
   it('scores biodiversity, not volume — duplicates of one animal count once', () => {
     const state = stackedGame([], []).state;
-    const pile = [
-      { instanceId: 'a', definitionId: 'clown-anemonefish' },
-      { instanceId: 'b', definitionId: 'clown-anemonefish' },
-      { instanceId: 'c', definitionId: 'clown-anemonefish' },
-    ];
-    const player = {
-      ...state.players[0],
-      conservation: pile.map((c) => ({ ...c, owner: 0 as PlayerId, damage: 0, playedOnTurn: null, playedOnTideStep: null, hasAttacked: false })),
-    };
-    expect(conservedSpecies(player)).toBe(1);
+    const player = pileOf(state, ['clown-anemonefish', 'clown-anemonefish', 'clown-anemonefish']);
 
-    player.conservation.push({
-      instanceId: 'd',
-      definitionId: 'giant-clam',
-      owner: 0,
-      damage: 0,
-      playedOnTurn: null,
-      playedOnTideStep: null,
-      hasAttacked: false,
-    });
+    expect(conservedSpecies(player)).toBe(1);
+    expect(conservedCount(player)).toBe(1);
+
+    player.conservation.push(...pileOf(state, ['giant-clam']).conservation);
     expect(conservedSpecies(player)).toBe(2);
+    expect(conservedCount(player)).toBe(2);
+  });
+
+  it('scores lineages, not names — three different fish are still one branch', () => {
+    const state = stackedGame([], []).state;
+    // Three genuinely different animals, three different binomials, one lineage.
+    const fishOnly = pileOf(state, ['clown-anemonefish', 'regal-blue-tang', 'great-barracuda']);
+
+    expect(conservedSpecies(fishOnly)).toBe(3);
+    expect(conservedCount(fishOnly)).toBe(1);
+    expect(conservedTaxa(fishOnly)).toEqual(['fish']);
+
+    // One crab is worth more to the pile than any number of further fish.
+    const spread = pileOf(state, [
+      'clown-anemonefish',
+      'regal-blue-tang',
+      'great-barracuda',
+      'sally-lightfoot-crab',
+    ]);
+    expect(conservedCount(spread)).toBe(2);
+    expect(conservedTaxa(spread)).toEqual(['fish', 'crustacean']);
+  });
+
+  it('records lineages in the order they were first protected', () => {
+    const state = stackedGame([], []).state;
+    const player = pileOf(state, ['giant-clam', 'staghorn-coral', 'giant-clam', 'common-octopus']);
+    expect(conservedTaxa(player)).toEqual(['mollusc', 'cnidarian', 'cephalopod']);
   });
 
   it('pays nothing until the pile is deep enough for one step of income', () => {
@@ -229,12 +262,13 @@ describe('conservation scoring', () => {
     expect(conservationIncome(s, 0)).toBe(0);
 
     s = must(s, { type: 'RELEASE', player: 0, instanceId }).state;
-    // One species conserved against a threshold of two — still nothing yet.
-    expect(conservedSpecies(s.players[0])).toBe(1);
+    // One lineage conserved against a threshold of two — still nothing yet.
+    expect(conservedCount(s.players[0])).toBe(1);
     expect(conservationIncome(s, 0)).toBe(0);
+    expect(taxaToNextIncome(s, 0)).toBe(1);
   });
 
-  it('pays on every species when the threshold is one', () => {
+  it('pays on every lineage when the threshold is one', () => {
     const base = stackedGame([], [], { config: { conservationIncomePer: 1 } }).state;
     let s = until(base, ready(0, 1));
     const { state: after, instanceId } = playFirst(s, 0);
@@ -242,8 +276,28 @@ describe('conservation scoring', () => {
     expect(conservationIncome(s, 0)).toBe(0);
 
     s = must(s, { type: 'RELEASE', player: 0, instanceId }).state;
-    // The first release is felt immediately — that is the point of per-species.
-    expect(conservedSpecies(s.players[0])).toBe(1);
+    // The first release is felt immediately — that is the point of per-lineage.
+    expect(conservedCount(s.players[0])).toBe(1);
+    expect(conservationIncome(s, 0)).toBe(1);
+  });
+
+  it('pays nothing extra for a second animal from a lineage already protected', () => {
+    // Two mudskippers: two releases, two species in the pile, one lineage — and
+    // so exactly one point of income. This is the whole change in one case.
+    const base = stackedGame([], [], { config: { conservationIncomePer: 1 } }).state;
+    let s = until(base, ready(0, 1));
+    const first = playFirst(s, 0);
+    s = untilMature(first.state, 0, first.instanceId);
+    s = must(s, { type: 'RELEASE', player: 0, instanceId: first.instanceId }).state;
+    expect(conservationIncome(s, 0)).toBe(1);
+
+    s = until(s, ready(0, 1));
+    const second = playFirst(s, 0);
+    s = untilMature(second.state, 0, second.instanceId);
+    s = must(s, { type: 'RELEASE', player: 0, instanceId: second.instanceId }).state;
+
+    expect(s.players[0].conservation).toHaveLength(2);
+    expect(conservedCount(s.players[0])).toBe(1);
     expect(conservationIncome(s, 0)).toBe(1);
   });
 
@@ -271,7 +325,7 @@ describe('conservation scoring', () => {
 
 describe('conservation victory', () => {
   it('wins outright when the pile reaches the target', () => {
-    // A one-species target makes the condition testable without a long game.
+    // A one-lineage target makes the condition testable without a long game.
     const base = stackedGame([], [], { config: { conservationVictory: 1 } }).state;
     let s = until(base, ready(0, 1));
     const { state: after, instanceId } = playFirst(s, 0);

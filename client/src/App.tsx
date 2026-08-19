@@ -8,11 +8,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  TAXON_LABEL,
   TIDE_CYCLE,
+  allTaxa,
   applyAction,
   canReleaseThisTurn,
+  conservationIncome,
+  conservedCount,
   conservedSpecies,
+  conservedTaxa,
   createGame,
+  cyclesCompleted,
   effectiveStats,
   getCard,
   legalActions,
@@ -20,6 +26,7 @@ import {
   statsFor,
   stepsUntilMature,
   takeTurn,
+  taxaToNextIncome,
   type CardInstance,
   type GameAction,
   type GameEvent,
@@ -215,11 +222,25 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     return cost > you.energy ? 'unaffordable' : 'idle';
   };
 
+  /**
+   * How one of your board cards should read.
+   *
+   * The distinction that matters here is between a card that has *used* its
+   * attack and one that was never going to have one. Corals, anemones, the clam
+   * and the urchin have no attack at all — they are the reef, not the hunters —
+   * and lumping them in with spent attackers greyed out every single card that
+   * carries a symbiosis. The relationships were being drawn between cards the
+   * interface had already dismissed.
+   */
   const boardState = (id: string, mine: boolean): CardState => {
     if (!mine) return targets.has(id) ? 'target' : 'idle';
     if (selected === id) return 'selected';
     if (attackers.has(id)) return 'ready';
-    return yourTurn ? 'spent' : 'idle';
+    if (!yourTurn) return 'idle';
+    const card = you.board.find((c) => c.instanceId === id);
+    // No attack in this phase means it is standing its ground, not resting.
+    if (card && statsFor(state, card).attack <= 0) return 'support';
+    return 'spent';
   };
 
   const clickBoardCard = (id: string, mine: boolean) => {
@@ -387,6 +408,12 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
                   mature: stepsUntilMature(state, inspected.instance) === 0,
                   stepsRemaining: stepsUntilMature(state, inspected.instance),
                   allowedThisTurn: canReleaseThisTurn(state, YOU),
+                  lineageHeld: conservedTaxa(you).includes(
+                    getCard(inspected.instance.definitionId).taxon,
+                  ),
+                  incomeAfter: Math.floor(
+                    (conservedCount(you) + 1) / Math.max(1, state.config.conservationIncomePer),
+                  ),
                 }
               : null
           }
@@ -402,7 +429,20 @@ const EMPTY_SET: ReadonlySet<string> = new Set();
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ * The tide track, and the one place the tide cycle is explained.
+ *
+ * "A complete tide cycle" used to be spelled out in the energy panel, the
+ * conservation panel and every card's detail view at once — four restatements of
+ * one fact, which is how a rule stops being read. The cycle is a property of the
+ * tide, so it is reported here, on the tide, and everything else just points at
+ * how many phases are left.
+ */
 function TideTrack({ state }: { state: GameState }) {
+  const cycles = cyclesCompleted(state.tideStep);
+  const toGo = TIDE_CYCLE.length - (state.tideStep % TIDE_CYCLE.length);
+  const atCeiling = state.players[0].energyCap >= state.config.maxEnergyCap;
+
   return (
     <header className="tide">
       <ol className="tide__track">
@@ -420,6 +460,21 @@ function TideTrack({ state }: { state: GameState }) {
       </ol>
       <p className="tide__note">
         <b>{state.phase}</b> · round {state.round} · {PHASE_NOTE[state.phase]}
+      </p>
+      <p className="tide__cycle">
+        <span className="tide__cyclecount">
+          {cycles} {cycles === 1 ? 'cycle' : 'cycles'} complete
+        </span>
+        <span className="tide__cyclenext">
+          {atCeiling ? (
+            <>capacity is at its ceiling of {state.config.maxEnergyCap}</>
+          ) : (
+            <>
+              next closes in {toGo} {toGo === 1 ? 'phase' : 'phases'} — capacity +1, and species
+              mature
+            </>
+          )}
+        </span>
       </p>
     </header>
   );
@@ -478,6 +533,12 @@ function Row({
  * This is the second win condition, so it gets a permanent readout rather than
  * living in the log — a player should never have to count a pile themselves to
  * know how close they are to winning with it.
+ *
+ * It is scored on *lineage*, which is a rule that only works if the player can
+ * see it. So the pile is drawn as the eight branches of the tree with the ones
+ * you hold lit up, and the standing income it pays is stated as a number rather
+ * than left to be inferred from the energy panel. A boost nobody can find is a
+ * boost nobody plays for.
  */
 function ConservationPanel({
   state,
@@ -493,8 +554,12 @@ function ConservationPanel({
   onInspect: (instanceId: string) => void;
 }) {
   const me = state.players[player];
-  const saved = conservedSpecies(me);
+  const held = conservedTaxa(me);
+  const saved = conservedCount(me);
+  const species = conservedSpecies(me);
   const target = state.config.conservationVictory;
+  const income = conservationIncome(state, player);
+  const toNext = taxaToNextIncome(state, player);
   const ready = me.board.filter((c) => releasable.has(c.instanceId));
 
   return (
@@ -504,16 +569,45 @@ function ConservationPanel({
           ❋ {saved}
           {target > 0 && <small> / {target}</small>}
         </span>
-        <span className="conserve__label">species conserved</span>
+        <span className="conserve__label">
+          lineages protected
+          {species > saved && <small> · {species} species in the pile</small>}
+        </span>
       </header>
 
-      {target > 0 && (
-        <div className="conserve__meter" role="img" aria-label={`${saved} of ${target} species conserved`}>
-          {Array.from({ length: target }, (_, i) => (
-            <span key={i} className={`conserve__pip ${i < saved ? 'is-filled' : ''}`} />
-          ))}
-        </div>
-      )}
+      {/* The boost, stated outright. It is standing income, so it is worth more
+          than any one release and deserves to be read as a rate, not an event. */}
+      <p className={`conserve__boost ${income > 0 ? 'is-paying' : ''}`}>
+        {income > 0 ? (
+          <>
+            <b>+{income} energy every turn</b> from the pile
+            {toNext > 0 && (
+              <span className="conserve__next">
+                {' '}
+                — {toNext} more {toNext === 1 ? 'lineage' : 'lineages'} for +{income + 1}
+              </span>
+            )}
+          </>
+        ) : (
+          <>
+            Protect {toNext} {toNext === 1 ? 'lineage' : 'lineages'} for <b>+1 energy every turn</b>
+          </>
+        )}
+      </p>
+
+      {/* The tree, so "a different type" is something you can look at rather
+          than something you have to keep in your head. */}
+      <ul className="conserve__taxa">
+        {allTaxa().map((t) => (
+          <li
+            key={t}
+            className={`conserve__taxon ${held.includes(t) ? 'is-held' : ''}`}
+            title={held.includes(t) ? `${TAXON_LABEL[t]} — protected` : `${TAXON_LABEL[t]} — not yet`}
+          >
+            {TAXON_LABEL[t]}
+          </li>
+        ))}
+      </ul>
 
       {me.conservation.length > 0 && (
         <ul className="conserve__pile">
@@ -521,6 +615,7 @@ function ConservationPanel({
             <li key={c.instanceId}>
               <button type="button" className="conserve__entry" onClick={() => onInspect(c.instanceId)}>
                 {getCard(c.definitionId).name}
+                <small className="conserve__entrytaxon">{TAXON_LABEL[getCard(c.definitionId).taxon]}</small>
               </button>
             </li>
           ))}
@@ -530,22 +625,32 @@ function ConservationPanel({
       {ready.length > 0 ? (
         <div className="conserve__actions">
           <span className="conserve__prompt">Release back to the wild:</span>
-          {ready.map((c) => (
-            <button
-              key={c.instanceId}
-              type="button"
-              className="btn btn--release"
-              onClick={() => onRelease(c.instanceId)}
-            >
-              {getCard(c.definitionId).name}
-            </button>
-          ))}
+          {ready.map((c) => {
+            const def = getCard(c.definitionId);
+            const isNew = !held.includes(def.taxon);
+            return (
+              <button
+                key={c.instanceId}
+                type="button"
+                className={`btn btn--release ${isNew ? 'btn--release-new' : ''}`}
+                onClick={() => onRelease(c.instanceId)}
+                title={
+                  isNew
+                    ? `A new lineage: ${TAXON_LABEL[def.taxon]}`
+                    : `${TAXON_LABEL[def.taxon]} is already protected — this adds no income`
+                }
+              >
+                {def.name}
+                <small>{isNew ? `+ ${TAXON_LABEL[def.taxon]}` : TAXON_LABEL[def.taxon]}</small>
+              </button>
+            );
+          })}
         </div>
       ) : (
         <p className="conserve__hint">
           {target > 0
-            ? `Conserve ${target} distinct species to win. A species must survive a complete tide cycle before you can release it.`
-            : 'A species must survive a complete tide cycle before you can release it.'}
+            ? `Protect ${target} different lineages to win. A species matures after one full cycle of the tide.`
+            : 'A species matures after one full cycle of the tide.'}
         </p>
       )}
     </section>
@@ -646,8 +751,19 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
     }
     case 'PLAYER_DAMAGED':
       return { text: `${who(event.player)} took ${event.amount} (♥ ${event.life})`, kind: 'damage' };
+    case 'SPECIES_POISONED':
+      return {
+        text: `${nameOf(state, event.victimId)} ate ${nameOf(state, event.sourceId)} — and the toxin is fatal`,
+        kind: 'toxin',
+      };
     case 'CARD_DESTROYED':
-      return { text: `${getCard(event.definitionId).name} destroyed`, kind: 'death' };
+      return {
+        text:
+          event.cause === 'toxin'
+            ? `${getCard(event.definitionId).name} dies of the toxin`
+            : `${getCard(event.definitionId).name} destroyed`,
+        kind: event.cause === 'toxin' ? 'toxin' : 'death',
+      };
     case 'SPECIES_RELEASED':
       return {
         text: `${who(event.player)} released ${getCard(event.definitionId).name} — ${event.conserved} conserved`,

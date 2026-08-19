@@ -63,17 +63,20 @@ describe('spines', () => {
 
   it('damage an attacker even though the defender never strikes back', () => {
     let s = bareGame();
-    s = place(s, 0, ['giant-trevally']);
+    // A whitetip, not a trevally: 3 attack against 5 health leaves the puffer
+    // alive, which keeps this case about spines alone. Kill a puffer and its
+    // toxin kills you back, and that is a different rule — see toxin.test.ts.
+    s = place(s, 0, ['whitetip-reef-shark']);
     s = place(s, 1, ['blackspotted-puffer']);
 
-    const trevally = find(s, 0, 'giant-trevally');
+    const shark = find(s, 0, 'whitetip-reef-shark');
     const puffer = find(s, 1, 'blackspotted-puffer');
 
     const { state: after, events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
-        attackerId: trevally.instanceId,
+        attackerId: shark.instanceId,
         targetId: puffer.instanceId,
       }),
     );
@@ -84,6 +87,7 @@ describe('spines', () => {
     );
     expect(spineHit?.amount).toBe(3);
     expect(after.players[0].board[0]?.damage).toBe(3);
+    expect(after.players[1].board).toHaveLength(1); // the puffer lived, so nothing was eaten
     // And no retaliation event alongside it.
     expect(events.some((e) => e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation')).toBe(false);
   });
@@ -96,7 +100,7 @@ describe('spines', () => {
     const bumphead = find(s, 0, 'bumphead-parrotfish');
     const lionfish = find(s, 1, 'red-lionfish');
 
-    const { state: after } = expectOk(
+    const { state: after, events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
@@ -109,7 +113,15 @@ describe('spines', () => {
     // The venom lands anyway — and the bumphead is stranded at low tide, so
     // exposure adds its +1 to the spines too. Attacking while exposed is
     // doubly punishing, which is the point of the window.
-    expect(after.players[0].board[0]?.damage).toBe(3);
+    //
+    // Asserted on the event rather than on marked damage, because a lionfish is
+    // toxic: the bumphead ate it and is off the board by the time the dust
+    // settles. The spines still resolved on the way.
+    const spineHit = events.find(
+      (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
+        e.type === 'DAMAGE_DEALT' && e.cause === 'spines',
+    );
+    expect(spineHit?.amount).toBe(3);
   });
 
   it('are amplified by the attacker being exposed, and not otherwise', () => {
@@ -118,7 +130,7 @@ describe('spines', () => {
     s = place(s, 0, ['bumphead-parrotfish']);
     s = place(s, 1, ['red-lionfish']);
 
-    const { state: after } = expectOk(
+    const { events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
@@ -126,7 +138,11 @@ describe('spines', () => {
         targetId: find(s, 1, 'red-lionfish').instanceId,
       }),
     );
-    expect(after.players[0].board[0]?.damage).toBe(2);
+    const spineHit = events.find(
+      (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
+        e.type === 'DAMAGE_DEALT' && e.cause === 'spines',
+    );
+    expect(spineHit?.amount).toBe(2);
   });
 
   it('do not fire when a card attacks the player directly', () => {
@@ -168,9 +184,24 @@ describe('symbiosis', () => {
     const one = place(bareGame(), 0, ['moorish-idol', 'staghorn-coral']);
     const two = place(bareGame(), 0, ['moorish-idol', 'staghorn-coral', 'table-coral']);
 
+    // Staghorn is the nursery: +0/+2 of shelter. Table coral is the canopy, and
+    // shade is somewhere to hunt from as well as hide in: +1/+1.
     expect(statOf(bare, 0, 'moorish-idol').maxHealth).toBe(2);
-    expect(statOf(one, 0, 'moorish-idol').maxHealth).toBe(3);
-    expect(statOf(two, 0, 'moorish-idol').maxHealth).toBe(4);
+    expect(statOf(one, 0, 'moorish-idol').maxHealth).toBe(4);
+    expect(statOf(two, 0, 'moorish-idol').maxHealth).toBe(5);
+    expect(statOf(two, 0, 'moorish-idol').attack).toBe(3);
+  });
+
+  it('lets corals build the framework into each other', () => {
+    // The reef is a structure two corals make together, so each one is worth
+    // more with the other beside it — which is what makes stacking them a plan
+    // rather than a duplicate.
+    const alone = place(bareGame(), 0, ['staghorn-coral']);
+    const reef = place(bareGame(), 0, ['staghorn-coral', 'table-coral']);
+
+    expect(statOf(alone, 0, 'staghorn-coral').maxHealth).toBe(5);
+    expect(statOf(reef, 0, 'staghorn-coral').maxHealth).toBe(6);
+    expect(statOf(reef, 0, 'table-coral').maxHealth).toBe(8);
   });
 
   it('lets a cleaner wrasse service the megafauna', () => {
@@ -219,15 +250,15 @@ describe('symbiosis', () => {
   });
 
   it('separates the tide swing from the symbiosis swing in the stat breakdown', () => {
-    // A mudskipper is a reef-fish: +2 attack from low tide, +1 health from coral.
+    // A mudskipper is a reef-fish: +2 attack from low tide, +2 health from coral.
     const s = place(bareGame(), 0, ['atlantic-mudskipper', 'staghorn-coral']);
     const stats = statOf(s, 0, 'atlantic-mudskipper');
 
     expect(s.phase).toBe('low');
     expect(stats.tideBonus).toEqual({ attack: 2, health: 0 });
-    expect(stats.symbiosisBonus).toEqual({ attack: 0, health: 1 });
+    expect(stats.symbiosisBonus).toEqual({ attack: 0, health: 2 });
     expect(stats.attack).toBe(3);
-    expect(stats.maxHealth).toBe(3);
+    expect(stats.maxHealth).toBe(4);
   });
 });
 
