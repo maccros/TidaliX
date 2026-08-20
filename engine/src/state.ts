@@ -79,14 +79,25 @@ export const DEFAULT_CONFIG: GameConfig = {
   // entirely on the first turn:
   //
   //   whoever opens      does not draw, and starts on the base capacity of 2
-  //   whoever is second  draws as normal, and gets one extra energy
+  //   whoever is second  draws as normal, and gets two extra energy
+  //
+  // Two, not one. Measured on this set, with every seed run from both seats:
+  //
+  //   nothing                          normal 66.3%   hard 65.0%
+  //   skip draw, +1 energy             normal 61.3%   hard 59.3%
+  //   +1 card, +1 energy               normal 60.3%   hard 54.3%
+  //   skip draw, +2 energy   <- this   normal 52.7%   hard 50.3%
+  //
+  // The second energy is what closes the gap; the card barely moves it. Taking
+  // the opener's draw away and handing the other side a card are near
+  // equivalent, which is worth knowing before reaching for either again.
   //
   // Taking the draw away from the opener rather than handing the other side a
   // card keeps both opening hands the same size, which matters for how the game
   // reads: two players look across at four cards each.
   firstPlayerSkipsDraw: true,
   secondPlayerBonusCards: 0,
-  secondPlayerBonusEnergy: 1,
+  secondPlayerBonusEnergy: 2,
 };
 
 let instanceCounter = 0;

@@ -903,6 +903,8 @@ const ARRIVAL_LOG: Record<ArrivalEffect['kind'], (n: number) => string> = {
 function describe(event: GameEvent, state: GameState): { text: string; kind: string } | null {
   const who = (p: PlayerId) => (p === YOU ? 'You' : 'The AI');
   const them = (p: PlayerId) => (p === YOU ? 'you' : 'the AI');
+  /** "You have" but "The AI has" — the subject changes the verb. */
+  const has = (p: PlayerId) => (p === YOU ? 'have' : 'has');
 
   switch (event.type) {
     case 'TURN_STARTED':
@@ -912,7 +914,9 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
       };
 
     case 'TURN_SKIPPED_DRAW':
-      return { text: `${who(event.player)} opened, so no card this turn`, kind: 'setup' };
+      // "No card" was ambiguous — it reads as having no cards at all. The thing
+      // that did not happen is the draw, so the line says exactly that.
+      return { text: `${who(event.player)} opened: no draw this turn`, kind: 'setup' };
 
     // Only the second-turn payment is worth a line; the rest of the income is
     // itemised in the energy panel and would bury the log four deep every turn.
@@ -928,13 +932,13 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
 
     case 'HAND_OVERFLOW':
       return {
-        text: `${who(event.player)} discarded ${nameOf(state, event.instanceId)} — hand full`,
+        text: `${who(event.player)} discarded ${nameOf(state, event.instanceId)}: hand full`,
         kind: 'draw',
       };
 
     case 'DECK_EMPTY':
       return {
-        text: `${who(event.player)} has no deck left: ${event.fatigueDamage} fatigue`,
+        text: `${who(event.player)} ${has(event.player)} no deck left: ${event.fatigueDamage} fatigue damage`,
         kind: 'death',
       };
 
@@ -982,7 +986,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
     // suppressed, or the same death is announced twice.
     case 'SPECIES_POISONED':
       return {
-        text: `${nameOf(state, event.victimId)} ate ${nameOf(state, event.sourceId)} and dies of the toxin`,
+        text: `${nameOf(state, event.victimId)} ate ${nameOf(state, event.sourceId)}: killed by the toxin`,
         kind: 'toxin',
       };
 
@@ -995,7 +999,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
 
     case 'SPECIES_RELEASED':
       return {
-        text: `${who(event.player)} released ${getCard(event.definitionId).name} — ${event.conserved} lineage${event.conserved === 1 ? '' : 's'} protected`,
+        text: `${who(event.player)} released ${getCard(event.definitionId).name}: ${event.conserved} lineage${event.conserved === 1 ? '' : 's'} protected`,
         kind: 'conserve',
       };
 

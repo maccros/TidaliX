@@ -53,7 +53,7 @@ export interface CardDetailProps {
   onClose: () => void;
 }
 
-const KEYWORD_TEXT: Record<Keyword, string> = {
+const TRAIT_TEXT: Record<Keyword, string> = {
   surge: 'May attack the turn it is played, instead of waiting a turn.',
   'reef-guard': 'Enemies must deal with this before they can attack anything behind it, your face included.',
   toxic: 'Destroy it by attacking and your attacker dies too — eating it is what kills you. Wounding it costs nothing extra.',
@@ -190,14 +190,22 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
 
         {(def.keywords?.length || def.armour || def.spines || def.niche) && (
           <section className="detail__section">
-            <h3 className="detail__h">Niche and keywords</h3>
+            <h3 className="detail__h">Niche and traits</h3>
             <dl className="detail__glossary">
+              {/* Niche first: the category, before anything the animal does. */}
+              <div className="detail__entry">
+                <dt>
+                  <span className={`tag tag--niche tag--niche-${def.niche}`}>{def.niche}</span>
+                </dt>
+                <dd>{NICHE_NOTE[def.niche]}</dd>
+              </div>
+
               {def.keywords?.map((k) => (
                 <div key={k} className="detail__entry">
                   <dt>
                     <span className={`tag tag--${k}`}>{k}</span>
                   </dt>
-                  <dd>{KEYWORD_TEXT[k]}</dd>
+                  <dd>{TRAIT_TEXT[k]}</dd>
                 </div>
               ))}
 
@@ -225,14 +233,6 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                 </div>
               ) : null}
 
-              {/* One niche per card: how and where it lives, which is the axis
-                  every aura in the game is aimed at. */}
-              <div className="detail__entry">
-                <dt>
-                  <span className={`tag tag--niche tag--niche-${def.niche}`}>{def.niche}</span>
-                </dt>
-                <dd>{NICHE_NOTE[def.niche]}</dd>
-              </div>
             </dl>
           </section>
         )}

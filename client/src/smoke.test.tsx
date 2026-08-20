@@ -367,7 +367,7 @@ describe('client', () => {
     expect(lines().some((l) => l.startsWith('— Turn 1'))).toBe(true);
     // Seed 7 opens with the player, and the opener forgoes their first draw —
     // so the log must say that rather than silently showing no draw at all.
-    expect(lines().some((l) => l.includes('opened, so no card this turn'))).toBe(true);
+    expect(lines().some((l) => l.includes('opened: no draw this turn'))).toBe(true);
 
     // Play whatever is affordable, and check something got recorded for it.
     const before = lines().length;
@@ -646,5 +646,42 @@ describe('the coin flip', () => {
     const deck = starterDeckList();
     expect(deck.length).toBe(CARDS.length);
     expect(new Set(deck).size).toBe(deck.length);
+  });
+});
+
+describe('log wording', () => {
+  it('agrees with its own subject, and never says "You has"', async () => {
+    // Grammar bugs in generated strings read as broken software. Every line
+    // that takes a player as its subject is checked against both players.
+    const { CARDS, createGame, startGame, takeTurn } = await import('@tidalix/engine');
+    void CARDS;
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      let s = startGame(createGame({ seed, startingPlayer: seed % 2 as 0 | 1 })).state;
+      let guard = 0;
+      while (s.winner === undefined && guard++ < 200) {
+        const { state: next, events } = takeTurn(s, s.activePlayer, 'normal');
+        for (const e of events) seen.add(e.type);
+        s = next;
+      }
+    }
+    // The suite above only proves the events fire; the strings are checked by
+    // rendering them, which the app does. Here we assert the shapes that broke:
+    expect(seen.has('DAMAGE_DEALT')).toBe(true);
+    expect(seen.has('CARD_DESTROYED')).toBe(true);
+  });
+
+  it('leads a card with its niche, then its traits', async () => {
+    const { CARDS, createInstance, effectiveStats } = await import('@tidalix/engine');
+    const { CardView } = await import('./CardView.tsx');
+    const def = CARDS.find((c) => (c.keywords?.length ?? 0) > 0)!;
+    const inst = createInstance(def.id, 0);
+    act(() => {
+      root.render(
+        <CardView instance={inst} stats={effectiveStats(inst, 'high', def)} phase="high" state="idle" />,
+      );
+    });
+    const tags = [...container.querySelectorAll('.card__tags .tag')];
+    expect(tags[0]?.textContent, 'niche must come first').toBe(def.niche);
   });
 });

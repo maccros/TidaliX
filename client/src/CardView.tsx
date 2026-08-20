@@ -68,7 +68,11 @@ export interface CardViewProps {
 const LONG_PRESS_MS = 450;
 
 /**
- * What each keyword actually does, as a tooltip.
+ * What each trait actually does, as a tooltip.
+ *
+ * The engine calls these keywords; the player is shown the word "trait", with
+ * "niche" reserved for the category. Keeping the two apart is the whole point —
+ * a niche is what a species *is*, a trait is what it *does*.
  *
  * Keywords render from `def.keywords` alone — one tag per keyword, no exceptions.
  * Hand-writing a second tag for a keyword that is already in that list is how
@@ -89,7 +93,7 @@ const ARRIVAL_LABEL: Record<ArrivalEffect['kind'], (n: number) => string> = {
   scout: (n) => `On arrival: draw ${n}`,
 };
 
-const KEYWORD_TITLE: Record<Keyword, string> = {
+const TRAIT_TITLE: Record<Keyword, string> = {
   surge: 'may attack the turn it is played',
   'reef-guard': 'enemies must attack this before anything behind it',
   toxic: 'kills whatever destroys it in combat, unless that animal is immune',
@@ -228,8 +232,11 @@ export function CardView({
       <p className="card__text">{def.text}</p>
 
       <div className="card__tags">
+        {/* The niche comes first: it says what kind of animal this is, and the
+            traits after it say what that animal can do. */}
+        <span className={`tag tag--niche tag--niche-${def.niche}`}>{def.niche}</span>
         {def.keywords?.map((k) => (
-          <span key={k} className={`tag tag--${k}`} title={KEYWORD_TITLE[k]}>
+          <span key={k} className={`tag tag--${k}`} title={TRAIT_TITLE[k]}>
             {k}
           </span>
         ))}
@@ -253,7 +260,6 @@ export function CardView({
             releasable
           </span>
         )}
-        <span className={`tag tag--niche tag--niche-${def.niche}`}>{def.niche}</span>
       </div>
 
       {def.arrival && (

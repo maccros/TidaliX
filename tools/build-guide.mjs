@@ -41,7 +41,7 @@ const DATA = {
       cost: c.cost,
       base: [c.attack, c.health],
       kw: c.keywords ?? [],
-      traits: c.traits ?? [],
+      niche: c.niche,
       armour: c.armour ?? 0,
       spines: c.spines ?? 0,
       arrival: c.arrival ?? null,
@@ -158,7 +158,8 @@ function cardRow(id) {
     ? `<p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> ${ARRIVAL_TEXT[c.arrival.kind](c.arrival.amount)}
         <span class="arrival__note">${esc(c.arrival.note)}</span></span></p>`
     : '';
-  const traits = c.traits.map((t) => `<span class="kw kw--trait kw--trait-${t}">${t}</span>`).join('');
+  // Niche first: the category, before anything the animal does.
+  const niche = `<span class="kw kw--niche-${c.niche}">${c.niche}</span>`;
   const taxon = `<span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">${esc(TAXON_LABEL[c.taxon])}</span>`;
 
   const auras = c.auras
@@ -184,7 +185,7 @@ function cardRow(id) {
     </div>
     <div class="card__body">
       <p class="card__text">${esc(c.text)}</p>
-      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${taxon}${kw}${armour}${spines}${traits}</p>
+      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${niche}${type}${taxon}${kw}${armour}${spines}</p>
       ${arrival}
       ${auras}
     </div>
@@ -219,7 +220,7 @@ const symbioses = DATA.cards
     c.auras.map((a) => {
       const da = a.grants.attack ?? 0;
       const dh = a.grants.health ?? 0;
-      const partners = DATA.cards.filter((o) => o.id !== c.id && o.traits.includes(a.affects)).map((o) => o.name);
+      const partners = DATA.cards.filter((o) => o.id !== c.id && o.niche === a.affects).map((o) => o.name);
       return `<tr class="${da + dh < 0 ? 'is-harmful' : ''}">
         <td class="sym__from">${esc(c.name)}</td>
         <td><code>${a.affects}</code></td>
@@ -356,11 +357,10 @@ const html = `<title>TidaliX Field Guide</title>
   .kw--arrival { --b: #12797d; }
   .kw--structure { --b: #6d858c; }
   .kw--taxon { --b: #27684a; text-transform: none; }
-  .kw--trait-reef-fish { --b: #0972ae; }
-  .kw--trait-megafauna { --b: #7459c0; }
-  .kw--trait-coral { --b: #883f07; }
-  .kw--trait-anemone { --b: #ae429c; }
-  .kw--trait-anemonefish { --b: #2d7906; }
+  .kw--niche-reef-dweller { --b: #0972ae; }
+  .kw--niche-open-water { --b: #7459c0; }
+  .kw--niche-reef-builder { --b: #883f07; }
+  .kw--niche-bottom-dweller { --b: #505922; }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }

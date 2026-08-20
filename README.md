@@ -272,35 +272,47 @@ commit, and what to answer with it. Pick the card, then pick what it hits.
 
 ## Symbiosis
 
-Cards carry biological **traits** — `reef-fish`, `megafauna`, `coral`, `anemone`,
-`anemonefish` — and some carry **auras** that grant stats to friendly cards with
-a given trait.
+Every species has exactly one **niche** — how and where it lives — and auras are
+aimed at niches. It sits beside the lineage and answers a different question: a
+lineage is what an animal *is*, a niche is how it *lives*. The pile is scored on
+lineages; an aura is aimed at a niche.
 
-There were ten. Five were doing nothing: `crustacean`, `echinoderm`, `cephalopod`
-and `mollusc` restated the card's lineage in a second vocabulary, and `cleaner`
-described the wrasse without anything looking for it. A trait a player learns and
-then discovers means nothing is worse than no trait, so they are gone, and a test
-fails if one reappears. The rule it enforces: **what a card *is* goes in `taxon`;
-what it *does for its neighbours* goes in `traits`.** Each surviving trait has its
-own badge colour. Mutualism is simply both partners carrying an aura pointed at the
-other:
+| Niche | What it is |
+|---|---|
+| `reef-dweller` | Lives in and among the coral. What the reef shelters. |
+| `open-water` | Comes in from outside — sharks, rays, turtles, the big fish. |
+| `reef-builder` | Is the structure: the corals, the sea fan, the anemone. |
+| `bottom-dweller` | The flat, the sand, and the rubble beneath it all. |
+
+This replaced a list of ten traits, five of which no aura read: four restated the
+card's lineage in a second vocabulary and one described a single card. Four tests
+hold the replacement honest — every species has a niche, every aura points at one
+something occupies, every niche is read by at least one aura, and no niche
+duplicates a lineage. That third test earned its keep immediately: seventeen
+species landed in `bottom-dweller` with nothing granting to it, which is how the
+sea cucumber came to carry the flat's aura.
 
 | | |
 |---|---|
-| Anemone ↔ anemonefish | The anemone gives its resident `+0/+2`; the fish gives back `+1/+0` by driving off polyp-eaters. |
-| Staghorn coral → reef fish | `+0/+2`. A nursery of branches nothing large can reach into. |
-| Table coral → reef fish | `+1/+1`. Shade is somewhere to hunt from as well as hide in. |
-| Coral ↔ coral | `+0/+1` each way. The reef is a structure two corals build together, so stacking them is a plan rather than a duplicate. |
-| Cleaner wrasse → megafauna | `+0/+2` to every manta, shark and turtle you control. |
-| Crown-of-thorns → coral | `+0/-3`. A real relationship, and not a kind one. |
+| Staghorn coral → reef-dweller | `+0/+2`. A nursery of branches nothing large reaches into. |
+| Table coral → reef-dweller | `+1/+1`. Shade to hunt out of as well as hide in. |
+| Coral ↔ coral | Each reef-builder makes the others tougher; brain coral gives `+0/+2`. |
+| Cleaner wrasse, coral shrimp → open-water | `+0/+1` to the big animals that queue for them. |
+| Grey reef shark → open-water | `+1/+0`. It hunts in numbers and the pack comes in behind it. |
+| Sea cucumber → bottom-dweller | `+0/+1`. It turns the sediment over and the flat lives off it. |
+| Crown-of-thorns → reef-builder | `+0/-3`, **and it crosses the waterline.** |
 
-The corals carry the archetype: they also pay energy on the flood as well as at
-high water, and gain health at high tide. They are still the first thing to bake
-when the flat drains, and a crown-of-thorns still eats them alive.
+Auras are friendly-only, with exactly one exception. The crown-of-thorns eats
+coral on **both** sides of the channel, marked by a `crossesWaterline` flag on
+the aura itself. An outbreak is a plague on a reef, not a private drawback for
+whoever played it — and without it the card could not be used as removal at all.
 
-Auras are friendly-only and never apply to the card itself. Because they change
-a card's ceiling, a card can now **die when its partner dies** — the same failure
-mode as a falling tide, so death sweeps run to a fixpoint and cascade.
+Because an aura changes a card's ceiling, a card can **die when its partner
+dies** — the same failure mode as a falling tide, so death sweeps run to a
+fixpoint and cascade.
+
+Links are drawn only for the card you hover or click. Drawing all of them at
+once turned a six-card board into a cat's cradle.
 
 ## Conservation
 
@@ -394,24 +406,33 @@ one card.
 
 ## Who goes first
 
-Moving first wins about **63% of games** — measured over 500 games at each
-difficulty, both sides playing the same profile, every seed run with each seat
-starting so that "went first" is the only thing that varies:
+Moving first was worth about **63% of games**, and the player took the first turn
+in every single one. It is a coin flip now, drawn from the seed so a linked game
+still replays exactly, and the log's opening line says which way it fell.
 
-| Opponent | Player who moved first | Player who moved second |
+The flip alone only makes it fair across games. Making an individual game fair
+took paying for the first turn, and the opening now reads:
+
+| | Opener | Second |
 |---|---|---|
-| easy | 61.6% | 38.4% |
-| normal | 62.2% | 37.8% |
-| hard | 63.2% | 36.8% |
+| Cards dealt | 4 | 4 |
+| First-turn draw | **none** | draws 1 |
+| First-turn energy | 2 (base capacity) | 2 **+2** |
 
-The player used to take the first turn in **every single game**, which quietly
-handed them that edge. It is a coin flip now, derived from the seed so a linked
-game still replays exactly, and the log's opening line says which way it fell.
+Both sides look across at four cards; the whole difference is made on the first
+turn. Measured on this set, with every seed run from both seats:
 
-The flip makes it fair across games; it does not make an individual game fair.
-Closing that would mean compensating whoever goes second — the extra card or
-extra energy most card games give them — which is a rules change and has not
-been made.
+| Compensation | normal | hard |
+|---|---|---|
+| nothing | 66.3% | 65.0% |
+| skip draw, +1 energy | 61.3% | 59.3% |
+| +1 card, +1 energy | 60.3% | 54.3% |
+| **skip draw, +2 energy** | **52.7%** | **50.3%** |
+
+**The second energy is what closes the gap; the card barely moves it.** Taking
+the opener's draw away and handing the other side a card turn out to be near
+equivalent — worth knowing before reaching for either again. After the change,
+first-player win rate is 52.3% at normal and 50.5% at hard.
 
 ## The opponent
 
