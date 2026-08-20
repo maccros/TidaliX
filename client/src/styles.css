@@ -39,25 +39,33 @@
    * the only thing carrying meaning.
    */
   /*
-   * Every one measured against the surface it sits on: all thirteen clear 4.5:1
-   * in both themes. Three did not before — surge at 3.39, anemonefish at 3.81
-   * and coral at 3.87 — and armour, while legible at 4.67, was the muddiest hue
-   * in the set. Deepened rather than re-hued, so nothing moved position on the
-   * wheel and no two badges got closer together.
+   * One hue per badge, chosen by measurement rather than by eye.
+   *
+   * Two properties are guaranteed, and both were broken before: every badge
+   * clears 4.5:1 against the surface it sits on, and no two are closer than
+   * deltaE 13 in CIEDE2000 — comfortably past the point where a pair reads as
+   * "the same colour". Earlier passes failed both. Toxic and spines were
+   * literally identical; then, after a first fix, armour and surge were both
+   * dark golds and three badges sat below the contrast floor.
+   *
+   * Hues are fixed by meaning and only lightness moves, so the palette reads as
+   * the same system in both themes. Contrast is held inside 4.8-7.2 so no badge
+   * shouts louder than another — the loud ones were reading as the important
+   * ones rather than the ones that happened to be red.
    */
-  --b-toxic:        #b3342b;
-  --b-spines:       #b5316e;
-  --b-armour:       #7a5a24;
-  --b-surge:        #9a6212;
-  --b-immune:       #25705c;
-  --b-pierce:       #7a4bb5;
-  --b-guard:        #2b5f9e;
-  --b-arrival:      #0b6a78;
-  --b-reef-fish:    #0c6a85;
-  --b-megafauna:    #4a4bb0;
-  --b-coral:        #a8501c;
-  --b-anemone:      #8e3790;
-  --b-anemonefish:  #4d7018;
+  --b-toxic:        #da120b;
+  --b-coral:        #883f07;
+  --b-surge:        #836607;
+  --b-armour:       #505922;
+  --b-anemonefish:  #2d7906;
+  --b-immune:       #27684a;
+  --b-arrival:      #12797d;
+  --b-reef-fish:    #0972ae;
+  --b-guard:        #0c3ddf;
+  --b-megafauna:    #7459c0;
+  --b-pierce:       #870abd;
+  --b-anemone:      #ae429c;
+  --b-spines:       #aa0949;
 
   --serif: Georgia, 'Iowan Old Style', Palatino, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -85,19 +93,19 @@
     --warn: #e5765f;
     --good: #58bda1;
 
-    --b-toxic:        #e5765f;
-    --b-spines:       #ec7aa8;
-    --b-armour:       #d4b06a;
-    --b-surge:        #e8b45c;
-    --b-immune:       #58bda1;
-    --b-pierce:       #b18ae8;
-    --b-guard:        #6d9ee0;
-    --b-arrival:      #52bccd;
-    --b-reef-fish:    #4fb8d6;
-    --b-megafauna:    #8f8ee8;
-    --b-coral:        #e9926f;
-    --b-anemone:      #d68cd6;
-    --b-anemonefish:  #a8cc66;
+    --b-toxic:        #f6514c;
+    --b-coral:        #f4842f;
+    --b-surge:        #ae8809;
+    --b-armour:       #9db71a;
+    --b-anemonefish:  #3ba008;
+    --b-immune:       #55be8d;
+    --b-arrival:      #179ca1;
+    --b-reef-fish:    #1f93d6;
+    --b-guard:        #94a9f0;
+    --b-megafauna:    #9a77f8;
+    --b-pierce:       #c79bd9;
+    --b-anemone:      #f42fd3;
+    --b-spines:       #ca7295;
   }
 }
 
@@ -196,6 +204,11 @@ button { font: inherit; color: inherit; }
    */
   pointer-events: none; z-index: 4; overflow: visible;
 }
+/*
+ * Drawn only for the card under the cursor or the one clicked. Drawing every
+ * relationship at once turned a six-card board into a cat's cradle: a link is
+ * worth seeing when you are asking about one animal, not as permanent furniture.
+ */
 .symbiosis__link {
   fill: none; stroke: var(--good); stroke-width: 2.5; stroke-linecap: round;
   stroke-dasharray: 5 4; opacity: 0.95;
@@ -239,6 +252,9 @@ button { font: inherit; color: inherit; }
 }
 
 .card--playable, .card--ready, .card--target { cursor: pointer; }
+/* Any card can be asked about, so any card takes a pointer. */
+.card:not(.card--unaffordable) { cursor: pointer; }
+.card--target { cursor: crosshair; }
 .card--playable { border-color: var(--good); }
 .card--playable:hover, .card--ready:hover { transform: translateY(-3px); }
 .card--unaffordable { opacity: 0.45; }

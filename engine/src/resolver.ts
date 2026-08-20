@@ -558,8 +558,10 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
       for (const inst of player.board) {
         // Stats are measured against the board as it stands at the start of this
         // pass, so simultaneous deaths resolve together rather than in order.
+        const across = draft.players[inst.owner === 0 ? 1 : 0].board;
         const outOfHealth =
-          effectiveStats(inst, draft.phase, getCard(inst.definitionId), player.board).health <= 0;
+          effectiveStats(inst, draft.phase, getCard(inst.definitionId), player.board, across)
+            .health <= 0;
         // A toxin is not damage and cannot be out-healed: once marked, the card
         // is dead on the next sweep whatever its health has since become.
         if (outOfHealth || inst.poisoned) {

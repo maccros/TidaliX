@@ -13,7 +13,7 @@ import type {
 } from './types.js';
 import { CARDS, getCard } from './cards.js';
 import { nextInt, shuffle } from './rng.js';
-import { effectiveStats, cyclesCompleted, diesAtNextPhase } from './tide.js';
+import { effectiveStats, cyclesCompleted, diesAtNextPhase, statsFor } from './tide.js';
 import { isMature, stepsUntilMature } from './economy.js';
 import type { Taxon } from './types.js';
 
@@ -277,9 +277,11 @@ export interface BoardCardView {
  */
 export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
   const board = state.players[player].board;
+  // The other side, for the one aura in the set that reaches across it.
+  const across = state.players[player === 0 ? 1 : 0].board;
   return board.map((inst) => {
     const def = getCard(inst.definitionId);
-    const stats = effectiveStats(inst, state.phase, def, board);
+    const stats = effectiveStats(inst, state.phase, def, board, across);
     return {
       instanceId: inst.instanceId,
       definitionId: inst.definitionId,
@@ -312,7 +314,7 @@ export function canAttack(state: GameState, inst: CardInstance): boolean {
   if (inst.owner !== state.activePlayer) return false;
   if (inst.hasAttacked) return false;
   const def = getCard(inst.definitionId);
-  if (effectiveStats(inst, state.phase, def, state.players[inst.owner].board).attack <= 0) {
+  if (statsFor(state, inst).attack <= 0) {
     return false;
   }
   const summoningSick = inst.playedOnTurn === state.turn && !def.keywords?.includes('surge');

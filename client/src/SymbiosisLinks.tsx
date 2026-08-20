@@ -33,7 +33,13 @@ export interface SymbiosisLinksProps {
   container: HTMLElement | null;
   /** Card element lookup, keyed by instance id. */
   nodes: Map<string, HTMLElement>;
-  /** When set, links not touching this card are dimmed. */
+  /**
+   * The card the player is looking at. Links are drawn *only* for this card.
+   *
+   * Everything used to be drawn at once, which turned a six-card board into a
+   * cat's cradle nobody could read. A relationship is worth seeing when you are
+   * asking about one animal, not as permanent furniture.
+   */
   focusId: string | null;
   /** Bumped by the caller whenever layout may have changed. */
   revision: number;
@@ -54,6 +60,12 @@ export function SymbiosisLinks({
       return;
     }
 
+    // Nothing focused, nothing drawn. The board stays legible by default.
+    if (!focusId) {
+      setLinks([]);
+      return;
+    }
+
     const measure = () => {
       const origin = container.getBoundingClientRect();
       const next: Link[] = [];
@@ -67,8 +79,7 @@ export function SymbiosisLinks({
           const a = from.getBoundingClientRect();
           const b = to.getBoundingClientRect();
           const harmful = (link.aura.grants.attack ?? 0) + (link.aura.grants.health ?? 0) < 0;
-          const touchesFocus =
-            focusId === null || link.sourceId === focusId || link.targetId === focusId;
+          if (link.sourceId !== focusId && link.targetId !== focusId) continue;
 
           next.push({
             key: `${link.sourceId}->${link.targetId}-${link.aura.affects}`,
@@ -78,7 +89,7 @@ export function SymbiosisLinks({
             y2: b.top + b.height / 2 - origin.top,
             aura: link.aura,
             harmful,
-            dimmed: !touchesFocus,
+            dimmed: false,
           });
         }
       }

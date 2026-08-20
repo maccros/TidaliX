@@ -69,22 +69,33 @@ export function symbiosisFor(
   instance: CardInstance,
   def: CardDefinition,
   allies: readonly CardInstance[],
+  /** The other side's board, for the auras that reach across it. */
+  enemies: readonly CardInstance[] = [],
 ): StatBonus {
   const traits = def.traits;
   if (!traits || traits.length === 0) return {};
 
   let attack = 0;
   let health = 0;
-  for (const ally of allies) {
-    if (ally.instanceId === instance.instanceId) continue;
-    const auras = getCard(ally.definitionId).auras;
-    if (!auras) continue;
-    for (const aura of auras) {
-      if (!traits.includes(aura.affects)) continue;
-      attack += aura.grants.attack ?? 0;
-      health += aura.grants.health ?? 0;
+
+  const apply = (source: readonly CardInstance[], crossingOnly: boolean) => {
+    for (const other of source) {
+      if (other.instanceId === instance.instanceId) continue;
+      const auras = getCard(other.definitionId).auras;
+      if (!auras) continue;
+      for (const aura of auras) {
+        if (crossingOnly && !aura.crossesWaterline) continue;
+        if (!traits.includes(aura.affects)) continue;
+        attack += aura.grants.attack ?? 0;
+        health += aura.grants.health ?? 0;
+      }
     }
-  }
+  };
+
+  apply(allies, false);
+  // Only auras marked as crossing reach here, which is one card in the set.
+  apply(enemies, true);
+
   return { attack, health };
 }
 
@@ -106,9 +117,10 @@ export function effectiveStats(
   phase: TidePhase,
   def: CardDefinition = getCard(instance.definitionId),
   allies: readonly CardInstance[] = [],
+  enemies: readonly CardInstance[] = [],
 ): EffectiveStats {
   const effect = tideEffectFor(def, phase);
-  const symbiosis = symbiosisFor(instance, def, allies);
+  const symbiosis = symbiosisFor(instance, def, allies, enemies);
 
   const tideAttack = effect.attack ?? 0;
   const tideHealth = effect.health ?? 0;
@@ -138,6 +150,7 @@ export function statsFor(state: GameState, instance: CardInstance): EffectiveSta
     state.phase,
     getCard(instance.definitionId),
     state.players[instance.owner].board,
+    state.players[instance.owner === 0 ? 1 : 0].board,
   );
 }
 
@@ -156,9 +169,10 @@ export function statsFor(state: GameState, instance: CardInstance): EffectiveSta
 export function diesAtNextPhase(state: GameState, instance: CardInstance): boolean {
   const def = getCard(instance.definitionId);
   const board = state.players[instance.owner].board;
+  const across = state.players[instance.owner === 0 ? 1 : 0].board;
   // Something already dead is not dying; it is about to be swept.
-  if (effectiveStats(instance, state.phase, def, board).health <= 0) return false;
-  return effectiveStats(instance, nextPhase(state.phase), def, board).health <= 0;
+  if (effectiveStats(instance, state.phase, def, board, across).health <= 0) return false;
+  return effectiveStats(instance, nextPhase(state.phase), def, board, across).health <= 0;
 }
 
 /** Whether a card is currently at or below zero health and should be swept. */

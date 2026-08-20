@@ -346,21 +346,21 @@ const html = `<title>TidaliX Field Guide</title>
   .kw--pierce, .kw--armour, .kw--spines, .kw--arrival {
     background: color-mix(in srgb, var(--b) 13%, transparent); font-weight: 700;
   }
-  .kw--surge { --b: #9a6212; }
-  .kw--reef-guard { --b: #2b5f9e; }
-  .kw--toxic { --b: #b3342b; }
-  .kw--toxin-immune { --b: #25705c; }
-  .kw--pierce { --b: #7a4bb5; }
-  .kw--armour { --b: #7a5a24; }
-  .kw--spines { --b: #b5316e; }
-  .kw--arrival { --b: #0b6a78; }
+  .kw--surge { --b: #836607; }
+  .kw--reef-guard { --b: #0c3ddf; }
+  .kw--toxic { --b: #da120b; }
+  .kw--toxin-immune { --b: #27684a; }
+  .kw--pierce { --b: #870abd; }
+  .kw--armour { --b: #505922; }
+  .kw--spines { --b: #aa0949; }
+  .kw--arrival { --b: #12797d; }
   .kw--structure { --b: #6d858c; }
-  .kw--taxon { --b: #25705c; text-transform: none; }
-  .kw--trait-reef-fish { --b: #0c6a85; }
-  .kw--trait-megafauna { --b: #4a4bb0; }
-  .kw--trait-coral { --b: #a8501c; }
-  .kw--trait-anemone { --b: #8e3790; }
-  .kw--trait-anemonefish { --b: #4d7018; }
+  .kw--taxon { --b: #27684a; text-transform: none; }
+  .kw--trait-reef-fish { --b: #0972ae; }
+  .kw--trait-megafauna { --b: #7459c0; }
+  .kw--trait-coral { --b: #883f07; }
+  .kw--trait-anemone { --b: #ae429c; }
+  .kw--trait-anemonefish { --b: #2d7906; }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }

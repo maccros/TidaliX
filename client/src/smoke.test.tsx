@@ -608,6 +608,56 @@ describe('card detail', () => {
   });
 });
 
+describe('symbiosis links', () => {
+  it('draws nothing until a card is asked about', async () => {
+    // Every relationship drawn at once turned a six-card board into a cat's
+    // cradle. Links are a question you ask about one animal, not furniture.
+    vi.useFakeTimers();
+    try {
+      render(7);
+      for (let turn = 0; turn < 10; turn++) {
+        const mine = container.querySelectorAll('.side--you .card');
+        if (mine.length >= 2) {
+          expect(container.querySelectorAll('.symbiosis__link')).toHaveLength(0);
+          return;
+        }
+        const playable = container.querySelector<HTMLButtonElement>('.hand .card--playable');
+        if (playable) {
+          act(() => playable.click());
+          const t = container.querySelector<HTMLButtonElement>('.side--enemy .card--target');
+          if (t) act(() => t.click());
+          continue;
+        }
+        const end = container.querySelector<HTMLButtonElement>('.btn--primary:not(:disabled)');
+        if (!end) break;
+        act(() => end.click());
+        await act(async () => { vi.advanceTimersByTime(800); });
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('lets any card be selected, not only one that can attack', () => {
+    // A coral cannot attack and is exactly the card whose relationships a player
+    // wants to ask about, so it has to be clickable.
+    for (let seed = 1; seed <= 40; seed++) {
+      remount();
+      render(seed);
+      const playable = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')];
+      const builder = playable.find((c) => c.querySelector('.stat--attack')?.textContent === '0');
+      if (!builder) continue;
+      act(() => builder.click());
+      const onBoard = container.querySelector<HTMLButtonElement>('.side--you .card--support');
+      if (!onBoard) continue;
+      act(() => onBoard.click());
+      expect(container.querySelector('.side--you .card--selected')).not.toBeNull();
+      return;
+    }
+    throw new Error('no 0-attack card reached the reef in 40 seeds');
+  });
+});
+
 describe('the coin flip', () => {
   it('does not hand the first turn to the player every game', async () => {
     // Moving first wins about 63% of games, so who starts cannot be a constant.

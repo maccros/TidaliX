@@ -161,6 +161,17 @@ export interface Aura {
   grants: StatBonus;
   /** Player-facing description of the relationship. */
   note: string;
+  /**
+   * Reaches the opponent's board as well as your own.
+   *
+   * Every other aura in the game is friendly-only, and deliberately so: a reef
+   * shelters the animals living in it, not the ones across the channel. This is
+   * the single exception, and it exists because a crown-of-thorns outbreak is a
+   * plague *on a reef* rather than a drawback its owner privately suffers.
+   * Keeping it to one card keeps the default rule intact and makes the exception
+   * legible: if a relationship crosses the waterline, that is the card doing it.
+   */
+  crossesWaterline?: boolean;
 }
 
 /**

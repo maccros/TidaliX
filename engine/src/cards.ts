@@ -559,7 +559,10 @@ export const CARDS: readonly CardDefinition[] = [
       {
         affects: 'coral',
         grants: { health: -3 },
-        note: 'digests living coral from the outside in',
+        note: 'digests living coral from the outside in, on either side of the channel',
+        // The one aura in the game that crosses the waterline. An outbreak is a
+        // plague on a reef, not a private drawback for whoever played it.
+        crossesWaterline: true,
       },
     ],
     arrival: {

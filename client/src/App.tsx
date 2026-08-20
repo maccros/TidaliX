@@ -336,9 +336,17 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     return 'spent';
   };
 
+  /**
+   * Clicking a card selects it — any card, not only one that can attack.
+   *
+   * Selection does two jobs: it picks an attacker, and it is what reveals a
+   * card's symbiosis. A coral cannot attack, and it is exactly the card whose
+   * relationships a player most wants to ask about, so it has to be clickable.
+   * Attacking still needs a legal attacker, which `targets` enforces.
+   */
   const clickBoardCard = (id: string, mine: boolean) => {
     if (mine) {
-      setSelected((cur) => (cur === id ? null : attackers.has(id) ? id : cur));
+      setSelected((cur) => (cur === id ? null : id));
       return;
     }
     // Aiming an arrival takes priority: the card is mid-play and the click is
@@ -349,7 +357,10 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     }
     if (selected && targets.has(id)) {
       run({ type: 'ATTACK', player: YOU, attackerId: selected, targetId: id });
+      return;
     }
+    // Not a legal target, so the click is a question about the card instead.
+    setSelected((cur) => (cur === id ? null : id));
   };
 
   /** Play a card from hand, stopping to aim first when its arrival needs it. */
@@ -378,7 +389,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
           boards={[bot.board, you.board]}
           container={boardEl}
           nodes={nodes.current}
-          focusId={hovered}
+          focusId={hovered ?? selected}
           revision={revision}
         />
 

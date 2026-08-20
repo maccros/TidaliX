@@ -142,14 +142,21 @@ export function CardView({
   const symbiosis = deltaLabel(stats.symbiosisBonus);
   const toxic = def.keywords?.includes('toxic') ?? false;
   const interactive = state === 'playable' || state === 'ready' || state === 'target';
-  // Not `disabled`: a disabled button swallows pointer events, and inspecting a
-  // card has to work on every card — including the opponent's and your own spent
-  // ones. The click handler enforces playability instead.
-  const inert = !interactive && state !== 'selected';
+  /**
+   * Only a card you cannot pay for refuses a click.
+   *
+   * Everything else stays clickable, because a click no longer means only "act
+   * with this" — it also means "show me this card's relationships", and the
+   * cards whose relationships matter most are the corals, which can never
+   * attack and were being marked inert. The caller decides what a click means;
+   * this only refuses the one case that is never anything.
+   */
+  const inert = state === 'unaffordable';
 
   const classes = [
     'card',
     `card--${state}`,
+    interactive || state === 'selected' ? 'is-actionable' : '',
     `card--phase-${phase}`,
     linked ? 'is-linked' : '',
     stats.exposed ? 'is-exposed' : '',
