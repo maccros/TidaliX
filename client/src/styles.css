@@ -352,24 +352,6 @@ button { font: inherit; color: inherit; }
 .card__text { margin: 0; font-size: 0.68rem; color: var(--ink-soft); line-height: 1.35; }
 
 .card__tags { display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: auto; }
-.tag {
-  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase;
-  padding: 0.1em 0.35em; border-radius: 2px; border: 1px solid var(--line-soft); color: var(--ink-faint);
-}
-.tag--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
-.tag--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
-.tag--energy { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 45%, transparent); }
-.tag--release {
-  color: var(--good); border-color: var(--good);
-  background: color-mix(in srgb, var(--good) 14%, transparent); font-weight: 700;
-}
-.tag--toxic {
-  color: var(--warn); border-color: var(--warn); font-weight: 700;
-  background: color-mix(in srgb, var(--warn) 15%, transparent);
-}
-.tag--pierce { color: var(--accent); border-color: var(--accent); font-weight: 700; }
-.tag--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
-
 /* The arrival is what happens when you play the card, so it leads the effects. */
 .card__arrival {
   margin: 0; font-size: 0.63rem; color: var(--b-arrival);
@@ -759,10 +741,6 @@ button { font: inherit; color: inherit; }
 }
 .detail__readers { display: block; margin-top: 0.15rem; color: var(--ink-faint); font-size: 0.74rem; }
 .detail__readers b { color: var(--good); font-weight: 600; }
-.tag--spines {
-  color: var(--warn); border-color: var(--warn); font-weight: 700;
-  background: color-mix(in srgb, var(--warn) 14%, transparent);
-}
 @media (max-width: 32rem) {
   .detail__entry { grid-template-columns: 1fr; gap: 0.15rem; }
 }
