@@ -38,19 +38,26 @@
    * only matter through somebody else's aura. Same alpha throughout, so hue is
    * the only thing carrying meaning.
    */
+  /*
+   * Every one measured against the surface it sits on: all thirteen clear 4.5:1
+   * in both themes. Three did not before — surge at 3.39, anemonefish at 3.81
+   * and coral at 3.87 — and armour, while legible at 4.67, was the muddiest hue
+   * in the set. Deepened rather than re-hued, so nothing moved position on the
+   * wheel and no two badges got closer together.
+   */
   --b-toxic:        #b3342b;
   --b-spines:       #b5316e;
-  --b-armour:       #8a6a3a;
-  --b-surge:        #b8791f;
-  --b-immune:       #2f8570;
+  --b-armour:       #7a5a24;
+  --b-surge:        #9a6212;
+  --b-immune:       #25705c;
   --b-pierce:       #7a4bb5;
   --b-guard:        #2b5f9e;
-  --b-arrival:      #0b7c8c;
-  --b-reef-fish:    #0f7d9e;
+  --b-arrival:      #0b6a78;
+  --b-reef-fish:    #0c6a85;
   --b-megafauna:    #4a4bb0;
-  --b-coral:        #c2622a;
-  --b-anemone:      #9c3f9e;
-  --b-anemonefish:  #5f8a2a;
+  --b-coral:        #a8501c;
+  --b-anemone:      #8e3790;
+  --b-anemonefish:  #4d7018;
 
   --serif: Georgia, 'Iowan Old Style', Palatino, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -80,8 +87,8 @@
 
     --b-toxic:        #e5765f;
     --b-spines:       #ec7aa8;
-    --b-armour:       #c9a874;
-    --b-surge:        #e0a94e;
+    --b-armour:       #d4b06a;
+    --b-surge:        #e8b45c;
     --b-immune:       #58bda1;
     --b-pierce:       #b18ae8;
     --b-guard:        #6d9ee0;
