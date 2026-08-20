@@ -15,6 +15,7 @@ import { useEffect, useRef } from 'react';
 import {
   TAXON_LABEL,
   TIDE_CYCLE,
+  type ArrivalEffect,
   effectiveStats,
   getCard,
   tideEffectFor,
@@ -22,6 +23,10 @@ import {
   type EffectiveStats,
   type TidePhase,
 } from '@tidalix/engine';
+
+import { SpeciesArt } from './SpeciesArt.tsx';
+
+import { CardArt } from './CardArt.tsx';
 
 export interface CardDetailProps {
   instance: CardInstance;
@@ -46,6 +51,14 @@ export interface CardDetailProps {
   } | null;
   onClose: () => void;
 }
+
+const ARRIVAL_TEXT: Record<ArrivalEffect['kind'], (n: number) => string> = {
+  strike: (n) => `Deal ${n} damage to an enemy creature.`,
+  sweep: (n) => `Deal ${n} damage to every enemy creature.`,
+  mend: (n) => `Heal ${n} damage from every friendly creature.`,
+  forage: (n) => `Gain ${n} energy immediately.`,
+  scout: (n) => `Draw ${n} card${n === 1 ? '' : 's'}.`,
+};
 
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
@@ -100,6 +113,14 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </button>
         </header>
 
+        <div className="detail__art">
+          <SpeciesArt definitionId={def.id} className="art art--large" />
+        </div>
+
+        <div className="detail__art">
+          <CardArt definitionId={def.id} size="detail" />
+        </div>
+
         {def.text && <p className="detail__text">{def.text}</p>}
 
         <section className="detail__section">
@@ -141,7 +162,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                       {alone.maxHealth}
                       {dH !== 0 && <small className={dH > 0 ? 'up' : 'down'}> {sign(dH)}</small>}
                     </td>
-                    <td>{effect.energy ? `+${effect.energy}` : '—'}</td>
+                    <td>{effect.energy ? `⬡+${effect.energy}` : '—'}</td>
                     <td className="tidetable__note">
                       {effect.exposed ? 'exposed — takes bonus damage' : ''}
                     </td>
@@ -152,7 +173,22 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </table>
         </section>
 
-        {(def.keywords?.length || def.traits?.length || def.spines) && (
+        {def.arrival && (
+          <section className="detail__section">
+            <h3 className="detail__h">On arrival</h3>
+            <p className="detail__arrival">
+              <b>{ARRIVAL_TEXT[def.arrival.kind](def.arrival.amount)}</b>
+              <span className="detail__arrivalnote">{def.arrival.note}</span>
+            </p>
+            <p className="detail__arrivalrule">
+              Resolves the moment the card is played, before anything else happens — which
+              is what lets a card answer a board rather than merely join one. It does not let
+              the card attack: that still waits a turn unless it has <em>surge</em>.
+            </p>
+          </section>
+        )}
+
+        {(def.keywords?.length || def.traits?.length || def.armour) && (
           <section className="detail__section">
             <h3 className="detail__h">Traits and keywords</h3>
             <div className="detail__tags">
@@ -161,8 +197,8 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                   {k}
                 </span>
               ))}
-              {def.spines ? (
-                <span className="tag tag--spines">spines {def.spines}</span>
+              {def.armour ? (
+                <span className="tag tag--armour">armour {def.armour}</span>
               ) : null}
               {def.traits?.map((t) => (
                 <span key={t} className="tag tag--trait">
@@ -262,7 +298,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
               ) : (
                 <>
                   A lineage you do not hold: <b>{TAXON_LABEL[def.taxon]}</b>. Releasing it takes
-                  the pile&rsquo;s standing income to <b>+{release.incomeAfter} energy a turn</b>.
+                  the pile&rsquo;s standing income to <b>⬡+{release.incomeAfter} a turn</b>.
                 </>
               )}
             </p>

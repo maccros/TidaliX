@@ -42,7 +42,8 @@ const DATA = {
       base: [c.attack, c.health],
       kw: c.keywords ?? [],
       traits: c.traits ?? [],
-      spines: c.spines ?? 0,
+      armour: c.armour ?? 0,
+      arrival: c.arrival ?? null,
       auras: c.auras ?? [],
       text: c.text,
       per,
@@ -86,7 +87,7 @@ const GROUPS = [
     phase: null,
     title: 'Armed — animals that punish being attacked',
     blurb:
-      'A defender does not strike back in TidaliX. A body is not a weapon: only these animals are, through a printed spines value that damages whatever attacks them. Attack one with a card the tide has left exposed and you pay for it twice. All three are also toxic — kill one and whatever ate it dies of the toxin, unless it is one of the few predators printed as toxin-immune.',
+      'Every defender in TidaliX strikes back, so these animals are not the ones that punish an attacker — they are the ones that are hard to hurt at all. A printed armour value comes off the top of every hit they take, from attacks and from retaliation alike. All three are also toxic: kill one and whatever ate it dies of the toxin, unless it is one of the few predators printed as toxin-immune.',
     ids: ['blackspotted-puffer', 'red-lionfish', 'crown-of-thorns-starfish'],
   },
   {
@@ -139,8 +140,19 @@ function cardRow(id) {
 
   const kw = c.kw.map((k) => `<span class="kw kw--${k}">${k}</span>`).join('');
   const type = c.type === 'structure' ? '<span class="kw kw--structure">structure</span>' : '';
-  const spines = c.spines
-    ? `<span class="kw kw--spines" title="damages anything that attacks it">spines ${c.spines}</span>`
+  const armour = c.armour
+    ? `<span class="kw kw--armour" title="comes off the top of every hit it takes">armour ${c.armour}</span>`
+    : '';
+  const ARRIVAL_TEXT = {
+    strike: (n) => `deal ${n} damage to an enemy creature`,
+    sweep: (n) => `deal ${n} damage to every enemy creature`,
+    mend: (n) => `heal ${n} from every friendly creature`,
+    forage: (n) => `gain ${n} energy`,
+    scout: (n) => `draw ${n}`,
+  };
+  const arrival = c.arrival
+    ? `<p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> ${ARRIVAL_TEXT[c.arrival.kind](c.arrival.amount)}
+        <span class="arrival__note">${esc(c.arrival.note)}</span></span></p>`
     : '';
   const traits = c.traits.map((t) => `<span class="kw kw--trait">${t}</span>`).join('');
   const taxon = `<span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">${esc(TAXON_LABEL[c.taxon])}</span>`;
@@ -168,7 +180,8 @@ function cardRow(id) {
     </div>
     <div class="card__body">
       <p class="card__text">${esc(c.text)}</p>
-      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${taxon}${kw}${spines}${traits}</p>
+      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${taxon}${kw}${armour}${traits}</p>
+      ${arrival}
       ${auras}
     </div>
     ${strip(c)}
@@ -322,7 +335,10 @@ const html = `<title>TidaliX Field Guide</title>
   .kw { font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; padding: .18em .5em; border-radius: 2px; border: 1px solid var(--line); color: var(--ink-soft); background: var(--ground); }
   .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
   .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
-  .kw--spines { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); font-weight: 700; }
+  .kw--armour { color: var(--high); border-color: var(--high); background: color-mix(in srgb, var(--high) 14%, transparent); font-weight: 700; }
+  .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
+  .arrival__mark { opacity: 0.75; }
+  .arrival__note { color: var(--muted, #6d858c); font-style: italic; }
   .kw--toxic { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .kw--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
   .kw--taxon { color: var(--good, var(--rising)); border-color: color-mix(in srgb, var(--rising) 45%, transparent); text-transform: none; }
@@ -469,21 +485,40 @@ const html = `<title>TidaliX Field Guide</title>
         <ul>
           <li>A card cannot attack the turn it is played unless it has <b>surge</b>.</li>
           <li>One attack per card per turn. Cards with <span class="num">0</span> attack cannot attack at all.</li>
-          <li>The defender <b>does not strike back</b>. A body is not a weapon.</li>
+          <li>The defender <b>always strikes back</b>, for its full attack. Killing something is a trade, which is what stops a wide board clearing everything you play for free.</li>
           <li>A <b>reef-guard</b> must be dealt with before anything behind it, face included.</li>
         </ul>
       </div>
 
       <div class="rule">
-        <h4>Spines</h4>
+        <h4>Armour</h4>
         <p>
-          Only animals that are actually armed punish an attacker. <b>Spines</b> is
-          a printed number: a pufferfish, lionfish, urchin, anemone or
-          crown-of-thorns deals it to whatever bites them. A barracuda deals none.
+          Now that every defender hits back, the armed animals are not the ones
+          that punish an attacker &mdash; they are the ones that are hard to hurt.
+          <b>Armour</b> is a printed number that comes off the top of every hit
+          they take: a pufferfish inflated into a ball, an urchin wedged in its
+          socket, an anemone withdrawn.
         </p>
         <p>
-          Spines land even when the defender dies to the same attack. A puffer that
-          dies still dies covered in spines.
+          It applies to attacks and to retaliation alike, so an armoured animal is
+          both awful to attack and awful to be attacked by. Damage never goes
+          below zero: a blocked hit is nothing, not a heal.
+        </p>
+      </div>
+
+      <div class="rule">
+        <h4>Arrival</h4>
+        <p>
+          Some species do something the moment they land &mdash; a strike, a sweep,
+          a heal, energy, a card. It resolves immediately, before anything else
+          happens, which is what lets a card <em>answer</em> a board rather than
+          merely join one and wait a turn to be killed.
+        </p>
+        <p>
+          An arrival is not a free attack: the card still cannot attack the turn it
+          is played unless it has <b>surge</b>. Not every card has one, by design
+          &mdash; a card without an arrival is paying for it in stats, in its tide
+          line, or in an aura.
         </p>
       </div>
 
@@ -491,9 +526,9 @@ const html = `<title>TidaliX Field Guide</title>
         <h4>Exposure</h4>
         <ul>
           <li>Some cards are <b>exposed</b> in some phases &mdash; stranded, bleaching, out of their element.</li>
-          <li>An exposed card takes <b>+${cfg.exposedBonusDamage} damage</b> from every attack against it, <b>and from spines</b>.</li>
+          <li>An exposed card takes <b>+${cfg.exposedBonusDamage} damage</b> from every attack against it, <b>and from retaliation</b>.</li>
           <li>Destroy a <b>toxic</b> animal by attacking it and your attacker dies too &mdash; eating it is what kills you. Wounding one costs nothing extra, a toxic animal that attacks poisons nobody, and a predator printed <b>toxin-immune</b> eats it and swims away.</li>
-          <li>So attacking with a stranded card into an armed one is punished twice.</li>
+          <li>So attacking with a stranded card into anything that can answer is punished twice.</li>
           <li>Exposure is a window, not a state: it opens and closes with the tide.</li>
         </ul>
       </div>

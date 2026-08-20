@@ -52,97 +52,166 @@ beforeEach(() => resetInstanceIds());
 
 /* -------------------------------------------------------------------------- */
 
-describe('spines', () => {
-  it('are printed on the card, not derived from its attack', () => {
-    expect(getCard('blackspotted-puffer').spines).toBe(3);
-    expect(getCard('rock-boring-urchin').spines).toBe(2);
-    expect(getCard('bubble-tip-anemone').spines).toBe(1);
-    // A big predator with no armament punishes nobody for attacking it.
-    expect(getCard('great-barracuda').spines).toBeUndefined();
+describe('armour', () => {
+  it('is printed on the animals that are hard to hurt, not derived from anything', () => {
+    expect(getCard('blackspotted-puffer').armour).toBe(3);
+    expect(getCard('rock-boring-urchin').armour).toBe(2);
+    expect(getCard('bubble-tip-anemone').armour).toBe(1);
+    // A big soft predator shrugs off nothing.
+    expect(getCard('great-barracuda').armour).toBeUndefined();
   });
 
-  it('damage an attacker even though the defender never strikes back', () => {
+  it('absorbs damage off the top of every attack', () => {
     let s = bareGame();
-    // A whitetip, not a trevally: 3 attack against 5 health leaves the puffer
-    // alive, which keeps this case about spines alone. Kill a puffer and its
-    // toxin kills you back, and that is a different rule — see toxin.test.ts.
-    s = place(s, 0, ['whitetip-reef-shark']);
-    s = place(s, 1, ['blackspotted-puffer']);
-
-    const shark = find(s, 0, 'whitetip-reef-shark');
-    const puffer = find(s, 1, 'blackspotted-puffer');
+    s = place(s, 0, ['whitetip-reef-shark']); // 3 attack at low tide
+    s = place(s, 1, ['blackspotted-puffer']); // 5 health, armour 3
 
     const { state: after, events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
-        attackerId: shark.instanceId,
-        targetId: puffer.instanceId,
+        attackerId: find(s, 0, 'whitetip-reef-shark').instanceId,
+        targetId: find(s, 1, 'blackspotted-puffer').instanceId,
       }),
     );
 
-    const spineHit = events.find(
+    const hit = events.find(
       (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
-        e.type === 'DAMAGE_DEALT' && e.cause === 'spines',
+        e.type === 'DAMAGE_DEALT' && e.cause === 'attack',
     );
-    expect(spineHit?.amount).toBe(3);
-    expect(after.players[0].board[0]?.damage).toBe(3);
-    expect(after.players[1].board).toHaveLength(1); // the puffer lived, so nothing was eaten
-    // And no retaliation event alongside it.
-    expect(events.some((e) => e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation')).toBe(false);
+    // 3 attack into 3 armour: nothing gets through, and the event says so.
+    expect(hit?.amount).toBe(0);
+    expect(hit?.absorbed).toBe(3);
+    expect(after.players[1].board[0]?.damage).toBe(0);
   });
 
-  it('still land when the defender dies to the same attack', () => {
+  it('protects against retaliation too, not only against attacks', () => {
+    // An armoured attacker takes the counter-blow on its armour as well. Damage
+    // is damage; armour does not care which direction it came from.
     let s = bareGame();
-    s = place(s, 0, ['bumphead-parrotfish']); // 6 attack, but 4 and exposed at low tide
-    s = place(s, 1, ['red-lionfish']); // 3 health, 2 spines
-
-    const bumphead = find(s, 0, 'bumphead-parrotfish');
-    const lionfish = find(s, 1, 'red-lionfish');
-
-    const { state: after, events } = expectOk(
-      applyAction(s, {
-        type: 'ATTACK',
-        player: 0,
-        attackerId: bumphead.instanceId,
-        targetId: lionfish.instanceId,
-      }),
-    );
-
-    expect(after.players[1].board).toHaveLength(0);
-    // The venom lands anyway — and the bumphead is stranded at low tide, so
-    // exposure adds its +1 to the spines too. Attacking while exposed is
-    // doubly punishing, which is the point of the window.
-    //
-    // Asserted on the event rather than on marked damage, because a lionfish is
-    // toxic: the bumphead ate it and is off the board by the time the dust
-    // settles. The spines still resolved on the way.
-    const spineHit = events.find(
-      (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
-        e.type === 'DAMAGE_DEALT' && e.cause === 'spines',
-    );
-    expect(spineHit?.amount).toBe(3);
-  });
-
-  it('are amplified by the attacker being exposed, and not otherwise', () => {
-    // Same fight at high tide: the bumphead is in its element and takes spines flat.
-    let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
-    s = place(s, 0, ['bumphead-parrotfish']);
-    s = place(s, 1, ['red-lionfish']);
+    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, armour 3
+    s = place(s, 1, ['coral-grouper']); // 4 attack at low tide
 
     const { events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
-        attackerId: find(s, 0, 'bumphead-parrotfish').instanceId,
-        targetId: find(s, 1, 'red-lionfish').instanceId,
+        attackerId: find(s, 0, 'crown-of-thorns-starfish').instanceId,
+        targetId: find(s, 1, 'coral-grouper').instanceId,
       }),
     );
-    const spineHit = events.find(
+
+    const back = events.find(
       (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
-        e.type === 'DAMAGE_DEALT' && e.cause === 'spines',
+        e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation',
     );
-    expect(spineHit?.amount).toBe(2);
+    // The grouper's 4 attack, plus 1 because the starfish is exposed at low
+    // water, minus 3 absorbed by its armour.
+    expect(back?.amount).toBe(2);
+    expect(back?.absorbed).toBe(3);
+    expect(back?.exposedBonus).toBe(1);
+  });
+
+  it('is what makes an unarmed defender worth playing', () => {
+    // The urchin cannot attack and so can never retaliate. Armour is the whole
+    // of its contribution, and it is enough to make it a wall.
+    let s = bareGame();
+    s = place(s, 0, ['peacock-mantis-shrimp']); // 4 attack
+    s = place(s, 1, ['rock-boring-urchin']); // 0 attack, 7 health at low, armour 2
+
+    const { state: after, events } = expectOk(
+      applyAction(s, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId: find(s, 0, 'peacock-mantis-shrimp').instanceId,
+        targetId: find(s, 1, 'rock-boring-urchin').instanceId,
+      }),
+    );
+
+    expect(after.players[1].board[0]?.damage).toBe(2); // 4 attack, 2 absorbed
+    expect(events.some((e) => e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation')).toBe(false);
+  });
+
+  it('never turns damage negative — a blocked hit is zero, not a heal', () => {
+    let s = bareGame();
+    s = place(s, 0, ['clown-anemonefish']); // 1 attack
+    s = place(s, 1, ['blackspotted-puffer']); // armour 3
+
+    const { state: after } = expectOk(
+      applyAction(s, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId: find(s, 0, 'clown-anemonefish').instanceId,
+        targetId: find(s, 1, 'blackspotted-puffer').instanceId,
+      }),
+    );
+    expect(after.players[1].board[0]?.damage).toBe(0);
+  });
+});
+
+describe('retaliation', () => {
+  it('is what every defender does now, armed or not', () => {
+    let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
+    s = place(s, 0, ['giant-trevally']); // 6 attack at high tide
+    s = place(s, 1, ['coral-grouper']); // 5 attack, 4 health
+
+    const { state: after, events } = expectOk(
+      applyAction(s, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId: find(s, 0, 'giant-trevally').instanceId,
+        targetId: find(s, 1, 'coral-grouper').instanceId,
+      }),
+    );
+
+    expect(after.players[1].board).toHaveLength(0);
+    // The grouper dies and still marks the trevally for its full attack — which
+    // here is enough to take the trevally down with it. Attacking into a body
+    // that can answer is a trade, and sometimes the trade is even.
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 5 }),
+    );
+    expect(after.players[0].board).toHaveLength(0);
+  });
+
+  it('is amplified by the attacker being exposed, and not otherwise', () => {
+    // A bumphead stranded at low tide pays the exposure surcharge on the way back.
+    let low = bareGame();
+    low = place(low, 0, ['bumphead-parrotfish']);
+    low = place(low, 1, ['clown-triggerfish']); // 3 attack
+
+    const { events: lowEvents } = expectOk(
+      applyAction(low, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId: find(low, 0, 'bumphead-parrotfish').instanceId,
+        targetId: find(low, 1, 'clown-triggerfish').instanceId,
+      }),
+    );
+    const lowHit = lowEvents.find(
+      (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
+        e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation',
+    );
+    expect(lowHit?.amount).toBe(4); // 3 attack + 1 for being caught out of the water
+    expect(lowHit?.exposedBonus).toBe(1);
+
+    // The same fight at high water, where the bumphead is in its element.
+    let high = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
+    high = place(high, 0, ['bumphead-parrotfish']);
+    high = place(high, 1, ['clown-triggerfish']);
+    const { events: highEvents } = expectOk(
+      applyAction(high, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId: find(high, 0, 'bumphead-parrotfish').instanceId,
+        targetId: find(high, 1, 'clown-triggerfish').instanceId,
+      }),
+    );
+    const highHit = highEvents.find(
+      (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
+        e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation',
+    );
+    expect(highHit?.amount).toBe(3);
   });
 
   it('do not fire when a card attacks the player directly', () => {

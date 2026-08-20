@@ -31,8 +31,15 @@ export const DEFAULT_CONFIG: GameConfig = {
   // through a lean phase a real decision instead of a wasted turn.
   carryOverCap: 3,
   exposedBonusDamage: 1,
-  // Only armed animals hit back — see `spines` on the card definitions.
-  defenderStrikesBack: false,
+  // Every defender hits back.
+  //
+  // This was off, and that single flag was most of why a board lead could never
+  // be overturned: killing a card cost the attacker nothing, so whoever was
+  // ahead cleared whatever the opponent played and still had attackers spare
+  // for the face. With it on, attacking is a trade and a wide board has to
+  // choose what it spends itself on. The armed animals kept their identity by
+  // becoming hard to kill instead — see `armour`.
+  defenderStrikesBack: true,
   tideAdvancesEvery: 'round',
   // The economy runs on the tide, not on a flat ramp: the drained flat carries
   // no plankton at all, the flood is the boom, and high water stays rich.
@@ -197,6 +204,8 @@ export interface BoardCardView {
   printedHealth: number;
   exposed: boolean;
   reefGuard: boolean;
+  /** Damage it shrugs off from every source. */
+  armour: number;
   /** Eating this card kills the eater. */
   toxic: boolean;
   /** This card can eat a toxic one and survive it. */
@@ -233,6 +242,7 @@ export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
       printedHealth: def.health,
       exposed: stats.exposed,
       reefGuard: def.keywords?.includes('reef-guard') ?? false,
+      armour: stats.armour,
       toxic: def.keywords?.includes('toxic') ?? false,
       toxinImmune: def.keywords?.includes('toxin-immune') ?? false,
       poisoned: inst.poisoned,

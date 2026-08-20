@@ -39,7 +39,7 @@ function Lines({ lines }: { lines: readonly EnergyIncomeLine[] }) {
     <>
       {lines.map((line) => (
         <li key={line.source} className={`energy__line energy__line--${line.source}`}>
-          <span className="energy__amount">+{line.amount}</span>
+          <span className="energy__amount">⬡+{line.amount}</span>
           <span className="energy__label">{SOURCE_LABEL[line.source]}</span>
           <span className="energy__detail">{line.detail}</span>
         </li>
@@ -68,7 +68,7 @@ export function EnergyPanel({ state, player }: EnergyPanelProps) {
       <div className="energy__block energy__block--past">
         <h3 className="energy__h">
           Earned this turn
-          <b className="energy__sum">+{total(collected)}</b>
+          <b className="energy__sum">⬡+{total(collected)}</b>
         </h3>
         <ul className="energy__lines">
           <Lines lines={collected} />
@@ -79,7 +79,7 @@ export function EnergyPanel({ state, player }: EnergyPanelProps) {
       <div className="energy__block energy__block--next">
         <h3 className="energy__h">
           Next turn, at the <em className={`energy__phase energy__phase--${next.phase}`}>{next.phase}</em> tide
-          <b className="energy__sum">≈{next.total}</b>
+          <b className="energy__sum">≈⬡{next.total}</b>
         </h3>
         <ul className="energy__lines">
           <Lines lines={next.lines} />

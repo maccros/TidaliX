@@ -363,7 +363,7 @@ describe('combat', () => {
     expect(after.players[1].life).toBe(lifeBefore - 3); // 2 printed, +1 at low tide
   });
 
-  it('kills the defender without taking a scratch — bodies are not weapons', () => {
+  it('makes killing a defender a trade — the defender always hits back', () => {
     let s = stackedGame(['great-barracuda'], ['clown-anemonefish']).state;
     s = until(s, canAct(0, 4));
     const barracuda = inHand(s, 0, 'great-barracuda');
@@ -385,10 +385,13 @@ describe('combat', () => {
     expect(events).toContainEqual(
       expect.objectContaining({ type: 'CARD_DESTROYED', definitionId: 'clown-anemonefish' }),
     );
-    // An unarmed anemonefish does not hurt a barracuda on its way down.
+    // Even a 1-attack anemonefish marks the barracuda on its way down. Clearing
+    // a board is no longer free, which is the whole point of the rule.
     const survivor = after.players[0].board.find((c) => c.instanceId === barracuda.instanceId);
-    expect(survivor?.damage).toBe(0);
-    expect(events.filter((e) => e.type === 'DAMAGE_DEALT')).toHaveLength(1);
+    expect(survivor?.damage).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 1 }),
+    );
   });
 
   it('restores mutual trades when defenderStrikesBack is switched back on', () => {

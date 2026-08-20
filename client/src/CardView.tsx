@@ -13,11 +13,17 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import {
   getCard,
+  type ArrivalEffect,
   type CardDefinition,
   type CardInstance,
   type EffectiveStats,
+  type Keyword,
   type TidePhase,
 } from '@tidalix/engine';
+
+import { SpeciesArt } from './SpeciesArt.tsx';
+
+import { CardArt } from './CardArt.tsx';
 
 export type CardState =
   | 'idle'
@@ -55,6 +61,35 @@ export interface CardViewProps {
 
 /** How long a press must be held on touch before it counts as an inspect. */
 const LONG_PRESS_MS = 450;
+
+/**
+ * What each keyword actually does, as a tooltip.
+ *
+ * Keywords render from `def.keywords` alone — one tag per keyword, no exceptions.
+ * Hand-writing a second tag for a keyword that is already in that list is how
+ * `toxic` and `toxin-immune` ended up printed twice on every card carrying them.
+ */
+/**
+ * How each arrival reads on the card face.
+ *
+ * Phrased as what the animal does on arrival, in the imperative, because that is
+ * the decision the player is making when they choose to play it now rather than
+ * hold it.
+ */
+const ARRIVAL_LABEL: Record<ArrivalEffect['kind'], (n: number) => string> = {
+  strike: (n) => `On arrival: ${n} damage to an enemy`,
+  sweep: (n) => `On arrival: ${n} to every enemy`,
+  mend: (n) => `On arrival: heal your reef ${n}`,
+  forage: (n) => `On arrival: ⬡+${n}`,
+  scout: (n) => `On arrival: draw ${n}`,
+};
+
+const KEYWORD_TITLE: Record<Keyword, string> = {
+  surge: 'may attack the turn it is played',
+  'reef-guard': 'enemies must attack this before anything behind it',
+  toxic: 'kills whatever destroys it in combat, unless that animal is immune',
+  'toxin-immune': 'can destroy a toxic animal and survive it',
+};
 
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
@@ -99,7 +134,6 @@ export function CardView({
   const tide = deltaLabel(stats.tideBonus);
   const symbiosis = deltaLabel(stats.symbiosisBonus);
   const toxic = def.keywords?.includes('toxic') ?? false;
-  const immune = def.keywords?.includes('toxin-immune') ?? false;
   const interactive = state === 'playable' || state === 'ready' || state === 'target';
   // Not `disabled`: a disabled button swallows pointer events, and inspecting a
   // card has to work on every card — including the opponent's and your own spent
@@ -173,32 +207,30 @@ export function CardView({
         </span>
       </header>
 
+      <div className="card__art">
+        <SpeciesArt definitionId={def.id} />
+      </div>
+
+      <div className="card__art">
+        <CardArt definitionId={def.id} />
+      </div>
+
       <p className="card__text">{def.text}</p>
 
       <div className="card__tags">
         {def.keywords?.map((k) => (
-          <span key={k} className={`tag tag--${k}`}>
+          <span key={k} className={`tag tag--${k}`} title={KEYWORD_TITLE[k]}>
             {k}
           </span>
         ))}
-        {stats.spines > 0 && (
-          <span className="tag tag--spines" title="damages anything that attacks it">
-            spines {stats.spines}
-          </span>
-        )}
-        {toxic && (
-          <span className="tag tag--toxic" title="kills whatever destroys it in combat, unless that animal is immune">
-            toxic
-          </span>
-        )}
-        {immune && (
-          <span className="tag tag--immune" title="can destroy a toxic animal and survive it">
-            toxin-immune
+        {stats.armour > 0 && (
+          <span className="tag tag--armour" title="reduces every incoming hit by this much">
+            armour {stats.armour}
           </span>
         )}
         {stats.energy > 0 && (
           <span className="tag tag--energy" title="generates energy each turn">
-            +{stats.energy} energy
+            ⬡+{stats.energy}
           </span>
         )}
         {releasable && (
@@ -212,6 +244,14 @@ export function CardView({
           </span>
         ))}
       </div>
+
+      {def.arrival && (
+        <p className="card__arrival">
+          <span className="card__arrival-mark">▸</span>
+          <b>{ARRIVAL_LABEL[def.arrival.kind](def.arrival.amount)}</b>
+          <span className="card__arrival-note">{def.arrival.note}</span>
+        </p>
+      )}
 
       {def.auras?.map((aura, i) => (
         <p key={i} className="card__aura">

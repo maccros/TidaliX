@@ -111,6 +111,8 @@ function tags(view: BoardCardView, showReady: boolean): string {
   const out: string[] = [];
   if (view.reefGuard) out.push(blue('reef-guard'));
   // Toxicity has to be legible before an attack is declared, not after.
+  if (view.armour > 0) out.push(blue(`armour ${view.armour}`));
+  if (view.armour > 0) out.push(blue(`armour ${view.armour}`));
   if (view.toxic) out.push(red('toxic'));
   if (view.toxinImmune) out.push(green('immune'));
   if (view.poisoned) out.push(red('POISONED'));
@@ -300,7 +302,8 @@ export function renderEvents(events: GameEvent[], state: GameState, you: PlayerI
 
 export const HELP = `
   ${bold('Commands')}
-    ${yellow('p')} <n>          play card n from your hand      ${dim('e.g. p 2')}
+    ${yellow('p')} <n> [t]      play card n from your hand      ${dim('e.g. p 2  /  p 2 1')}
+                    a card that strikes on arrival takes an enemy number
     ${yellow('a')} <x> <t>      attack with your card x         ${dim('e.g. a b 1  /  a b face')}
                     target a numbered enemy card, or ${yellow('face')}
     ${yellow('r')} <x>          release your card x to conservation  ${dim('e.g. r b')}
@@ -310,6 +313,7 @@ export const HELP = `
 
   ${dim('Your cards are lettered, the enemy’s are numbered.')}
   ${dim('Stat swings: ▲ the tide favours this card, ▼ it does not, ‼ exposed to bonus damage.')}
+  ${dim('Every defender strikes back. Armour subtracts from every hit a card takes.')}
   ${dim('A species that has survived a whole tide cycle can be released to the wild:')}
   ${dim('it leaves the reef for good, pays a standing income, and counts toward a win.')}
 `;

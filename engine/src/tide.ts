@@ -48,8 +48,8 @@ export interface EffectiveStats {
   exposed: boolean;
   /** Energy this card generates for its controller each of their turns. */
   energy: number;
-  /** Damage this card deals back to anything that attacks it. */
-  spines: number;
+  /** Damage this card shrugs off from every source. */
+  armour: number;
   /** Stat swing owed to the tide alone, for a client that wants to show it. */
   tideBonus: StatBonus;
   /** Stat swing owed to friendly auras alone. */
@@ -122,7 +122,7 @@ export function effectiveStats(
     health: maxHealth - instance.damage,
     exposed: effect.exposed ?? false,
     energy: effect.energy ?? 0,
-    spines: def.spines ?? 0,
+    armour: def.armour ?? 0,
     tideBonus: { attack: tideAttack, health: tideHealth },
     symbiosisBonus: { attack: symAttack, health: symHealth },
   };

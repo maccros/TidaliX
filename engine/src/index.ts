@@ -11,6 +11,7 @@
 
 export type {
   ActionErrorCode,
+  ArrivalEffect,
   Aura,
   StatBonus,
   Trait,
@@ -38,12 +39,13 @@ export type {
   TidePhase,
 } from './types.js';
 
-export { TAXON_LABEL } from './types.js';
+export { TAXON_LABEL, arrivalNeedsTarget } from './types.js';
 
 export {
   CARDS,
   activeSymbioses,
   allTaxa,
+  arrivalOf,
   cardsFavouring,
   getCard,
   hasCard,
@@ -105,4 +107,5 @@ export type { BoardCardView, CreateGameOptions } from './state.js';
 
 export { applyAction, legalActions, startGame } from './resolver.js';
 
-export { chooseAction, takeTurn } from './bot.js';
+export { DIFFICULTIES, DIFFICULTY_NOTE, chooseAction, takeTurn } from './bot.js';
+export type { BotProfile, Difficulty } from './bot.js';

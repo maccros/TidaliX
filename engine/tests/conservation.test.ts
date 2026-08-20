@@ -247,8 +247,11 @@ describe('conservation scoring', () => {
 
   it('records lineages in the order they were first protected', () => {
     const state = stackedGame([], []).state;
+    // The octopus is a mollusc too, so it adds nothing after the clam.
     const player = pileOf(state, ['giant-clam', 'staghorn-coral', 'giant-clam', 'common-octopus']);
-    expect(conservedTaxa(player)).toEqual(['mollusc', 'cnidarian', 'cephalopod']);
+    expect(conservedTaxa(player)).toEqual(['mollusc', 'cnidarian']);
+    const wider = pileOf(state, ['giant-clam', 'staghorn-coral', 'sally-lightfoot-crab']);
+    expect(conservedTaxa(wider)).toEqual(['mollusc', 'cnidarian', 'crustacean']);
   });
 
   it('pays nothing until the pile is deep enough for one step of income', () => {

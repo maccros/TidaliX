@@ -61,7 +61,7 @@ export type Taxon =
   | 'shark-ray'
   | 'crustacean'
   | 'echinoderm'
-  | 'cephalopod'
+  /** Cephalopods live here too — an octopus is a mollusc, so this is taxonomy, not a merge. */
   | 'mollusc'
   | 'cnidarian'
   | 'reptile';
@@ -72,7 +72,6 @@ export const TAXON_LABEL: Record<Taxon, string> = {
   'shark-ray': 'Sharks & rays',
   crustacean: 'Crustaceans',
   echinoderm: 'Echinoderms',
-  cephalopod: 'Cephalopods',
   mollusc: 'Molluscs',
   cnidarian: 'Corals & anemones',
   reptile: 'Reptiles',
@@ -151,6 +150,36 @@ export interface TideEffect {
   energy?: number;
 }
 
+/**
+ * What a species does at the moment it arrives on the reef.
+ *
+ * Without one of these, playing a card is not an *action* — the card sits there
+ * doing nothing until your next turn, by which time the opponent has answered
+ * it. That is what makes a board lead impossible to overturn: the player behind
+ * can only add to their board, never respond to yours.
+ *
+ * Deliberately not on every card. Like traits, an arrival is something a
+ * particular animal does, and a card without one pays for it in stats, in its
+ * tide line, or in an aura. A set where every card answers the board is as flat
+ * as one where none of them do.
+ */
+export type ArrivalEffect =
+  /** Damage one enemy creature. Needs a target chosen when the card is played. */
+  | { kind: 'strike'; amount: number; note: string }
+  /** Damage every enemy creature. */
+  | { kind: 'sweep'; amount: number; note: string }
+  /** Remove damage from every friendly creature. */
+  | { kind: 'mend'; amount: number; note: string }
+  /** Immediate energy, paid the moment it lands. */
+  | { kind: 'forage'; amount: number; note: string }
+  /** Draw cards. */
+  | { kind: 'scout'; amount: number; note: string };
+
+/** Whether an arrival needs the player to pick something before it can resolve. */
+export function arrivalNeedsTarget(effect: ArrivalEffect | undefined): boolean {
+  return effect?.kind === 'strike';
+}
+
 /** A printed card. Immutable reference data — never mutated at runtime. */
 export interface CardDefinition {
   id: string;
@@ -169,12 +198,22 @@ export interface CardDefinition {
   /** Biological tags other cards' auras can read. */
   traits?: Trait[];
   /**
-   * Damage dealt to anything that attacks this card. Replaces the old automatic
-   * counter-attack: only animals that are actually armed hit back.
+   * Damage this card shrugs off, from every source.
+   *
+   * This is what became of `spines` once every defender started striking back.
+   * "Hurts what bites it" is now simply what a defender does, so the armed
+   * animals needed a job of their own, and the honest one is that they are hard
+   * to hurt in the first place: a puffer inflated into a ball nothing can get
+   * its jaws around, an urchin wedged in its socket, an anemone withdrawn.
+   *
+   * It applies to retaliation as much as to attacks, so an armoured animal is
+   * both awful to attack and awful to be attacked by.
    */
-  spines?: number;
+  armour?: number;
   /** Standing effects on friendly neighbours. */
   auras?: Aura[];
+  /** What it does the moment it lands. See `ArrivalEffect`. */
+  arrival?: ArrivalEffect;
   /** Flavour / rules reminder text. Not parsed by the resolver. */
   text?: string;
 }
@@ -326,6 +365,12 @@ export interface PlayCardAction {
   type: 'PLAY_CARD';
   player: PlayerId;
   instanceId: string;
+  /**
+   * The enemy creature this card's arrival effect hits, for the arrivals that
+   * need one. Required when the card has a targeted arrival and there is at
+   * least one legal target; ignored otherwise.
+   */
+  targetId?: string;
 }
 
 export interface AttackAction {
@@ -373,6 +418,16 @@ export type GameEvent =
   | { type: 'HAND_OVERFLOW'; player: PlayerId; instanceId: string }
   | { type: 'CARD_PLAYED'; player: PlayerId; instanceId: string; definitionId: string; cost: number }
   | {
+      type: 'ARRIVAL_RESOLVED';
+      instanceId: string;
+      definitionId: string;
+      kind: ArrivalEffect['kind'];
+      amount: number;
+      /** The creature it hit, for a targeted arrival. */
+      targetId?: string;
+    }
+  | { type: 'CARD_HEALED'; instanceId: string; amount: number }
+  | {
       type: 'ATTACK_DECLARED';
       attackerId: string;
       targetId: string | 'face';
@@ -386,7 +441,9 @@ export type GameEvent =
       /** How much of `amount` came from the target being exposed this phase. */
       exposedBonus: number;
       /** Why this damage happened, so a client can narrate and animate it. */
-      cause: 'attack' | 'spines' | 'retaliation';
+      cause: 'attack' | 'retaliation' | 'arrival';
+      /** Damage the target's armour absorbed before this landed. */
+      absorbed: number;
     }
   | { type: 'PLAYER_DAMAGED'; player: PlayerId; amount: number; life: number }
   | {
@@ -427,6 +484,8 @@ export type ActionErrorCode =
   | 'GAME_OVER'
   | 'NOT_YOUR_TURN'
   | 'CARD_NOT_IN_HAND'
+  | 'ARRIVAL_NEEDS_TARGET'
+  | 'ARRIVAL_TARGET_INVALID'
   | 'NOT_ENOUGH_ENERGY'
   | 'BOARD_FULL'
   | 'ATTACKER_NOT_FOUND'

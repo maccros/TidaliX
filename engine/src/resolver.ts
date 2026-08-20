@@ -27,6 +27,7 @@ import type {
   GameAction,
 } from './types.js';
 import { getCard, isToxic, isToxinImmune } from './cards.js';
+import { arrivalNeedsTarget } from './types.js';
 import { cloneState, canAttack, opponentOf } from './state.js';
 import { effectiveStats, nextPhase, shouldAdvanceTide, statsFor } from './tide.js';
 import {
@@ -170,6 +171,20 @@ function playCard(state: GameState, action: PlayCardAction): ActionResult {
     return err('BOARD_FULL', `The reef is full (${state.config.maxBoardSize} cards).`);
   }
 
+  // A targeted arrival must be given something to hit — but only when there is
+  // something to hit. A strike with no enemy on the board is not an illegal
+  // play, it is a strike that finds nothing, and refusing the play would strand
+  // the card in hand for reasons the player cannot see.
+  const enemyBoard = state.players[opponentOf(action.player)].board;
+  if (arrivalNeedsTarget(def.arrival) && enemyBoard.length > 0) {
+    if (action.targetId === undefined) {
+      return err('ARRIVAL_NEEDS_TARGET', `${def.name} must be given a target as it arrives.`);
+    }
+    if (!enemyBoard.some((c) => c.instanceId === action.targetId)) {
+      return err('ARRIVAL_TARGET_INVALID', `No enemy card ${action.targetId} to strike.`);
+    }
+  }
+
   const draft = cloneState(state);
   const events: GameEvent[] = [];
   const draftPlayer = draft.players[action.player];
@@ -191,10 +206,84 @@ function playCard(state: GameState, action: PlayCardAction): ActionResult {
     cost: def.cost,
   });
 
+  resolveArrival(draft, card, action.targetId, events);
+
   // A card can arrive already dead if the phase zeroes its health.
   sweepDeaths(draft, events);
 
   return { ok: true, state: draft, events };
+}
+
+/**
+ * Run a card's arrival effect, if it has one.
+ *
+ * This is the beat that makes playing a card an *action* rather than a deposit.
+ * Without it the player who is behind can only add to their board and wait a
+ * turn, by which point the board they were answering has already answered them
+ * — which is why a lead used to be impossible to overturn.
+ *
+ * Resolved before the death sweep so an arrival that kills something and a card
+ * that arrives already dead settle in the same pass.
+ */
+function resolveArrival(
+  draft: GameState,
+  card: CardInstance,
+  targetId: string | undefined,
+  events: GameEvent[],
+): void {
+  const arrival = getCard(card.definitionId).arrival;
+  if (!arrival) return;
+
+  const me = draft.players[card.owner];
+  const them = draft.players[opponentOf(card.owner)];
+
+  switch (arrival.kind) {
+    case 'strike': {
+      const target = them.board.find((c) => c.instanceId === targetId);
+      // Legality already allowed an untargeted strike into an empty board.
+      if (!target) break;
+      strike(draft, target, arrival.amount, card.instanceId, 'arrival', 0, events);
+      break;
+    }
+    case 'sweep': {
+      for (const target of [...them.board]) {
+        strike(draft, target, arrival.amount, card.instanceId, 'arrival', 0, events);
+      }
+      break;
+    }
+    case 'mend': {
+      for (const ally of me.board) {
+        if (ally.damage === 0) continue;
+        const healed = Math.min(ally.damage, arrival.amount);
+        ally.damage -= healed;
+        events.push({ type: 'CARD_HEALED', instanceId: ally.instanceId, amount: healed });
+      }
+      break;
+    }
+    case 'forage': {
+      me.energy += arrival.amount;
+      events.push({
+        type: 'ENERGY_GAINED',
+        player: me.id,
+        amount: arrival.amount,
+        source: 'card',
+      });
+      break;
+    }
+    case 'scout': {
+      for (let i = 0; i < arrival.amount; i++) draw(draft, me.id, events);
+      break;
+    }
+  }
+
+  events.push({
+    type: 'ARRIVAL_RESOLVED',
+    instanceId: card.instanceId,
+    definitionId: card.definitionId,
+    kind: arrival.kind,
+    amount: arrival.amount,
+    ...(targetId !== undefined ? { targetId } : {}),
+  });
 }
 
 function attack(state: GameState, action: AttackAction): ActionResult {
@@ -261,6 +350,7 @@ function attack(state: GameState, action: AttackAction): ActionResult {
       targetId: 'face',
       amount: attackerStats.attack,
       exposedBonus: 0,
+      absorbed: 0,
       cause: 'attack',
     });
     damagePlayer(draft, defenderId, attackerStats.attack, events);
@@ -272,16 +362,15 @@ function attack(state: GameState, action: AttackAction): ActionResult {
 
     // The attacker strikes first, and an exposed defender takes the extra.
     const bonusToTarget = targetStats.exposed ? draft.config.exposedBonusDamage : 0;
-    const dealt = attackerStats.attack + bonusToTarget;
-    draftTarget.damage += dealt;
-    events.push({
-      type: 'DAMAGE_DEALT',
-      sourceId: draftAttacker.instanceId,
-      targetId: draftTarget.instanceId,
-      amount: dealt,
-      exposedBonus: bonusToTarget,
-      cause: 'attack',
-    });
+    const dealt = strike(
+      draft,
+      draftTarget,
+      attackerStats.attack + bonusToTarget,
+      draftAttacker.instanceId,
+      'attack',
+      bonusToTarget,
+      events,
+    );
 
     // Eating something toxic kills you. This is settled here, at the moment of
     // the kill, rather than left to the sweep: whether the defender died is a
@@ -304,36 +393,21 @@ function attack(state: GameState, action: AttackAction): ActionResult {
       });
     }
 
-    // Only armed animals hit back. A defender's body is not a weapon: spines,
-    // nematocysts and venom are, and they are printed on the card that has them.
-    // Both sources land even if the defender is dying — a puffer that dies still
-    // dies covered in spines.
+    // The defender hits back. This is what stops a wide board from clearing
+    // everything the opponent plays for free — attacking is now a trade, and a
+    // trade is a decision. It lands even if the defender is dying: an animal
+    // does not stop biting because the bite was fatal.
     const bonusToAttacker = attackerStats.exposed ? draft.config.exposedBonusDamage : 0;
-
-    if (targetStats.spines > 0) {
-      const returned = targetStats.spines + bonusToAttacker;
-      draftAttacker.damage += returned;
-      events.push({
-        type: 'DAMAGE_DEALT',
-        sourceId: draftTarget.instanceId,
-        targetId: draftAttacker.instanceId,
-        amount: returned,
-        exposedBonus: bonusToAttacker,
-        cause: 'spines',
-      });
-    }
-
     if (draft.config.defenderStrikesBack && targetStats.attack > 0) {
-      const returned = targetStats.attack + bonusToAttacker;
-      draftAttacker.damage += returned;
-      events.push({
-        type: 'DAMAGE_DEALT',
-        sourceId: draftTarget.instanceId,
-        targetId: draftAttacker.instanceId,
-        amount: returned,
-        exposedBonus: bonusToAttacker,
-        cause: 'retaliation',
-      });
+      strike(
+        draft,
+        draftAttacker,
+        targetStats.attack + bonusToAttacker,
+        draftTarget.instanceId,
+        'retaliation',
+        bonusToAttacker,
+        events,
+      );
     }
   }
 
@@ -480,6 +554,39 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
   checkWinner(draft, events);
 }
 
+/**
+ * Deal damage to a card, after its armour has taken what it can.
+ *
+ * Every source of damage goes through here so armour cannot be forgotten on one
+ * of them — which is exactly the bug the old two-branch combat code invited.
+ * Returns what actually landed, because callers need to know whether the blow
+ * was lethal, and armour means that is no longer the number they asked for.
+ */
+function strike(
+  draft: GameState,
+  target: CardInstance,
+  raw: number,
+  sourceId: string,
+  cause: 'attack' | 'retaliation' | 'arrival',
+  exposedBonus: number,
+  events: GameEvent[],
+): number {
+  const armour = statsFor(draft, target).armour;
+  const dealt = Math.max(0, raw - armour);
+  const absorbed = raw - dealt;
+  target.damage += dealt;
+  events.push({
+    type: 'DAMAGE_DEALT',
+    sourceId,
+    targetId: target.instanceId,
+    amount: dealt,
+    exposedBonus,
+    absorbed,
+    cause,
+  });
+  return dealt;
+}
+
 function damagePlayer(
   draft: GameState,
   playerId: PlayerId,
@@ -538,16 +645,31 @@ export function legalActions(state: GameState): GameAction[] {
   const player = state.players[state.activePlayer];
   const actions: GameAction[] = [];
 
+  const defenderId = opponentOf(state.activePlayer);
+  const defenderBoard = state.players[defenderId].board;
+
   if (player.board.length < state.config.maxBoardSize) {
     for (const card of player.hand) {
-      if (getCard(card.definitionId).cost <= player.energy) {
+      const def = getCard(card.definitionId);
+      if (def.cost > player.energy) continue;
+      // A card whose arrival needs a target is not one action but one per
+      // target, so the UI and the bot both see the choice as part of the play
+      // rather than as something bolted on after it.
+      if (arrivalNeedsTarget(def.arrival) && defenderBoard.length > 0) {
+        for (const target of defenderBoard) {
+          actions.push({
+            type: 'PLAY_CARD',
+            player: player.id,
+            instanceId: card.instanceId,
+            targetId: target.instanceId,
+          });
+        }
+      } else {
         actions.push({ type: 'PLAY_CARD', player: player.id, instanceId: card.instanceId });
       }
     }
   }
 
-  const defenderId = opponentOf(state.activePlayer);
-  const defenderBoard = state.players[defenderId].board;
   const guards = defenderBoard.filter((c) => getCard(c.definitionId).keywords?.includes('reef-guard'));
   const targets: (string | 'face')[] =
     guards.length > 0

@@ -87,6 +87,22 @@ function parseCommand(input: string, state: GameState): Command {
       const index = Number(rest[0]) - 1;
       const card = me.hand[index];
       if (!card) return { kind: 'error', message: `No card ${rest[0] ?? '?'} in hand.` };
+      // A card whose arrival strikes takes a target, numbered the same way the
+      // attack command numbers the enemy board: `play 3 2`.
+      const targetLabel = rest[1];
+      if (targetLabel !== undefined) {
+        const target = state.players[BOT].board[Number(targetLabel) - 1];
+        if (!target) return { kind: 'error', message: `No enemy card ${targetLabel}.` };
+        return {
+          kind: 'action',
+          action: {
+            type: 'PLAY_CARD',
+            player: YOU,
+            instanceId: card.instanceId,
+            targetId: target.instanceId,
+          },
+        };
+      }
       return { kind: 'action', action: { type: 'PLAY_CARD', player: YOU, instanceId: card.instanceId } };
     }
 

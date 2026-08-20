@@ -8,6 +8,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  DIFFICULTIES,
+  DIFFICULTY_NOTE,
   TAXON_LABEL,
   TIDE_CYCLE,
   allTaxa,
@@ -28,6 +30,7 @@ import {
   takeTurn,
   taxaToNextIncome,
   type CardInstance,
+  type Difficulty,
   type GameAction,
   type GameEvent,
   type GameState,
@@ -77,10 +80,17 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   );
   const [state, setState] = useState<GameState>(() => newGame(seed));
   const [selected, setSelected] = useState<string | null>(null);
+  /**
+   * A card in hand whose arrival needs a target, waiting for the player to pick
+   * one. Playing such a card is two clicks, because it is two decisions: what to
+   * commit, and what to answer with it.
+   */
+  const [aiming, setAiming] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
   const [log, setLog] = useState<{ text: string; kind: string }[]>([]);
   const [botThinking, setBotThinking] = useState(false);
+  const [difficulty, setDifficulty] = useState<Difficulty>('normal');
 
   const [boardEl, setBoardEl] = useState<HTMLElement | null>(null);
   const nodes = useRef(new Map<string, HTMLElement>());
@@ -101,6 +111,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     setSeed(nextSeed);
     setState(newGame(nextSeed));
     setSelected(null);
+    setAiming(null);
     setInspecting(null);
     setLog([]);
   }, []);
@@ -115,24 +126,34 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       setState(result.state);
       pushEvents(result.events, result.state);
       setSelected(null);
+      setAiming(null);
       setRevision((r) => r + 1);
     },
     [state, pushEvents],
   );
+
+  useEffect(() => {
+    if (!aiming) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAiming(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [aiming]);
 
   /* The bot plays its own turn, on a beat, so the player can read what happened. */
   useEffect(() => {
     if (state.winner !== undefined || state.activePlayer !== BOT) return;
     setBotThinking(true);
     const timer = setTimeout(() => {
-      const { state: next, events } = takeTurn(state, BOT);
+      const { state: next, events } = takeTurn(state, BOT, difficulty);
       setState(next);
       pushEvents(events, next);
       setBotThinking(false);
       setRevision((r) => r + 1);
     }, 650);
     return () => clearTimeout(timer);
-  }, [state, pushEvents]);
+  }, [state, pushEvents, difficulty]);
 
   const yourTurn = state.activePlayer === YOU && state.winner === undefined;
   const actions = useMemo(() => (yourTurn ? legalActions(state) : []), [state, yourTurn]);
@@ -165,6 +186,22 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       ),
     [actions],
   );
+
+  /**
+   * For each card in hand whose arrival needs a target, the enemies it may hit.
+   * Read straight off `legalActions`, so the interface cannot offer an aim the
+   * resolver would reject.
+   */
+  const arrivalTargets = useMemo(() => {
+    const out = new Map<string, Set<string>>();
+    for (const a of actions) {
+      if (a.type !== 'PLAY_CARD' || a.targetId === undefined) continue;
+      const set = out.get(a.instanceId) ?? new Set<string>();
+      set.add(a.targetId);
+      out.set(a.instanceId, set);
+    }
+    return out;
+  }, [actions]);
 
   const targets = useMemo(() => {
     if (!selected) return new Set<string>();
@@ -218,6 +255,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
 
   const handState = (id: string, cost: number): CardState => {
     if (!yourTurn) return 'idle';
+    if (aiming === id) return 'selected';
     if (playable.has(id)) return 'playable';
     return cost > you.energy ? 'unaffordable' : 'idle';
   };
@@ -233,7 +271,10 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
    * interface had already dismissed.
    */
   const boardState = (id: string, mine: boolean): CardState => {
-    if (!mine) return targets.has(id) ? 'target' : 'idle';
+    if (!mine) {
+      if (aiming) return arrivalTargets.get(aiming)?.has(id) ? 'target' : 'idle';
+      return targets.has(id) ? 'target' : 'idle';
+    }
     if (selected === id) return 'selected';
     if (attackers.has(id)) return 'ready';
     if (!yourTurn) return 'idle';
@@ -248,9 +289,30 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       setSelected((cur) => (cur === id ? null : attackers.has(id) ? id : cur));
       return;
     }
+    // Aiming an arrival takes priority: the card is mid-play and the click is
+    // the second half of that decision, not the start of an attack.
+    if (aiming && arrivalTargets.get(aiming)?.has(id)) {
+      run({ type: 'PLAY_CARD', player: YOU, instanceId: aiming, targetId: id });
+      return;
+    }
     if (selected && targets.has(id)) {
       run({ type: 'ATTACK', player: YOU, attackerId: selected, targetId: id });
     }
+  };
+
+  /** Play a card from hand, stopping to aim first when its arrival needs it. */
+  const clickHandCard = (id: string) => {
+    if (aiming === id) {
+      setAiming(null);
+      return;
+    }
+    if (!playable.has(id)) return;
+    if (arrivalTargets.has(id)) {
+      setSelected(null);
+      setAiming(id);
+      return;
+    }
+    run({ type: 'PLAY_CARD', player: YOU, instanceId: id });
   };
 
   const canHitFace = selected !== null && targets.has('face');
@@ -348,10 +410,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
               state={handState(card.instanceId, def.cost)}
               onHover={setHovered}
               onInspect={() => setInspecting(card.instanceId)}
-              onClick={() =>
-                playable.has(card.instanceId) &&
-                run({ type: 'PLAY_CARD', player: YOU, instanceId: card.instanceId })
-              }
+              onClick={() => clickHandCard(card.instanceId)}
             />
           );
         })}
@@ -370,8 +429,27 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
         <button type="button" className="btn" onClick={() => restart(Math.floor(Math.random() * 100000))}>
           New game
         </button>
+        <label className="bar__difficulty" title={DIFFICULTY_NOTE[difficulty]}>
+          <span className="bar__difficulty-label">opponent</span>
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            aria-label="Opponent difficulty"
+          >
+            {DIFFICULTIES.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </label>
         <span className="bar__seed">seed {seed}</span>
-        {selected ? (
+        {aiming ? (
+          <span className="bar__hint bar__hint--aim">
+            {getCard(you.hand.find((c) => c.instanceId === aiming)!.definitionId).name} arrives
+            striking — pick an enemy, or press Escape to cancel.
+          </span>
+        ) : selected ? (
           <span className="bar__hint">Pick a target, or click the card again to cancel.</span>
         ) : (
           <span className="bar__hint bar__hint--quiet">Right-click any card for its full detail.</span>
@@ -453,7 +531,7 @@ function TideTrack({ state }: { state: GameState }) {
           >
             <span className="tide__name">{phase}</span>
             <span className="tide__income">
-              {state.config.tideEnergy[phase] > 0 ? `+${state.config.tideEnergy[phase]}` : '—'}
+              {state.config.tideEnergy[phase] > 0 ? `⬡+${state.config.tideEnergy[phase]}` : '—'}
             </span>
           </li>
         ))}
@@ -470,8 +548,7 @@ function TideTrack({ state }: { state: GameState }) {
             <>capacity is at its ceiling of {state.config.maxEnergyCap}</>
           ) : (
             <>
-              next closes in {toGo} {toGo === 1 ? 'phase' : 'phases'} — capacity +1, and species
-              mature
+              next closes in {toGo} {toGo === 1 ? 'phase' : 'phases'} — capacity ⬡+1
             </>
           )}
         </span>
@@ -580,17 +657,17 @@ function ConservationPanel({
       <p className={`conserve__boost ${income > 0 ? 'is-paying' : ''}`}>
         {income > 0 ? (
           <>
-            <b>+{income} energy every turn</b> from the pile
+            <b>⬡+{income} every turn</b> from the pile
             {toNext > 0 && (
               <span className="conserve__next">
                 {' '}
-                — {toNext} more {toNext === 1 ? 'lineage' : 'lineages'} for +{income + 1}
+                — {toNext} more {toNext === 1 ? 'lineage' : 'lineages'} for ⬡+{income + 1}
               </span>
             )}
           </>
         ) : (
           <>
-            Protect {toNext} {toNext === 1 ? 'lineage' : 'lineages'} for <b>+1 energy every turn</b>
+            Protect {toNext} {toNext === 1 ? 'lineage' : 'lineages'} for <b>⬡+1 every turn</b>
           </>
         )}
       </p>
@@ -742,7 +819,8 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
       };
     case 'DAMAGE_DEALT': {
       if (event.targetId === 'face') return null;
-      const verb = event.cause === 'spines' ? 'stings' : 'hits';
+      const verb =
+        event.cause === 'retaliation' ? 'fights back at' : event.cause === 'arrival' ? 'strikes' : 'hits';
       const bonus = event.exposedBonus > 0 ? ` (+${event.exposedBonus} exposed)` : '';
       return {
         text: `${nameOf(state, event.sourceId)} ${verb} ${nameOf(state, event.targetId)} for ${event.amount}${bonus}`,

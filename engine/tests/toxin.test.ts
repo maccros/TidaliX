@@ -127,24 +127,39 @@ describe('eating something toxic', () => {
 
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[1].board).toHaveLength(1);
-    // The shark is hurt by the spines, but it is not poisoned — it took a bite,
-    // it did not swallow the animal.
+    // The shark is hurt by the puffer hitting back, but it is not poisoned — it
+    // took a bite, it did not swallow the animal.
     expect(after.players[0].board[0]?.poisoned).toBe(false);
-    expect(after.players[0].board[0]?.damage).toBe(3);
+    expect(after.players[0].board[0]?.damage).toBe(2);
   });
 
   it('spares a predator that eats toxic prey for a living', () => {
-    let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'falling' } });
-    s = place(s, 0, ['giant-moray']); // 5 attack at falling tide, toxin-immune
-    s = place(s, 1, ['red-lionfish']); // 3 health, 2 spines
+    // A green sea turtle really does eat venomous animals. It takes the
+    // lionfish's counter-blow like anything else would, and simply does not
+    // care about the venom.
+    let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
+    s = place(s, 0, ['green-sea-turtle']); // 3 attack, 9 health at high, toxin-immune
+    s = place(s, 1, ['red-lionfish']); // 4 attack, 3 health, armour 2
 
-    const { state: after, events } = eat(s, 'giant-moray', 'red-lionfish');
+    const marked = structuredClone(s);
+    marked.players[1].board[0]!.damage = 2; // 1 health left, so the turtle can finish it
+
+    const { state: after, events } = expectOk(
+      applyAction(marked, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId: find(marked, 0, 'green-sea-turtle').instanceId,
+        targetId: find(marked, 1, 'red-lionfish').instanceId,
+      }),
+    );
 
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[1].board).toHaveLength(0);
-    // Immunity is to the venom, not to the spines: the moray still gets stung.
+    // Alive, and marked only by the retaliation — immunity is to the venom, not
+    // to the animal fighting back.
     expect(after.players[0].board).toHaveLength(1);
-    expect(after.players[0].board[0]?.damage).toBe(2);
+    expect(after.players[0].board[0]?.damage).toBe(4);
+    expect(after.players[0].board[0]?.poisoned).toBe(false);
   });
 
   it('does not fire when the toxic card is the attacker', () => {
@@ -161,23 +176,22 @@ describe('eating something toxic', () => {
   });
 
   it('does not fire when the toxic card dies to something other than being eaten', () => {
-    // The starfish throws itself at an urchin and dies on the urchin's spines.
-    // It was killed, but it was not *eaten* — the urchin never attacked it — so
+    // The starfish attacks a trevally and dies to the counter-blow. It was
+    // killed, but it was not *eaten* — the trevally never attacked it — so
     // nothing is poisoned. Being toxic is not the same as being a bomb.
     let s = bareGame();
-    s = place(s, 0, ['crown-of-thorns-starfish']);
-    s = place(s, 1, ['rock-boring-urchin']);
+    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, 6 health, armour 3
+    s = place(s, 1, ['giant-trevally']); // 5 attack, 4 health
 
     const marked = structuredClone(s);
-    // 6 health, marked to 2 remaining: the urchin's spines will finish it.
-    marked.players[0].board[0]!.damage = 4;
+    marked.players[0].board[0]!.damage = 3; // 3 health left; the counter-blow finishes it
 
     const { state: after, events } = expectOk(
       applyAction(marked, {
         type: 'ATTACK',
         player: 0,
         attackerId: find(marked, 0, 'crown-of-thorns-starfish').instanceId,
-        targetId: find(marked, 1, 'rock-boring-urchin').instanceId,
+        targetId: find(marked, 1, 'giant-trevally').instanceId,
       }),
     );
 

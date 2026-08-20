@@ -9,7 +9,7 @@
  * Design rule: if a card's tide line contradicts the animal, fix the card.
  */
 
-import type { Aura, CardDefinition, Taxon, TidePhase, Trait } from './types.js';
+import type { ArrivalEffect, Aura, CardDefinition, Taxon, TidePhase, Trait } from './types.js';
 
 export const CARDS: readonly CardDefinition[] = [
   /* ---------------------------------------------------------------- */
@@ -70,11 +70,16 @@ export const CARDS: readonly CardDefinition[] = [
     name: 'Common Octopus',
     species: 'Octopus vulgaris',
     type: 'creature',
-    taxon: 'cephalopod',
+    taxon: 'mollusc',
     cost: 4,
     attack: 3,
     health: 4,
     traits: ['cephalopod'],
+    arrival: {
+      kind: 'scout',
+      amount: 1,
+      note: 'prises open everything it finds to see what is inside',
+    },
     tide: {
       low: { attack: 2 },
       falling: { attack: 1 },
@@ -92,7 +97,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 5,
     keywords: ['reef-guard'],
     traits: ['echinoderm'],
-    spines: 2,
+    armour: 2,
     tide: {
       low: { health: 2 },
     },
@@ -112,6 +117,11 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 4,
     health: 2,
     traits: ['crustacean'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'opens with a strike fast enough to cavitate the water',
+    },
     tide: {
       rising: { attack: 1 },
       low: { exposed: true },
@@ -161,6 +171,11 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 2,
     health: 2,
     traits: ['reef-fish'],
+    arrival: {
+      kind: 'forage',
+      amount: 1,
+      note: 'picks the reef crest over as soon as it arrives',
+    },
     tide: {
       rising: { energy: 1 },
     },
@@ -180,6 +195,11 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 4,
     health: 6,
     traits: ['megafauna'],
+    arrival: {
+      kind: 'forage',
+      amount: 2,
+      note: 'barrel-rolls straight into the plankton stacked on the reef',
+    },
     tide: {
       high: { attack: 2, energy: 1 },
       low: { attack: -3, exposed: true },
@@ -245,6 +265,11 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 6,
     health: 6,
     traits: ['megafauna'],
+    arrival: {
+      kind: 'strike',
+      amount: 3,
+      note: 'headbutts the first thing in its way apart',
+    },
     tide: {
       high: { attack: 1, health: 1 },
       low: { attack: -2, exposed: true },
@@ -282,6 +307,11 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 5,
     health: 2,
     traits: ['reef-fish'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'takes whatever the current funnels past it first',
+    },
     tide: {
       falling: { attack: 2 },
       rising: { attack: -1 },
@@ -380,6 +410,11 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'picks parasites off anything big enough to queue for it',
       },
     ],
+    arrival: {
+      kind: 'mend',
+      amount: 2,
+      note: 'opens a cleaning station and the queue forms immediately',
+    },
     tide: {
       rising: { energy: 1 },
       falling: { energy: 1 },
@@ -430,7 +465,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 4,
     keywords: ['reef-guard'],
     traits: ['anemone'],
-    spines: 1,
+    armour: 1,
     auras: [
       {
         affects: 'anemonefish',
@@ -455,6 +490,11 @@ export const CARDS: readonly CardDefinition[] = [
     health: 8,
     keywords: ['reef-guard'],
     traits: ['mollusc'],
+    arrival: {
+      kind: 'forage',
+      amount: 2,
+      note: 'a metre of mantle filtering from the moment it settles',
+    },
     tide: {
       high: { energy: 1 },
       low: { exposed: true },
@@ -475,7 +515,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 5,
     keywords: ['toxic'],
     traits: ['reef-fish'],
-    spines: 3,
+    armour: 3,
     tide: {
       rising: { health: 1 },
     },
@@ -492,7 +532,12 @@ export const CARDS: readonly CardDefinition[] = [
     health: 3,
     keywords: ['toxic'],
     traits: ['reef-fish'],
-    spines: 2,
+    armour: 2,
+    arrival: {
+      kind: 'strike',
+      amount: 1,
+      note: 'fans its prey into a corner the moment it settles',
+    },
     tide: {
       falling: { attack: 1 },
       low: { exposed: true },
@@ -510,7 +555,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 6,
     keywords: ['toxic'],
     traits: ['echinoderm'],
-    spines: 3,
+    armour: 3,
     auras: [
       {
         affects: 'coral',
@@ -518,6 +563,11 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'digests living coral from the outside in',
       },
     ],
+    arrival: {
+      kind: 'sweep',
+      amount: 1,
+      note: 'arrives as an outbreak, not as an animal',
+    },
     tide: {
       low: { exposed: true },
     },
@@ -555,6 +605,11 @@ export const CARDS: readonly CardDefinition[] = [
 ];
 
 const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) => [c.id, c]));
+
+/** What a card does the moment it lands, if anything. */
+export function arrivalOf(definitionId: string): ArrivalEffect | undefined {
+  return getCard(definitionId).arrival;
+}
 
 /** The lineage a card belongs to. What the conservation pile is scored on. */
 export function taxonOf(definitionId: string): Taxon {

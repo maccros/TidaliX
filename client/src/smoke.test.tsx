@@ -5,7 +5,7 @@
  * This is not a UI-detail test. It exists so "it builds" can never again be
  * mistaken for "it runs".
  */
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { DEFAULT_CONFIG, allTaxa } from '@tidalix/engine';
@@ -25,6 +25,15 @@ beforeEach(() => {
  * opening hand exactly. Letting the app pick its own random seed made these
  * assertions flaky.
  */
+/** Tear down and rebuild the container, for cases that sweep several seeds. */
+function remount() {
+  root.unmount();
+  container.remove();
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+}
+
 function render(seed = 3) {
   act(() => {
     root.render(<App seed={seed} />);
@@ -82,7 +91,8 @@ describe('client', () => {
     expect(panel!.textContent).toContain('Base capacity');
     expect(panel!.querySelectorAll('.energy__line').length).toBeGreaterThan(0);
     for (const line of panel!.querySelectorAll('.energy__line')) {
-      expect(line.querySelector('.energy__amount')?.textContent).toMatch(/^\+\d+$/);
+      // The unit leads the number, so an amount is never a bare integer.
+      expect(line.querySelector('.energy__amount')?.textContent).toMatch(/^⬡\+\d+$/);
       expect(line.querySelector('.energy__detail')?.textContent?.length ?? 0).toBeGreaterThan(0);
     }
   });
@@ -133,7 +143,56 @@ describe('client', () => {
     const boost = container.querySelector('.conserve__boost');
     expect(boost).not.toBeNull();
     // With an empty pile it has to say what protecting a lineage would buy.
-    expect(boost!.textContent).toContain('+1 energy every turn');
+    expect(boost!.textContent).toContain('⬡+1 every turn');
+  });
+
+  it('makes a targeted arrival a two-click aim, and plays it at what you pick', async () => {
+    // A card whose arrival strikes cannot simply be clicked into play — the
+    // resolver refuses it without a target. The interface has to stop and ask,
+    // and this is the flow that breaks the game outright if it does not.
+    vi.useFakeTimers();
+    try {
+      for (let seed = 1; seed <= 60; seed++) {
+        remount();
+        render(seed);
+
+        for (let turn = 0; turn < 8; turn++) {
+          const enemies = [...container.querySelectorAll<HTMLElement>('.side--enemy .card')];
+          const aimable = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')]
+            .find((c) => c.querySelector('.card__arrival')?.textContent?.includes('damage to an enemy'));
+
+          if (aimable && enemies.length > 0) {
+            const boardBefore = container.querySelectorAll('.side--you .card').length;
+            act(() => aimable.click());
+
+            // First click aims: nothing is played yet, and the bar says so.
+            expect(container.querySelectorAll('.side--you .card').length).toBe(boardBefore);
+            expect(container.querySelector('.bar__hint--aim')?.textContent).toContain('striking');
+
+            // The enemies it may hit are lit up as targets.
+            const marked = container.querySelectorAll('.side--enemy .card--target');
+            expect(marked.length).toBeGreaterThan(0);
+
+            // Second click commits it, and the card lands on your reef.
+            act(() => (marked[0] as HTMLButtonElement).click());
+            expect(container.querySelectorAll('.side--you .card').length).toBe(boardBefore + 1);
+            expect(container.querySelector('.bar__hint--aim')).toBeNull();
+            return;
+          }
+
+          // Pass the turn and let the bot take its beat.
+          const endTurn = container.querySelector<HTMLButtonElement>('.btn--primary:not(:disabled)');
+          if (!endTurn) break;
+          act(() => endTurn.click());
+          await act(async () => {
+            vi.advanceTimersByTime(800);
+          });
+        }
+      }
+      throw new Error('never reached a state with an aimable card and an enemy board');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('does not grey out a reef-builder just because it cannot attack', () => {
@@ -145,11 +204,7 @@ describe('client', () => {
     // is affordable on turn one, and which opening hand delivers one is an
     // accident of the shuffle, not the thing under test.
     for (let seed = 1; seed <= 40; seed++) {
-      root.unmount();
-      container.remove();
-      container = document.createElement('div');
-      document.body.appendChild(container);
-      root = createRoot(container);
+      remount();
       render(seed);
 
       const playable = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')];
@@ -167,6 +222,125 @@ describe('client', () => {
       return;
     }
     throw new Error('no affordable 0-attack card in any of 40 opening hands');
+  });
+
+  it('asks you to aim a card whose arrival strikes, instead of failing the play', () => {
+    // A strike arrival needs a target. Clicking the card must open an aim, not
+    // fire a play the resolver will reject.
+    //
+    // The bot takes its turn on a 650ms beat so the player can read it, so the
+    // clock has to be driven by hand here — otherwise the opponent never gets a
+    // card onto the board and there is nothing to aim at.
+    vi.useFakeTimers();
+    try {
+      for (let seed = 1; seed <= 40; seed++) {
+        root.unmount();
+        container.remove();
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        root = createRoot(container);
+        render(seed);
+
+        for (let i = 0; i < 20; i++) {
+          const hand = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')];
+          const enemies = container.querySelectorAll('.side--enemy .card').length;
+          const striker = hand.find((c) => c.textContent?.includes('damage to an enemy'));
+
+          if (striker && enemies > 0) {
+            act(() => striker.click());
+            // The card is held mid-play and the legal enemies are lit.
+            expect(container.querySelector('.hand .card--selected')).not.toBeNull();
+            expect(container.querySelectorAll('.side--enemy .card--target').length).toBeGreaterThan(0);
+            expect(container.querySelector('.bar__hint--aim')?.textContent).toContain('striking');
+
+            const before = container.querySelectorAll('.side--you .card').length;
+            act(() => container.querySelector<HTMLButtonElement>('.side--enemy .card--target')!.click());
+            expect(container.querySelectorAll('.side--you .card').length).toBe(before + 1);
+            expect(container.querySelector('.bar__hint--aim')).toBeNull();
+            return;
+          }
+
+          const endTurn = container.querySelector<HTMLButtonElement>('.btn--primary:not(:disabled)');
+          if (hand[0]) act(() => hand[0]!.click());
+          else if (endTurn) act(() => endTurn.click());
+          else break;
+          // Let the opponent take its turn.
+          act(() => void vi.advanceTimersByTime(1000));
+        }
+      }
+      throw new Error('never reached a state where a strike card could be aimed');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('has a drawing for every species in the set, and no orphans', async () => {
+    // The art is keyed by card id, so a renamed or added card silently loses its
+    // drawing. This is the check that stops that going unnoticed.
+    const { CARDS } = await import('@tidalix/engine');
+    const { drawnSpecies } = await import('./CardArt.tsx');
+
+    const drawn = new Set(drawnSpecies());
+    const missing = CARDS.filter((c) => !drawn.has(c.id)).map((c) => c.id);
+    const orphaned = [...drawn].filter((id) => !CARDS.some((c) => c.id === id));
+
+    expect(missing, 'species with no drawing').toEqual([]);
+    expect(orphaned, 'drawings for cards that do not exist').toEqual([]);
+  });
+
+  it('draws the art inline so it survives the deploy content-security policy', () => {
+    // External image hosts are blocked on the published page. If art ever
+    // arrives as an <img src>, it will render as a broken box for every player.
+    render();
+    const art = container.querySelectorAll('.card .art');
+    expect(art.length).toBeGreaterThan(0);
+    for (const svg of art) expect(svg.tagName.toLowerCase()).toBe('svg');
+    expect(container.querySelectorAll('.card img')).toHaveLength(0);
+  });
+
+  it('has a drawing for every species in the set', async () => {
+    // A card with no silhouette is not broken, just plainer — but the whole
+    // point is that a hand can be read by shape, and a gap undoes that.
+    const { CARDS } = await import('@tidalix/engine');
+    const { hasArt } = await import('./SpeciesArt.tsx');
+    const missing = CARDS.filter((c) => !hasArt(c.id)).map((c) => c.name);
+    expect(missing).toEqual([]);
+  });
+
+  it('tints the drawing with the phase the card is standing in', () => {
+    render();
+    const card = container.querySelector('.hand .card');
+    expect(card?.querySelector('svg.art')).not.toBeNull();
+    // The phase class is what the tint hangs off, so it has to be on the card.
+    expect(card?.className).toMatch(/card--phase-(low|rising|high|falling)/);
+  });
+
+  it('prints each keyword exactly once on a card', async () => {
+    // `toxic` and `toxin-immune` were rendering twice: once from the generic
+    // pass over def.keywords and again from a hand-written tag beside it. Any
+    // keyword that grows a bespoke tag will trip this.
+    const { CARDS, createInstance, effectiveStats } = await import('@tidalix/engine');
+    const { CardView } = await import('./CardView.tsx');
+
+    for (const def of CARDS.filter((c) => (c.keywords?.length ?? 0) > 0)) {
+      const inst = createInstance(def.id, 0);
+      act(() => {
+        root.render(
+          <CardView
+            instance={inst}
+            stats={effectiveStats(inst, 'high', def)}
+            phase="high"
+            state="idle"
+          />,
+        );
+      });
+      for (const keyword of def.keywords!) {
+        const tags = [...container.querySelectorAll('.card__tags .tag')].filter(
+          (t) => t.textContent === keyword,
+        );
+        expect(tags, `${def.name} renders "${keyword}"`).toHaveLength(1);
+      }
+    }
   });
 
   it('marks a toxic animal on its face, before anyone attacks it', async () => {
@@ -198,7 +372,7 @@ describe('client', () => {
 });
 
 describe('card detail', () => {
-  it('shows the tide and symbiosis breakdown separately, plus spines and auras', async () => {
+  it('shows the tide and symbiosis breakdown separately, plus armour and auras', async () => {
     const { createInstance, effectiveStats, getCard } = await import('@tidalix/engine');
     const { CardView } = await import('./CardView.tsx');
 
@@ -269,7 +443,7 @@ describe('card detail', () => {
     expect(container.querySelectorAll('.side--you .card').length).toBe(before);
   });
 
-  it('shows spines on an armed animal', async () => {
+  it('shows armour on an animal that is hard to hurt', async () => {
     const { createInstance, effectiveStats, getCard } = await import('@tidalix/engine');
     const { CardView } = await import('./CardView.tsx');
     const puffer = createInstance('blackspotted-puffer', 0);
@@ -278,7 +452,7 @@ describe('card detail', () => {
     act(() => {
       root.render(<CardView instance={puffer} stats={stats} phase="low" state="idle" />);
     });
-    expect(container.textContent).toContain('spines 3');
+    expect(container.textContent).toContain('armour 3');
     expect(container.textContent).toContain('Arothron nigropunctatus');
   });
 });

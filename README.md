@@ -187,13 +187,42 @@ npm run build
 
 ## Combat
 
-A defender does **not** strike back. A body is not a weapon: only animals that
-are actually armed punish an attacker, through a printed `spines` value. An
-urchin, an anemone, a lionfish and a pufferfish all hurt what bites them; a
-barracuda does not. Set `config.defenderStrikesBack` to restore mutual trades.
+**Every defender strikes back**, for its full attack. This is the rule that stops
+a board lead from being unanswerable: killing something is a trade, so a wide
+reef has to choose what it spends itself on instead of clearing whatever you play
+and still swinging at your face. Measured against the old free-attack rule, it
+cuts the bot's board attacks from 43% to 28% of everything it does.
 
-Exposure amplifies spines too — attacking with a stranded card into a spined one
-is doubly punishing, which is the point of the vulnerability window.
+**Armour** replaces the old `spines`. Once every defender hits back, "punishes
+what bites it" is simply what a defender does, so the armed animals needed a job
+of their own — and the honest one is that they are hard to hurt at all. A printed
+armour value comes off the top of every hit they take, from attacks and from
+retaliation alike, and damage never goes below zero. A pufferfish inflated into a
+ball, an urchin wedged in its socket, an anemone withdrawn.
+
+Exposure amplifies retaliation too — attacking with a stranded card into anything
+that can answer is doubly punishing, which is the point of the vulnerability
+window.
+
+## Arrival
+
+Some species do something the moment they land: the mantis shrimp opens with a
+strike, the cleaner wrasse heals your reef, the crown-of-thorns arrives as an
+outbreak and sweeps every enemy, the octopus draws you a card.
+
+This is what makes *playing a card* an action. Without it the player who is
+behind can only add to their board and wait a turn, by which point the board they
+were answering has already answered them — a lead could never be overturned.
+An arrival resolves immediately, before anything else happens.
+
+It is not a free attack: the card still cannot attack the turn it is played
+unless it has `surge`. And it is deliberately **not on every card** — like a
+trait, an arrival is something a particular animal does, and a card without one
+pays for it in stats, in its tide line, or in an aura. Ten of the twenty-eight
+have one.
+
+A targeted arrival is played in two clicks, because it is two decisions: what to
+commit, and what to answer with it.
 
 ### Toxins
 
@@ -209,7 +238,36 @@ the edges are the design:
   damage, so no aura or rising tide saves the eater.
 - Three predators are printed **`toxin-immune`** — the coral grouper, the giant
   moray and the green sea turtle, all of which really do eat toxic prey. Immunity
-  is to the venom, not to the wound: they still take spines.
+  is to the venom, not to the wound: they still take the counter-blow.
+
+## Arrivals
+
+A card used to do nothing on the turn it was played. It sat there until your next
+turn, by which point the opponent had answered it — which meant the player behind
+could only ever *add* to their board, never respond to yours, and a board lead
+could not be overturned.
+
+So some species now do something the moment they land:
+
+| | |
+|---|---|
+| Peacock Mantis Shrimp | 2 damage to an enemy creature |
+| Bumphead Parrotfish | 3 damage to an enemy creature |
+| Great Barracuda | 2 damage to an enemy creature |
+| Red Lionfish | 1 damage to an enemy creature |
+| Crown-of-thorns Starfish | 1 damage to *every* enemy creature |
+| Bluestreak Cleaner Wrasse | heal 2 from every friendly creature |
+| Giant Clam, Reef Manta Ray | ⬡+2 immediately |
+| Moorish Idol | ⬡+1 immediately |
+| Common Octopus | draw a card |
+
+Deliberately **not on every card**, in the same way traits are not: a card
+without an arrival pays for it in stats, in its tide line, or in an aura, and a
+set where every card answers the board is as flat as one where none of them do.
+
+An arrival resolves the instant the card is played, before anything else — but it
+is not a free attack. The card still cannot attack the turn it lands unless it
+has `surge`.
 
 ## Symbiosis
 
@@ -246,15 +304,15 @@ the only place a card leaves play as an asset rather than a loss.
 |---|---|
 | **It frees the slot** | The reef holds six. Releasing is the only way to take a species back off it, so a board full of matured animals is a resource, not a lock-up. |
 | **It pays** | The pile is scored on **distinct lineages**, and every `config.conservationIncomePer` (1) of them is `+1` standing energy every turn, for the rest of the game. |
-| **It wins** | Protect `config.conservationVictory` (5) distinct lineages and you win outright, whatever the board looks like. |
+| **It wins** | Protect `config.conservationVictory` (5) of the 7 distinct lineages and you win outright, whatever the board looks like. |
 
 The guards are what keep it from being an undo button: a species must live
 through a whole cycle before it can go, and only one goes back per turn.
 
 ### Lineages, not names
 
-Every card carries exactly one **`taxon`** — fish, sharks & rays, crustaceans,
-echinoderms, cephalopods, molluscs, corals & anemones, reptiles — and the pile is
+Every card carries exactly one of **seven `taxon` values** — fish, sharks & rays, crustaceans,
+echinoderms, molluscs, corals & anemones, reptiles — and the pile is
 scored on how many *different* ones are in it. A trait says how an animal
 behaves and can be worn several at once; a taxon says what it is, and it is
 singular on purpose. Six different reef fish are one branch of the tree
@@ -289,11 +347,41 @@ per turn), not a tweak to the victory number, so the number is left as it stands
 and the finding recorded here.
 
 Reachability depends heavily on **how aggressive the opponent is**, which is
-worth knowing before retuning any of these numbers. The placeholder bot weights
-life at twice board value and sends 57% of its attacks at the face, which ends
-games around round 7. Halve that life weight and games run to round 9–10 and
-piles roughly double. Any balance figure measured against a bot is a fact about
-that bot first.
+worth knowing before retuning any of these numbers. Any balance figure measured
+against a bot is a fact about that bot first.
+
+## The opponent
+
+Three difficulties, all the same one-ply engine with different reasons to play
+differently — the useful axis is not raw strength but whether you can name why
+you lost.
+
+| | What it does |
+|---|---|
+| **Easy** | Undervalues your life total and settles for a move from the weaker half of what it can see, half the time. |
+| **Normal** | Plays the board and your life total one move deep. No plan beyond this turn. |
+| **Hard** | Also reads the tide a phase ahead, and checks your best answer before committing to a trade. |
+
+The weights are measured, not guessed. In a round robin of 288 games per
+profile, reading the tide and reading the reply each added about five points of
+win rate alone and seven together:
+
+| Profile | Win rate |
+|---|---|
+| life3 + tide + reply | **57%** |
+| life3 + reply | 52% |
+| life3 + tide | 51% |
+| life2 / life4 | 48% |
+| life3 | 47% |
+| life1 | 46% |
+
+Head to head over 80 games each, both seats: **hard beats normal 59%**, normal
+beats easy 68%, hard beats easy 71%.
+
+One warning for anyone retuning this. Easy was originally "normal, but racing
+harder" — and that made it the *strongest* profile, because racing for the face
+is dominant in a game that ends around round 7. A difficulty setting has to be
+weaker at something that matters, not simply louder.
 
 ## Card set — "Reef Flat"
 
@@ -302,20 +390,26 @@ high-water residents, drain ambushers, the armed and venomous, and the reef
 structures themselves. Every card carries its binomial name, and its tide line
 has to match the animal — if they disagree, the card is wrong.
 
+Every species carries a drawn silhouette, tinted to the phase it is standing in,
+so a hand can be read by shape before a word of it is read. They ship as inline
+SVG because the deploy's CSP blocks every external image host.
+
 Implemented keywords are `surge` (may attack the turn it is played),
-`toxic`, `toxin-immune`, and
-`reef-guard` (must be dealt with before anything behind it). Both are resolved
-by the engine; the keyword list is kept honest so there is no dead card text.
+`reef-guard` (must be dealt with before anything behind it), `toxic` (eating it
+kills the eater) and `toxin-immune`. All four are resolved by the engine; the
+keyword list is kept honest so there is no dead card text.
 
 ## Roadmap
 
 - [x] Engine scaffold: card schema, tide-phase state machine, action resolver
 - [x] Engine test coverage before any UI work
 - [x] Terminal harness — the loop is playable end to end
-- [x] Tide-driven economy, printed `spines` instead of blanket retaliation, symbiosis
+- [x] Tide-driven economy, retaliation with printed `armour`, symbiosis
 - [x] React client — card detail, stat breakdowns, drawn symbiosis links
 - [x] Cycle-paced energy, itemised income, the conservation pile and its win condition
+- [x] Arrival effects, so playing a card is an action and a board lead can be overturned
+- [x] Three measured difficulties, and a silhouette for every species
 - [ ] Play it, and tune the tide until it is fun
 - [ ] Grow the starter set to 30–50 cards and tune the curve
-- [ ] A real single-player AI on top of `legalActions`
+- [ ] A real multi-ply AI on top of `legalActions`, beyond the three one-ply profiles
 - [ ] Validate that it is fun before any multiplayer or monetization work
