@@ -392,6 +392,27 @@ only eel, the mudskipper the only goby, the lionfish the only scorpionfish, the
 anemonefish the only damsel. That trades one skew for nine lineages, four of them
 one card.
 
+## Who goes first
+
+Moving first wins about **63% of games** — measured over 500 games at each
+difficulty, both sides playing the same profile, every seed run with each seat
+starting so that "went first" is the only thing that varies:
+
+| Opponent | Player who moved first | Player who moved second |
+|---|---|---|
+| easy | 61.6% | 38.4% |
+| normal | 62.2% | 37.8% |
+| hard | 63.2% | 36.8% |
+
+The player used to take the first turn in **every single game**, which quietly
+handed them that edge. It is a coin flip now, derived from the seed so a linked
+game still replays exactly, and the log's opening line says which way it fell.
+
+The flip makes it fair across games; it does not make an individual game fair.
+Closing that would mean compensating whoever goes second — the extra card or
+extra energy most card games give them — which is a rules change and has not
+been made.
+
 ## The opponent
 
 Three difficulties, all the same one-ply engine with different reasons to play
@@ -463,6 +484,12 @@ keeps the drawings and the card set in sync in both directions — no species
 without a drawing, no drawing without a species.
 
 ## Card set — "Reef Flat"
+
+**One copy of each species, so a deck is 43 cards and never repeats an animal.**
+At two copies the deck was 86 and a game drew about twelve of them — 14% — so
+most of the set never appeared and drawing the same animal twice was a wasted
+slot rather than a plan. A singleton deck shows roughly a quarter of itself per
+game.
 
 43 real species across the four phases: low-tide flat dwellers, flood hunters,
 high-water residents, drain ambushers, the armed and venomous, and the reef

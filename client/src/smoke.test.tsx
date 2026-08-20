@@ -20,11 +20,6 @@ beforeEach(() => {
   root = createRoot(container);
 });
 
-/**
- * Seed 3 is fixed deliberately: the engine is deterministic, so this pins the
- * opening hand exactly. Letting the app pick its own random seed made these
- * assertions flaky.
- */
 /** Tear down and rebuild the container, for cases that sweep several seeds. */
 function remount() {
   root.unmount();
@@ -34,7 +29,12 @@ function remount() {
   root = createRoot(container);
 }
 
-function render(seed = 3) {
+/**
+ * Seed 7 is fixed deliberately. The engine is deterministic, so this pins the
+ * opening hand *and* the coin flip for the first turn — and 7 is one of the
+ * seeds where the player moves first, which most of these cases need.
+ */
+function render(seed = 7) {
   act(() => {
     root.render(<App seed={seed} />);
   });
@@ -115,7 +115,7 @@ describe('client', () => {
     render();
     // The game opens at low water; the player's next turn is on the rising tide,
     // and the panel must name that phase rather than the one on the board.
-    const state = startGame(createGame({ seed: 3 })).state;
+    const state = startGame(createGame({ seed: 7, startingPlayer: 'random' })).state;
     const projected = nextTurnIncome(state, 0);
     expect(state.phase).toBe('low');
     expect(projected.phase).toBe('rising');
@@ -314,14 +314,14 @@ describe('client', () => {
   it('says which opponent you are facing in the log, from the first line', () => {
     // The selector is a small control in the corner of the bar, so the log is
     // where a player can actually confirm which bot they drew.
-    render(3);
+    render();
     const first = container.querySelector('.log__line');
     expect(first?.textContent).toContain('Normal opponent');
-    expect(first?.textContent).toContain('seed 3');
+    expect(first?.textContent).toContain('seed 7');
   });
 
   it('records a mid-game opponent change, and says when it takes effect', () => {
-    render(3);
+    render();
     const select = container.querySelector<HTMLSelectElement>('.bar__difficulty select')!;
     act(() => {
       select.value = 'hard';
@@ -361,7 +361,7 @@ describe('client', () => {
     // The log is a record to review a game from, so the actions that change the
     // game — picking up a card, an arrival firing — have to be in it. What the
     // opponent drew must not be, which is the one line that has to stay vague.
-    render(3);
+    render();
     const lines = () => [...container.querySelectorAll('.log__line')].map((l) => l.textContent ?? '');
 
     expect(lines().some((l) => l.startsWith('— Turn 1'))).toBe(true);
@@ -605,5 +605,43 @@ describe('card detail', () => {
     });
     expect(container.textContent).toContain('armour 3');
     expect(container.textContent).toContain('Arothron nigropunctatus');
+  });
+});
+
+describe('the coin flip', () => {
+  it('does not hand the first turn to the player every game', async () => {
+    // Moving first wins about 63% of games, so who starts cannot be a constant.
+    const { createGame, startGame } = await import('@tidalix/engine');
+    let youFirst = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const s = startGame(createGame({ seed, startingPlayer: 'random' })).state;
+      if (s.activePlayer === 0) youFirst++;
+    }
+    expect(youFirst).toBeGreaterThan(70);
+    expect(youFirst).toBeLessThan(130);
+  });
+
+  it('stays reproducible from the seed, flip included', async () => {
+    const { createGame, startGame } = await import('@tidalix/engine');
+    for (const seed of [3, 7, 11]) {
+      const a = startGame(createGame({ seed, startingPlayer: 'random' })).state;
+      const b = startGame(createGame({ seed, startingPlayer: 'random' })).state;
+      expect(a.activePlayer).toBe(b.activePlayer);
+      expect(a.players[0].hand.map((c) => c.definitionId)).toEqual(
+        b.players[0].hand.map((c) => c.definitionId),
+      );
+    }
+  });
+
+  it('says who starts in the opening line of the log', () => {
+    render(7);
+    expect(container.querySelector('.log__line')?.textContent).toContain('You go first');
+  });
+
+  it('deals one copy of each species, never two', async () => {
+    const { CARDS, starterDeckList } = await import('@tidalix/engine');
+    const deck = starterDeckList();
+    expect(deck.length).toBe(CARDS.length);
+    expect(new Set(deck).size).toBe(deck.length);
   });
 });

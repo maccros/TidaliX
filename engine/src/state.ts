@@ -12,7 +12,7 @@ import type {
   TidePhase,
 } from './types.js';
 import { CARDS, getCard } from './cards.js';
-import { shuffle } from './rng.js';
+import { nextInt, shuffle } from './rng.js';
 import { effectiveStats, cyclesCompleted, diesAtNextPhase } from './tide.js';
 import { isMature, stepsUntilMature } from './economy.js';
 import type { Taxon } from './types.js';
@@ -101,8 +101,16 @@ export function createInstance(definitionId: string, owner: PlayerId): CardInsta
  * A legal-ish default deck: two copies of every card in the set. Real decks come
  * from the client later; this exists so the engine is playable on its own.
  */
+/**
+ * The starter deck: one copy of every species.
+ *
+ * One, not two. At two copies of 43 species the deck was 86 cards and a game
+ * drew about twelve of them — 14% — so most of the set never appeared and
+ * drawing the same animal twice was a wasted slot rather than a plan. A
+ * singleton deck shows a quarter of itself per game and never repeats.
+ */
 export function starterDeckList(): string[] {
-  return CARDS.flatMap((c) => [c.id, c.id]);
+  return CARDS.map((c) => c.id);
 }
 
 export interface CreateGameOptions {
@@ -112,7 +120,15 @@ export interface CreateGameOptions {
   decks?: [string[], string[]];
   /** Skip shuffling — handy for deterministic tests that stack a deck. */
   shuffleDecks?: boolean;
-  startingPlayer?: PlayerId;
+  /**
+   * Who takes the first turn. `'random'` derives the coin flip from the game's
+   * seed, so a randomised game is still exactly reproducible from its seed.
+   *
+   * Defaults to player 0 so tests and tools stay deterministic without saying
+   * so; the game itself passes `'random'`, because moving first is worth about
+   * 63% of games and handing that to the same side every time is not a game.
+   */
+  startingPlayer?: PlayerId | 'random';
 }
 
 function createPlayer(id: PlayerId, deck: CardInstance[], config: GameConfig): PlayerState {
@@ -139,9 +155,19 @@ function createPlayer(id: PlayerId, deck: CardInstance[], config: GameConfig): P
 export function createGame(options: CreateGameOptions = {}): GameState {
   const config: GameConfig = { ...DEFAULT_CONFIG, ...options.config };
   const decks = options.decks ?? [starterDeckList(), starterDeckList()];
-  const startingPlayer = options.startingPlayer ?? 0;
 
   let rng = { seed: options.seed ?? 1 };
+
+  // Drawn before any shuffling, so the flip and the deal are both reproducible
+  // and the flip does not depend on how many cards happen to be in the decks.
+  let startingPlayer: PlayerId = 0;
+  if (options.startingPlayer === 'random') {
+    const flip = nextInt(rng, 2);
+    startingPlayer = flip.value as PlayerId;
+    rng = flip.rng;
+  } else if (options.startingPlayer !== undefined) {
+    startingPlayer = options.startingPlayer;
+  }
   const players: PlayerState[] = [];
 
   for (const id of [0, 1] as const) {

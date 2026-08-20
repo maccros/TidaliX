@@ -60,9 +60,14 @@ const capitalise = (s: string) => s[0]!.toUpperCase() + s.slice(1);
  * restart. Stating it in the log means the answer is always somewhere on screen,
  * in the one place that already records what happened.
  */
-function openingLine(seed: number, difficulty: Difficulty): { text: string; kind: string } {
+function openingLine(
+  seed: number,
+  difficulty: Difficulty,
+  first: PlayerId,
+): { text: string; kind: string } {
+  const who = first === YOU ? 'You go first' : 'The AI goes first';
   return {
-    text: `New game · ${capitalise(difficulty)} opponent · seed ${seed}`,
+    text: `New game · ${capitalise(difficulty)} opponent · ${who} · seed ${seed}`,
     kind: 'setup',
   };
 }
@@ -82,7 +87,9 @@ const PHASE_NOTE: Record<TidePhase, string> = {
  * them away left the log missing turn one entirely.
  */
 function newGame(seed: number): { state: GameState; events: GameEvent[] } {
-  return startGame(createGame({ seed }));
+  // The coin flip is worth about 63% of games, so it is a flip, not a gift. It
+  // is derived from the seed, so a linked game still replays exactly.
+  return startGame(createGame({ seed, startingPlayer: 'random' }));
 }
 
 /**
@@ -118,7 +125,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
   const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [
-    openingLine(seed, DEFAULT_DIFFICULTY),
+    openingLine(seed, DEFAULT_DIFFICULTY, opening.state.activePlayer),
     ...opening.events
       .map((e) => describe(e, opening.state))
       .filter((l): l is { text: string; kind: string } => l !== null),
@@ -152,7 +159,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       setAiming(null);
       setInspecting(null);
       setLog([
-        openingLine(nextSeed, difficulty),
+        openingLine(nextSeed, difficulty, fresh.state.activePlayer),
         ...fresh.events
           .map((e) => describe(e, fresh.state))
           .filter((l): l is { text: string; kind: string } => l !== null),
