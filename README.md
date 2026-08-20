@@ -204,26 +204,6 @@ Exposure amplifies retaliation too — attacking with a stranded card into anyth
 that can answer is doubly punishing, which is the point of the vulnerability
 window.
 
-## Arrival
-
-Some species do something the moment they land: the mantis shrimp opens with a
-strike, the cleaner wrasse heals your reef, the crown-of-thorns arrives as an
-outbreak and sweeps every enemy, the octopus draws you a card.
-
-This is what makes *playing a card* an action. Without it the player who is
-behind can only add to their board and wait a turn, by which point the board they
-were answering has already answered them — a lead could never be overturned.
-An arrival resolves immediately, before anything else happens.
-
-It is not a free attack: the card still cannot attack the turn it is played
-unless it has `surge`. And it is deliberately **not on every card** — like a
-trait, an arrival is something a particular animal does, and a card without one
-pays for it in stats, in its tide line, or in an aura. Ten of the twenty-eight
-have one.
-
-A targeted arrival is played in two clicks, because it is two decisions: what to
-commit, and what to answer with it.
-
 ### Toxins
 
 Three animals are printed **`toxic`**: the blackspotted puffer, the red lionfish
@@ -268,6 +248,9 @@ set where every card answers the board is as flat as one where none of them do.
 An arrival resolves the instant the card is played, before anything else — but it
 is not a free attack. The card still cannot attack the turn it lands unless it
 has `surge`.
+
+A targeted arrival is played in two clicks, because it is two decisions: what to
+commit, and what to answer with it. Pick the card, then pick what it hits.
 
 ## Symbiosis
 
@@ -340,8 +323,22 @@ before this change too:
 | 40 | 9.7 | 2.07 | 4 | 0% |
 | 60 | 11.8 | 2.48 | 5 | 2% |
 
-Raising how much the bot *wants* the pile from weight 40 to 200 moves those
-numbers not at all — it is already taking every release the clock allows. Closing
+Re-measured after retaliation and the arrival system went in, and the ceiling did
+not move — peak three against a target of five, at every difficulty:
+
+| Opponent | Mean rounds | Mean best pile | Peak | Pile wins |
+|---|---|---|---|---|
+| easy | 8.6 | 0.00 | 0 | 0% |
+| normal | 6.6 | 1.26 | 3 | 0% |
+| hard | 7.1 | 1.30 | 3 | 0% |
+
+Retaliation made it slightly *worse* at normal, and that is worth understanding
+rather than patching: a bot that fears trades stops contesting the board and
+races the face instead, which ends the game a round sooner. Easy never conserves
+at all, by design — it does not value the pile.
+
+Raising how much the bot *wants* the pile moves these numbers not at all — it is
+already taking every release the clock allows. Closing
 the gap is a game-length decision (starting life, maturity cycles, or releases
 per turn), not a tweak to the victory number, so the number is left as it stands
 and the finding recorded here.
@@ -375,13 +372,30 @@ win rate alone and seven together:
 | life3 | 47% |
 | life1 | 46% |
 
-Head to head over 80 games each, both seats: **hard beats normal 59%**, normal
-beats easy 68%, hard beats easy 71%.
+Head to head, re-measured over 160 games per pairing with both seats and both
+starting players: **hard beats normal 56%**, normal beats easy 61%, hard beats
+easy 69%. Seats have to be swapped on every seed, because the player who moves
+first wins about 63% of games — large enough that an unswapped run reads seat
+advantage as skill.
 
 One warning for anyone retuning this. Easy was originally "normal, but racing
 harder" — and that made it the *strongest* profile, because racing for the face
 is dominant in a game that ends around round 7. A difficulty setting has to be
 weaker at something that matters, not simply louder.
+
+The bot's reply check is arithmetic, not simulated. An earlier version played out
+every candidate reply through the resolver, which made hard roughly fifty times
+slower than the other two — unusable in a browser and slow enough to time out a
+measurement run. What one attacker can do to one card is a subtraction.
+
+## Card art
+
+Every species carries an inline SVG silhouette, tinted by the tide phase the card
+is drawn in. Inline rather than image files for two reasons: the deployed page
+runs under a strict CSP that blocks every external host, and a drawing that
+inherits `currentColor` can take the phase colour, which an image cannot. A test
+keeps the drawings and the card set in sync in both directions — no species
+without a drawing, no drawing without a species.
 
 ## Card set — "Reef Flat"
 
