@@ -48,6 +48,27 @@ export type Trait =
   | 'mollusc';
 
 /**
+ * What each trait means, biologically.
+ *
+ * A trait is only half self-explanatory: a player can guess what `reef-fish`
+ * describes, but not `cleaner` or `anemonefish`, and none of them say what the
+ * trait *does*. The second half — which cards read it — is derived from the set
+ * rather than written here, so it cannot go stale when a card changes.
+ */
+export const TRAIT_NOTE: Record<Trait, string> = {
+  'reef-fish': 'Lives in and around the coral itself. The reef\u2019s residents.',
+  megafauna: 'The big open-water animals — sharks, rays, turtles, the largest fish.',
+  coral: 'Reef-building stony coral: the structure everything else lives in.',
+  anemone: 'A stinging cnidarian that hosts a resident fish.',
+  anemonefish: 'Immune to its host\u2019s sting, and its most attentive defender.',
+  cleaner: 'Runs a cleaning station, picking parasites off anything that queues.',
+  crustacean: 'Crabs and shrimps — hard shells, and the splash zone.',
+  echinoderm: 'Urchins and sea stars: radial, slow, and usually armed.',
+  cephalopod: 'Octopus and kin — soft-bodied, and the cleverest thing on the reef.',
+  mollusc: 'Shelled animals that filter or graze rather than hunt.',
+};
+
+/**
  * The lineage a species belongs to — one per card, and every card has one.
  *
  * This is what the conservation pile is scored on. A trait says how an animal
@@ -197,6 +218,19 @@ export interface CardDefinition {
   keywords?: Keyword[];
   /** Biological tags other cards' auras can read. */
   traits?: Trait[];
+  /**
+   * Damage this card deals back on top of whatever it returns by fighting.
+   *
+   * Reinstated for a reason that only became visible once every defender started
+   * striking back: a card with no attack returns *nothing*, so universal
+   * retaliation quietly made the reef's walls worse rather than better. Attacking
+   * a coral head or an urchin was free again.
+   *
+   * So spines is the answer for animals that have no attack to answer with. It is
+   * printed only on those, and it stacks with retaliation rather than replacing
+   * it, so the rule stays one rule: a defender returns its attack plus its spines.
+   */
+  spines?: number;
   /**
    * Damage this card shrugs off, from every source.
    *

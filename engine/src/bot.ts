@@ -76,9 +76,9 @@ export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard'] as
  * when the numbers move.
  */
 export const DIFFICULTY_NOTE: Record<Difficulty, string> = {
-  easy: 'Races for your life total, ignores the tide, and misses the best line about half the time.',
-  normal: 'Plays the board and your life total one move deep. No plan beyond this turn.',
-  hard: 'Reads the tide, builds a conservation pile, and checks what you can answer with before it commits.',
+  easy: 'Fights for the board and forgets to finish you. Ignores the tide and the pile, and misses the best line about half the time.',
+  normal: 'Goes for your life total, one move deep. No read of the tide and no plan beyond this turn.',
+  hard: 'Goes for your life total, reads one tide phase ahead, and checks what you can answer with before committing to a trade.',
 };
 
 /** Rough worth of a card sitting on the board, in a given phase. */

@@ -193,12 +193,24 @@ reef has to choose what it spends itself on instead of clearing whatever you pla
 and still swinging at your face. Measured against the old free-attack rule, it
 cuts the bot's board attacks from 43% to 28% of everything it does.
 
-**Armour** replaces the old `spines`. Once every defender hits back, "punishes
-what bites it" is simply what a defender does, so the armed animals needed a job
-of their own — and the honest one is that they are hard to hurt at all. A printed
-armour value comes off the top of every hit they take, from attacks and from
-retaliation alike, and damage never goes below zero. A pufferfish inflated into a
-ball, an urchin wedged in its socket, an anemone withdrawn.
+**Armour and spines** split the old `spines` in two. Once every defender hits back, "punishes what
+bites it" is simply what a defender does, so the armed animals needed jobs of
+their own — and there turned out to be two different jobs.
+
+**Armour** is for animals that are hard to hurt. It comes off the top of every
+hit they take, from attacks and retaliation alike, and damage never goes below
+zero. A pufferfish inflated into a ball nothing can get its jaws around.
+
+**Spines** is for animals with *no attack at all*. Retaliation returns the
+defender's attack, which is zero for an urchin, an anemone or a coral head — so
+universal retaliation quietly made the reef's walls worse rather than better, and
+attacking them was free again. Spines is dealt back on top of whatever a defender
+returns by fighting, so the rule stays one rule: **a defender returns its attack
+plus its spines**. Printed only on the unarmed, which is where it earns its keep.
+
+The two never appear on the same card. Armour goes on the three toxic animals,
+which have an attack and so already answer a blow; spines goes on the urchin and
+the anemone, which do not.
 
 Exposure amplifies retaliation too — attacking with a stranded card into anything
 that can answer is doubly punishing, which is the point of the vulnerability

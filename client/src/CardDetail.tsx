@@ -15,18 +15,20 @@ import { useEffect, useRef } from 'react';
 import {
   TAXON_LABEL,
   TIDE_CYCLE,
+  TRAIT_NOTE,
+  auraSourcesFor,
   type ArrivalEffect,
   effectiveStats,
   getCard,
   tideEffectFor,
   type CardInstance,
   type EffectiveStats,
+  type Keyword,
   type TidePhase,
 } from '@tidalix/engine';
 
 import { SpeciesArt } from './SpeciesArt.tsx';
 
-import { CardArt } from './CardArt.tsx';
 
 export interface CardDetailProps {
   instance: CardInstance;
@@ -51,6 +53,13 @@ export interface CardDetailProps {
   } | null;
   onClose: () => void;
 }
+
+const KEYWORD_TEXT: Record<Keyword, string> = {
+  surge: 'May attack the turn it is played, instead of waiting a turn.',
+  'reef-guard': 'Enemies must deal with this before they can attack anything behind it, your face included.',
+  toxic: 'Destroy it by attacking and your attacker dies too — eating it is what kills you. Wounding it costs nothing extra.',
+  'toxin-immune': 'Can destroy a toxic animal and survive it. Immunity is to the venom, not to the wound.',
+};
 
 const ARRIVAL_TEXT: Record<ArrivalEffect['kind'], (n: number) => string> = {
   strike: (n) => `Deal ${n} damage to an enemy creature.`,
@@ -115,10 +124,6 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
 
         <div className="detail__art">
           <SpeciesArt definitionId={def.id} className="art art--large" />
-        </div>
-
-        <div className="detail__art">
-          <CardArt definitionId={def.id} size="detail" />
         </div>
 
         {def.text && <p className="detail__text">{def.text}</p>}
@@ -188,24 +193,77 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </section>
         )}
 
-        {(def.keywords?.length || def.traits?.length || def.armour) && (
+        {(def.keywords?.length || def.traits?.length || def.armour || def.spines) && (
           <section className="detail__section">
             <h3 className="detail__h">Traits and keywords</h3>
-            <div className="detail__tags">
+            <dl className="detail__glossary">
               {def.keywords?.map((k) => (
-                <span key={k} className={`tag tag--${k}`}>
-                  {k}
-                </span>
+                <div key={k} className="detail__entry">
+                  <dt>
+                    <span className={`tag tag--${k}`}>{k}</span>
+                  </dt>
+                  <dd>{KEYWORD_TEXT[k]}</dd>
+                </div>
               ))}
+
               {def.armour ? (
-                <span className="tag tag--armour">armour {def.armour}</span>
+                <div className="detail__entry">
+                  <dt>
+                    <span className="tag tag--armour">armour {def.armour}</span>
+                  </dt>
+                  <dd>
+                    Comes off the top of every hit it takes, from attacks and retaliation alike.
+                    Damage never goes below zero.
+                  </dd>
+                </div>
               ) : null}
-              {def.traits?.map((t) => (
-                <span key={t} className="tag tag--trait">
-                  {t}
-                </span>
-              ))}
-            </div>
+
+              {def.spines ? (
+                <div className="detail__entry">
+                  <dt>
+                    <span className="tag tag--spines">spines {def.spines}</span>
+                  </dt>
+                  <dd>
+                    Dealt back to anything that attacks it, on top of whatever it returns by
+                    fighting. This animal has no attack, so its spines are its whole answer.
+                  </dd>
+                </div>
+              ) : null}
+
+              {/* Every trait is explained, and — more usefully — says what in the
+                  set actually reads it. A trait nothing reads is decoration, and
+                  the player deserves to be able to tell which is which. */}
+              {def.traits?.map((t) => {
+                const readers = auraSourcesFor(t).filter((r) => r.card.id !== def.id);
+                return (
+                  <div key={t} className="detail__entry">
+                    <dt>
+                      <span className="tag tag--trait">{t}</span>
+                    </dt>
+                    <dd>
+                      {TRAIT_NOTE[t]}
+                      {readers.length > 0 ? (
+                        <span className="detail__readers">
+                          Read by{' '}
+                          {readers.map((r, i) => (
+                            <span key={r.card.id}>
+                              {i > 0 ? ', ' : ''}
+                              <b>{r.card.name}</b> ({deltaLabel(r.aura.grants)})
+                            </span>
+                          ))}
+                          .
+                        </span>
+                      ) : (
+                        <span className="detail__readers">
+                          Nothing in the set reads this yet — on this card it is description, not
+                          a rule.
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
           </section>
         )}
 

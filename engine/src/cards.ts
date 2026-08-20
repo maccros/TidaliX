@@ -97,7 +97,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 5,
     keywords: ['reef-guard'],
     traits: ['echinoderm'],
-    armour: 2,
+    spines: 3,
     tide: {
       low: { health: 2 },
     },
@@ -465,7 +465,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 4,
     keywords: ['reef-guard'],
     traits: ['anemone'],
-    armour: 1,
+    spines: 2,
     auras: [
       {
         affects: 'anemonefish',
@@ -605,6 +605,23 @@ export const CARDS: readonly CardDefinition[] = [
 ];
 
 const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) => [c.id, c]));
+
+/**
+ * Every card whose aura reads `trait`, and what it grants.
+ *
+ * This is what a trait *does*, and it is derived rather than written down so it
+ * cannot drift from the set. A trait nothing reads comes back empty, which is
+ * the honest answer: it is decoration on this card until something reads it.
+ */
+export function auraSourcesFor(trait: Trait): { card: CardDefinition; aura: Aura }[] {
+  const out: { card: CardDefinition; aura: Aura }[] = [];
+  for (const card of CARDS) {
+    for (const aura of card.auras ?? []) {
+      if (aura.affects === trait) out.push({ card, aura });
+    }
+  }
+  return out;
+}
 
 /** What a card does the moment it lands, if anything. */
 export function arrivalOf(definitionId: string): ArrivalEffect | undefined {

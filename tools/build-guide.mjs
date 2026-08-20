@@ -43,6 +43,7 @@ const DATA = {
       kw: c.keywords ?? [],
       traits: c.traits ?? [],
       armour: c.armour ?? 0,
+      spines: c.spines ?? 0,
       arrival: c.arrival ?? null,
       auras: c.auras ?? [],
       text: c.text,
@@ -143,6 +144,9 @@ function cardRow(id) {
   const armour = c.armour
     ? `<span class="kw kw--armour" title="comes off the top of every hit it takes">armour ${c.armour}</span>`
     : '';
+  const spines = c.spines
+    ? `<span class="kw kw--spines" title="dealt back to whatever attacks it">spines ${c.spines}</span>`
+    : '';
   const ARRIVAL_TEXT = {
     strike: (n) => `deal ${n} damage to an enemy creature`,
     sweep: (n) => `deal ${n} damage to every enemy creature`,
@@ -180,7 +184,7 @@ function cardRow(id) {
     </div>
     <div class="card__body">
       <p class="card__text">${esc(c.text)}</p>
-      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${taxon}${kw}${armour}${traits}</p>
+      <p class="card__meta"><span class="printed">base ${c.base[0]}/${c.base[1]}</span>${type}${taxon}${kw}${armour}${spines}${traits}</p>
       ${arrival}
       ${auras}
     </div>
@@ -336,6 +340,7 @@ const html = `<title>TidaliX Field Guide</title>
   .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
   .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
   .kw--armour { color: var(--high); border-color: var(--high); background: color-mix(in srgb, var(--high) 14%, transparent); font-weight: 700; }
+  .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }
   .arrival__note { color: var(--muted, #6d858c); font-style: italic; }
@@ -485,7 +490,7 @@ const html = `<title>TidaliX Field Guide</title>
         <ul>
           <li>A card cannot attack the turn it is played unless it has <b>surge</b>.</li>
           <li>One attack per card per turn. Cards with <span class="num">0</span> attack cannot attack at all.</li>
-          <li>The defender <b>always strikes back</b>, for its full attack. Killing something is a trade, which is what stops a wide board clearing everything you play for free.</li>
+          <li>The defender <b>always strikes back</b>, for its full attack plus any <b>spines</b>. Killing something is a trade, which is what stops a wide board clearing everything you play for free.</li>
           <li>A <b>reef-guard</b> must be dealt with before anything behind it, face included.</li>
         </ul>
       </div>
@@ -503,6 +508,22 @@ const html = `<title>TidaliX Field Guide</title>
           It applies to attacks and to retaliation alike, so an armoured animal is
           both awful to attack and awful to be attacked by. Damage never goes
           below zero: a blocked hit is nothing, not a heal.
+        </p>
+      </div>
+
+      <div class="rule">
+        <h4>Spines</h4>
+        <p>
+          Retaliation is the defender's attack &mdash; which is <b>nothing</b> for
+          an urchin, an anemone or a coral head. Universal retaliation quietly
+          made the reef's walls worse rather than better, because attacking them
+          was free again.
+        </p>
+        <p>
+          <b>Spines</b> is the answer for animals with no attack to answer with.
+          It is dealt back on top of whatever the defender returns by fighting, so
+          the rule is still one rule: a defender returns its attack plus its
+          spines. Printed only on the unarmed &mdash; the urchin and the anemone.
         </p>
       </div>
 

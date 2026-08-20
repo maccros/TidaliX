@@ -278,14 +278,10 @@ describe('client', () => {
     // The art is keyed by card id, so a renamed or added card silently loses its
     // drawing. This is the check that stops that going unnoticed.
     const { CARDS } = await import('@tidalix/engine');
-    const { drawnSpecies } = await import('./CardArt.tsx');
+    const { hasArt } = await import('./SpeciesArt.tsx');
 
-    const drawn = new Set(drawnSpecies());
-    const missing = CARDS.filter((c) => !drawn.has(c.id)).map((c) => c.id);
-    const orphaned = [...drawn].filter((id) => !CARDS.some((c) => c.id === id));
-
+    const missing = CARDS.filter((c) => !hasArt(c.id)).map((c) => c.id);
     expect(missing, 'species with no drawing').toEqual([]);
-    expect(orphaned, 'drawings for cards that do not exist').toEqual([]);
   });
 
   it('draws the art inline so it survives the deploy content-security policy', () => {
@@ -313,6 +309,35 @@ describe('client', () => {
     expect(card?.querySelector('svg.art')).not.toBeNull();
     // The phase class is what the tint hangs off, so it has to be on the card.
     expect(card?.className).toMatch(/card--phase-(low|rising|high|falling)/);
+  });
+
+  it('explains every trait and keyword on the full card', async () => {
+    // A bare tag reading "cleaner" or "anemonefish" tells a player nothing, and
+    // says nothing at all about what reads it. The detail view has to.
+    const { CARDS, TRAIT_NOTE } = await import('@tidalix/engine');
+    const { CardDetail } = await import('./CardDetail.tsx');
+    const { createInstance } = await import('@tidalix/engine');
+
+    for (const def of CARDS.filter((c) => (c.traits?.length ?? 0) > 0)) {
+      const inst = createInstance(def.id, 0);
+      act(() => {
+        root.render(
+          <CardDetail instance={inst} phase="high" stats={null} zone="hand" onClose={() => {}} />,
+        );
+      });
+      const text = container.textContent ?? '';
+      for (const trait of def.traits!) {
+        expect(text, `${def.name} explains "${trait}"`).toContain(TRAIT_NOTE[trait]);
+      }
+      for (const keyword of def.keywords ?? []) {
+        // Each keyword gets prose of its own, not just a coloured chip.
+        const entry = [...container.querySelectorAll('.detail__entry')].find(
+          (e) => e.querySelector('dt')?.textContent === keyword,
+        );
+        expect(entry, `${def.name} explains "${keyword}"`).toBeTruthy();
+        expect((entry!.querySelector('dd')?.textContent ?? '').length).toBeGreaterThan(20);
+      }
+    }
   });
 
   it('prints each keyword exactly once on a card', async () => {

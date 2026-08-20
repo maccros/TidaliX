@@ -612,40 +612,20 @@ button { font: inherit; color: inherit; }
   border: 1px solid var(--line); border-radius: 2px; padding: 0.15rem 0.3rem;
 }
 
-/* ---- Species art ---- */
-.card__art {
-  display: flex; justify-content: center; align-items: center;
-  height: 3.1rem; margin: 0.1rem 0;
-}
-.art {
-  width: 100%; height: 100%; max-width: 5.6rem;
-  fill: currentColor; color: var(--ink-soft); opacity: 0.9;
-}
-/* The animal takes the colour of the water it is standing in. */
-.card--phase-low .art { color: var(--low); }
-.card--phase-rising .art { color: var(--rising); }
-.card--phase-high .art { color: var(--high); }
-.card--phase-falling .art { color: var(--falling); }
-.art__eye { fill: var(--surface); }
-.card--target .art, .card--selected .art { opacity: 1; }
 
-.detail__art {
-  display: flex; justify-content: center;
-  padding: 0.3rem 0 0.5rem;
+/* ---- Detail: the glossary of traits and keywords ---- */
+.detail__glossary { margin: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+.detail__entry { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.6rem; align-items: baseline; }
+.detail__entry dt { margin: 0; }
+.detail__entry dd {
+  margin: 0; font-size: 0.78rem; line-height: 1.45; color: var(--ink-soft);
 }
-.art--large { max-width: 11rem; height: 6rem; color: var(--accent); }
-
-/* ---- Species art ---- */
-/*
- * Tinted by the phase the card is drawn in, so a row of cards shows the tide at
- * a glance. Kept low-contrast: the drawing is for recognition, and it must never
- * compete with the numbers a player is actually reading.
- */
-.art { display: block; width: 100%; height: auto; }
-.art--card {
-  max-height: 2.6rem; color: var(--phase, var(--ink-soft)); opacity: 0.75;
+.detail__readers { display: block; margin-top: 0.15rem; color: var(--ink-faint); font-size: 0.74rem; }
+.detail__readers b { color: var(--good); font-weight: 600; }
+.tag--spines {
+  color: var(--warn); border-color: var(--warn); font-weight: 700;
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
 }
-.art--detail { max-height: 7rem; color: var(--accent); opacity: 0.9; }
-.card__art { display: flex; justify-content: center; margin: 0.1rem 0; }
-.detail__art { display: flex; justify-content: center; padding: 0.3rem 0 0.5rem; }
-.card--structure .art--card { opacity: 0.85; }
+@media (max-width: 32rem) {
+  .detail__entry { grid-template-columns: 1fr; gap: 0.15rem; }
+}

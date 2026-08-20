@@ -398,11 +398,15 @@ function attack(state: GameState, action: AttackAction): ActionResult {
     // trade is a decision. It lands even if the defender is dying: an animal
     // does not stop biting because the bite was fatal.
     const bonusToAttacker = attackerStats.exposed ? draft.config.exposedBonusDamage : 0;
-    if (draft.config.defenderStrikesBack && targetStats.attack > 0) {
+    // A defender returns its attack plus its spines. Spines exist because the
+    // first half of that is zero for a coral, an urchin or an anemone — without
+    // them, universal retaliation left the reef's walls answering with nothing.
+    const returned = (draft.config.defenderStrikesBack ? targetStats.attack : 0) + targetStats.spines;
+    if (returned > 0) {
       strike(
         draft,
         draftAttacker,
-        targetStats.attack + bonusToAttacker,
+        returned + bonusToAttacker,
         draftTarget.instanceId,
         'retaliation',
         bonusToAttacker,

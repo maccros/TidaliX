@@ -23,7 +23,6 @@ import {
 
 import { SpeciesArt } from './SpeciesArt.tsx';
 
-import { CardArt } from './CardArt.tsx';
 
 export type CardState =
   | 'idle'
@@ -211,10 +210,6 @@ export function CardView({
         <SpeciesArt definitionId={def.id} />
       </div>
 
-      <div className="card__art">
-        <CardArt definitionId={def.id} />
-      </div>
-
       <p className="card__text">{def.text}</p>
 
       <div className="card__tags">
@@ -223,6 +218,11 @@ export function CardView({
             {k}
           </span>
         ))}
+        {stats.spines > 0 && (
+          <span className="tag tag--spines" title="damages anything that attacks it, on top of its attack">
+            spines {stats.spines}
+          </span>
+        )}
         {stats.armour > 0 && (
           <span className="tag tag--armour" title="reduces every incoming hit by this much">
             armour {stats.armour}

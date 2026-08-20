@@ -206,6 +206,8 @@ export interface BoardCardView {
   reefGuard: boolean;
   /** Damage it shrugs off from every source. */
   armour: number;
+  /** Damage it deals back on top of its attack. */
+  spines: number;
   /** Eating this card kills the eater. */
   toxic: boolean;
   /** This card can eat a toxic one and survive it. */
@@ -243,6 +245,7 @@ export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
       exposed: stats.exposed,
       reefGuard: def.keywords?.includes('reef-guard') ?? false,
       armour: stats.armour,
+      spines: stats.spines,
       toxic: def.keywords?.includes('toxic') ?? false,
       toxinImmune: def.keywords?.includes('toxin-immune') ?? false,
       poisoned: inst.poisoned,

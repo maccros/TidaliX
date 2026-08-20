@@ -39,13 +39,14 @@ export type {
   TidePhase,
 } from './types.js';
 
-export { TAXON_LABEL, arrivalNeedsTarget } from './types.js';
+export { TAXON_LABEL, TRAIT_NOTE, arrivalNeedsTarget } from './types.js';
 
 export {
   CARDS,
   activeSymbioses,
   allTaxa,
   arrivalOf,
+  auraSourcesFor,
   cardsFavouring,
   getCard,
   hasCard,

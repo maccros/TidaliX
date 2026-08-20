@@ -55,10 +55,26 @@ beforeEach(() => resetInstanceIds());
 describe('armour', () => {
   it('is printed on the animals that are hard to hurt, not derived from anything', () => {
     expect(getCard('blackspotted-puffer').armour).toBe(3);
-    expect(getCard('rock-boring-urchin').armour).toBe(2);
-    expect(getCard('bubble-tip-anemone').armour).toBe(1);
+    expect(getCard('red-lionfish').armour).toBe(2);
+    expect(getCard('crown-of-thorns-starfish').armour).toBe(3);
     // A big soft predator shrugs off nothing.
     expect(getCard('great-barracuda').armour).toBeUndefined();
+  });
+
+  it('is kept apart from spines — they answer two different problems', () => {
+    // Armour goes on animals that also have an attack, so they already answer a
+    // blow by fighting back and the armour is on top. Spines go on the animals
+    // with no attack at all, which would otherwise answer with nothing.
+    for (const id of ['blackspotted-puffer', 'red-lionfish', 'crown-of-thorns-starfish']) {
+      expect(getCard(id).armour, id).toBeGreaterThan(0);
+      expect(getCard(id).spines, id).toBeUndefined();
+      expect(getCard(id).attack, id).toBeGreaterThan(0);
+    }
+    for (const id of ['rock-boring-urchin', 'bubble-tip-anemone']) {
+      expect(getCard(id).spines, id).toBeGreaterThan(0);
+      expect(getCard(id).armour, id).toBeUndefined();
+      expect(getCard(id).attack, id).toBe(0);
+    }
   });
 
   it('absorbs damage off the top of every attack', () => {
@@ -112,12 +128,12 @@ describe('armour', () => {
     expect(back?.exposedBonus).toBe(1);
   });
 
-  it('is what makes an unarmed defender worth playing', () => {
-    // The urchin cannot attack and so can never retaliate. Armour is the whole
-    // of its contribution, and it is enough to make it a wall.
+  it('leaves the unarmed defenders to spines, which is their whole answer', () => {
+    // The urchin cannot attack, so retaliation alone would return nothing and
+    // attacking the reef's walls would be free. Spines is what it answers with.
     let s = bareGame();
-    s = place(s, 0, ['peacock-mantis-shrimp']); // 4 attack
-    s = place(s, 1, ['rock-boring-urchin']); // 0 attack, 7 health at low, armour 2
+    s = place(s, 0, ['peacock-mantis-shrimp']); // 4 attack, 2 health
+    s = place(s, 1, ['rock-boring-urchin']); // 0 attack, 7 health at low, spines 3
 
     const { state: after, events } = expectOk(
       applyAction(s, {
@@ -128,8 +144,13 @@ describe('armour', () => {
       }),
     );
 
-    expect(after.players[1].board[0]?.damage).toBe(2); // 4 attack, 2 absorbed
-    expect(events.some((e) => e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation')).toBe(false);
+    expect(after.players[1].board[0]?.damage).toBe(4); // no armour, so all of it lands
+    // 3 spines, plus 1 because a mantis shrimp is exposed at low water.
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 4, exposedBonus: 1 }),
+    );
+    // Into a 2-health shrimp: attacking a wall can simply lose you the card.
+    expect(after.players[0].board).toHaveLength(0);
   });
 
   it('never turns damage negative — a blocked hit is zero, not a heal', () => {
