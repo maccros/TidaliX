@@ -340,6 +340,48 @@ describe('client', () => {
     }
   });
 
+  it('colours a card by what you can do with it, never by what it is', async () => {
+    // Toxic animals and structures used to carry their own tint, which meant a
+    // player scanning for their options was decoding six washes at once. Two
+    // cards in the same state must look the same, whatever they happen to be.
+    const { CARDS, createInstance, effectiveStats } = await import('@tidalix/engine');
+    const { CardView } = await import('./CardView.tsx');
+
+    const classesFor = (id: string) => {
+      const inst = createInstance(id, 0);
+      const def = CARDS.find((c) => c.id === id)!;
+      act(() => {
+        root.render(
+          <CardView
+            instance={inst}
+            stats={effectiveStats(inst, 'rising', def)}
+            phase="rising"
+            state="idle"
+          />,
+        );
+      });
+      return [...container.querySelector('.card')!.classList].sort().join(' ');
+    };
+
+    // A toxic creature, a plain creature, and a structure — same state, same look.
+    const toxic = classesFor('blackspotted-puffer');
+    const plain = classesFor('clown-triggerfish');
+    const structure = classesFor('giant-clam');
+    expect(toxic).toBe(plain);
+    expect(structure).toBe(plain);
+
+    // Toxicity is still on the card — as a tag, which is a label read on
+    // purpose rather than a wash to be decoded.
+    act(() => {
+      const inst = createInstance('blackspotted-puffer', 0);
+      const def = CARDS.find((c) => c.id === 'blackspotted-puffer')!;
+      root.render(
+        <CardView instance={inst} stats={effectiveStats(inst, 'rising', def)} phase="rising" state="idle" />,
+      );
+    });
+    expect(container.querySelector('.tag--toxic')?.textContent).toBe('toxic');
+  });
+
   it('prints each keyword exactly once on a card', async () => {
     // `toxic` and `toxin-immune` were rendering twice: once from the generic
     // pass over def.keywords and again from a hand-written tag beside it. Any

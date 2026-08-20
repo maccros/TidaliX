@@ -400,6 +400,19 @@ every candidate reply through the resolver, which made hard roughly fifty times
 slower than the other two — unusable in a browser and slow enough to time out a
 measurement run. What one attacker can do to one card is a subtraction.
 
+## Reading the board
+
+Colour on a card means **what you can do with it right now** — playable, ready,
+selected, targetable, spent, or exposed by this phase. It is never used for what
+a card permanently *is*.
+
+Toxic animals and structures used to carry their own tint, and the result was
+that a player scanning for their options had six washes to decode at once, only
+some of which were about the decision in front of them. Identity is printed as a
+tag instead: a label read on purpose, rather than a colour to be decoded. A test
+holds the rule — two cards in the same state must produce the same classes,
+whatever they happen to be.
+
 ## Card art
 
 Every species carries an inline SVG silhouette, tinted by the tide phase the card

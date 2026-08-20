@@ -146,9 +146,7 @@ export function CardView({
     linked ? 'is-linked' : '',
     stats.exposed ? 'is-exposed' : '',
     releasable ? 'is-releasable' : '',
-    toxic ? 'is-toxic' : '',
     instance.poisoned ? 'is-poisoned' : '',
-    def.type === 'structure' ? 'card--structure' : '',
   ]
     .filter(Boolean)
     .join(' ');

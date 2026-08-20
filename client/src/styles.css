@@ -157,6 +157,16 @@ button { font: inherit; color: inherit; }
 }
 
 /* ---- Cards ---- */
+/*
+ * Colour on a card is reserved for *what you can do with it right now*:
+ * playable, ready, selected, targetable, spent, or exposed by this phase. It is
+ * never used for what a card permanently *is* — toxic, a structure, a reef fish.
+ * Those are printed as tags, which is a label the player reads on purpose,
+ * rather than a wash they have to decode against six other washes.
+ *
+ * The practical reason: a player scanning the board needs to see their options,
+ * and every identity colour is one more thing competing with that.
+ */
 .card {
   position: relative; z-index: 3;
   width: 13.5rem; min-height: 8.5rem;
@@ -169,7 +179,6 @@ button { font: inherit; color: inherit; }
   border-radius: var(--radius);
   transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s;
 }
-.card--structure { background: color-mix(in srgb, var(--sunken) 55%, var(--surface)); }
 .card--back {
   width: 3rem; min-height: 4rem;
   background: repeating-linear-gradient(-45deg, var(--sunken) 0 6px, var(--surface) 6px 12px);
@@ -187,16 +196,14 @@ button { font: inherit; color: inherit; }
 .card--spent { opacity: 0.62; }
 /*
  * A card with no attack to give. It is not used up — it is the reef — so it
- * keeps full contrast and takes a quiet green edge instead of being faded out
- * along with the spent attackers. Every symbiosis on the board is granted by one
- * of these, and dimming them dimmed the whole system.
+ * keeps full contrast rather than being faded out with the spent attackers.
+ *
+ * Full contrast is the whole fix, and it is deliberately all of it: no tint, no
+ * coloured edge. Colour on a card means "you can do something with this right
+ * now", and a reef-builder standing there is not an action.
  */
-.card--support {
-  opacity: 1;
-  border-color: color-mix(in srgb, var(--good) 38%, var(--line));
-  background: color-mix(in srgb, var(--good) 5%, var(--surface));
-}
-.card--support /* The arrival is what happens when you play the card, so it leads the effects. */
+.card--support { opacity: 1; }
+/* The arrival is what happens when you play the card, so it leads the effects. */
 .card__arrival {
   margin: 0; font-size: 0.63rem; color: var(--accent);
   display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
@@ -206,7 +213,6 @@ button { font: inherit; color: inherit; }
 .card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 
-.card__aura { font-weight: 600; }
 .card.is-linked {
   box-shadow: 0 0 0 2px var(--good);
   background: color-mix(in srgb, var(--good) 9%, var(--surface));
@@ -219,8 +225,6 @@ button { font: inherit; color: inherit; }
     -45deg, transparent 0 6px, color-mix(in srgb, var(--warn) 13%, transparent) 6px 8px
   );
 }
-/* Marked so an attack can be reconsidered *before* it is declared. */
-.card.is-toxic { border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
 .card.is-poisoned { opacity: 0.55; filter: grayscale(0.5); }
 
 .card__top { display: flex; gap: 0.45rem; align-items: flex-start; }
