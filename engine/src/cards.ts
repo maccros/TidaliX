@@ -112,6 +112,7 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 3,
     attack: 4,
     health: 2,
+    keywords: ['pierce'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -121,7 +122,7 @@ export const CARDS: readonly CardDefinition[] = [
       rising: { attack: 1 },
       low: { exposed: true },
     },
-    text: 'Strikes at the speed of a bullet; the cavitation does the rest.',
+    text: 'A club that accelerates like a bullet. A shell is not an obstacle.',
   },
   {
     id: 'coral-grouper',
@@ -244,6 +245,8 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 7,
     keywords: ['reef-guard', 'toxin-immune'],
+    // A shell is armour. It was carrying reef-guard and nothing to back it up.
+    armour: 2,
     traits: ['megafauna'],
     tide: {
       high: { health: 2 },
@@ -301,7 +304,8 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 4,
     attack: 5,
     health: 2,
-    traits: ['reef-fish'],
+    // Open water, not the reef itself — a coral head does not shelter this.
+    traits: ['megafauna'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -484,6 +488,8 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 0,
     health: 8,
     keywords: ['reef-guard'],
+    // Two shells that weigh as much as a person, and they close.
+    armour: 2,
     arrival: {
       kind: 'forage',
       amount: 2,
@@ -595,6 +601,318 @@ export const CARDS: readonly CardDefinition[] = [
     },
     text: 'Grows outward into a plate wide enough to shade a hundred fish.',
   },
+
+  /* ---------------------------------------------------------------- */
+  /* Filling out the lineages                                          */
+  /*                                                                   */
+  /* The set was half fish, which made the conservation pile a question */
+  /* about the shuffle rather than about play — reptiles were a single  */
+  /* card and reached a player in 39% of games. These fifteen bring     */
+  /* every other lineage to five or six. Each is here because it does   */
+  /* something the set was missing, not to pad a count.                 */
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'giant-triton',
+    name: 'Giant Triton',
+    species: 'Charonia tritonis',
+    type: 'creature',
+    taxon: 'mollusc',
+    cost: 4,
+    attack: 3,
+    health: 5,
+    // The crown-of-thorns' actual predator, and the reason `pierce` exists: a
+    // starfish behind armour 3 and a toxin was otherwise close to unanswerable.
+    keywords: ['pierce', 'toxin-immune'],
+    arrival: {
+      kind: 'strike',
+      amount: 3,
+      note: 'tracks its prey by scent and drills straight through the shell',
+    },
+    tide: {
+      low: { attack: 1 },
+      falling: { attack: 1 },
+    },
+    text: 'Hunts crown-of-thorns by smell. Neither the spines nor the saponin slow it down.',
+  },
+  {
+    id: 'blue-ringed-octopus',
+    name: 'Blue-ringed Octopus',
+    species: 'Hapalochlaena lunulata',
+    type: 'creature',
+    taxon: 'mollusc',
+    cost: 3,
+    attack: 2,
+    health: 3,
+    keywords: ['toxic'],
+    tide: {
+      low: { attack: 2 },
+      high: { attack: -1 },
+    },
+    text: 'The rings only show once it has already decided. There is no antivenom.',
+  },
+  {
+    id: 'bigfin-reef-squid',
+    name: 'Bigfin Reef Squid',
+    species: 'Sepioteuthis lessoniana',
+    type: 'creature',
+    taxon: 'mollusc',
+    cost: 3,
+    attack: 3,
+    health: 3,
+    keywords: ['surge'],
+    arrival: {
+      kind: 'scout',
+      amount: 1,
+      note: 'reads the water and moves before anything else has noticed',
+    },
+    tide: {
+      rising: { attack: 1 },
+      high: { energy: 1 },
+    },
+    text: 'Hangs in midwater in a line of its own kind, all of them changing colour at once.',
+  },
+  {
+    id: 'long-spined-urchin',
+    name: 'Long-spined Urchin',
+    species: 'Diadema setosum',
+    type: 'creature',
+    taxon: 'echinoderm',
+    cost: 3,
+    attack: 0,
+    health: 6,
+    keywords: ['reef-guard'],
+    spines: 4,
+    tide: {
+      low: { health: 2 },
+    },
+    text: 'Spines longer than your hand, and they swing toward a shadow before it arrives.',
+  },
+  {
+    id: 'blue-sea-star',
+    name: 'Blue Sea Star',
+    species: 'Linckia laevigata',
+    type: 'creature',
+    taxon: 'echinoderm',
+    cost: 2,
+    attack: 1,
+    health: 4,
+    arrival: {
+      kind: 'mend',
+      amount: 1,
+      note: 'regrows what it loses, and steadies the reef around it',
+    },
+    tide: {
+      low: { health: 1 },
+    },
+    text: 'Sheds an arm to escape, then grows the arm into a second animal.',
+  },
+  {
+    id: 'sea-cucumber',
+    name: 'Black Sea Cucumber',
+    species: 'Holothuria atra',
+    type: 'creature',
+    taxon: 'echinoderm',
+    cost: 2,
+    attack: 0,
+    health: 6,
+    keywords: ['reef-guard'],
+    arrival: {
+      kind: 'forage',
+      amount: 1,
+      note: 'starts turning sediment over the moment it settles',
+    },
+    tide: {
+      low: { health: 1 },
+    },
+    text: 'Eats the sand and gives it back cleaner. Everything on the flat depends on it.',
+  },
+  {
+    id: 'banded-coral-shrimp',
+    name: 'Banded Coral Shrimp',
+    species: 'Stenopus hispidus',
+    type: 'creature',
+    taxon: 'crustacean',
+    cost: 2,
+    attack: 1,
+    health: 2,
+    // A second cleaner, so the cleaning-station aura is not one card deep.
+    auras: [
+      {
+        affects: 'megafauna',
+        grants: { health: 1 },
+        note: 'picks parasites off anything patient enough to queue',
+      },
+    ],
+    tide: {
+      rising: { health: 1 },
+    },
+    text: 'Waves white antennae from a crevice until something big enough to eat it stops instead.',
+  },
+  {
+    id: 'coconut-crab',
+    name: 'Coconut Crab',
+    species: 'Birgus latro',
+    type: 'creature',
+    taxon: 'crustacean',
+    cost: 5,
+    attack: 5,
+    health: 5,
+    keywords: ['surge'],
+    tide: {
+      low: { attack: 2 },
+      high: { attack: -2, exposed: true },
+    },
+    text: 'The largest arthropod on land, with a grip that opens a coconut.',
+  },
+  {
+    id: 'banded-sea-krait',
+    name: 'Banded Sea Krait',
+    species: 'Laticauda colubrina',
+    type: 'creature',
+    taxon: 'reptile',
+    cost: 4,
+    attack: 3,
+    health: 4,
+    keywords: ['toxic'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'goes into the crevice after whatever is hiding in it',
+    },
+    tide: {
+      low: { attack: 1 },
+      high: { attack: 1 },
+    },
+    text: 'Hunts eels inside the reef, then comes ashore to digest them.',
+  },
+  {
+    id: 'hawksbill-turtle',
+    name: 'Hawksbill Turtle',
+    species: 'Eretmochelys imbricata',
+    type: 'creature',
+    taxon: 'reptile',
+    cost: 4,
+    attack: 2,
+    health: 6,
+    keywords: ['reef-guard', 'toxin-immune'],
+    armour: 2,
+    traits: ['megafauna'],
+    tide: {
+      high: { health: 1 },
+    },
+    text: 'Eats sponges nothing else will touch — toxins, glass spicules and all.',
+  },
+  {
+    id: 'fire-coral',
+    name: 'Fire Coral',
+    species: 'Millepora dichotoma',
+    type: 'structure',
+    taxon: 'cnidarian',
+    cost: 3,
+    attack: 0,
+    health: 5,
+    keywords: ['toxic'],
+    traits: ['coral'],
+    spines: 2,
+    auras: [
+      {
+        affects: 'coral',
+        grants: { health: 1 },
+        note: 'grows into the framework beside it',
+      },
+    ],
+    tide: {
+      rising: { energy: 1 },
+      low: { exposed: true },
+    },
+    text: 'Not a true coral at all, and the sting stays with you for weeks.',
+  },
+  {
+    id: 'brain-coral',
+    name: 'Brain Coral',
+    species: 'Diploria labyrinthiformis',
+    type: 'structure',
+    taxon: 'cnidarian',
+    cost: 4,
+    attack: 0,
+    health: 9,
+    keywords: ['reef-guard'],
+    traits: ['coral'],
+    auras: [
+      {
+        affects: 'coral',
+        grants: { health: 2 },
+        note: 'the boulder the rest of the reef builds against',
+      },
+    ],
+    tide: {
+      high: { energy: 1 },
+      low: { exposed: true },
+    },
+    text: 'Grows a centimetre a year into a boulder that outlives everyone who sees it.',
+  },
+  {
+    id: 'sea-fan',
+    name: 'Sea Fan',
+    species: 'Gorgonia ventalina',
+    type: 'structure',
+    taxon: 'cnidarian',
+    cost: 2,
+    attack: 0,
+    health: 4,
+    traits: ['coral'],
+    auras: [
+      {
+        affects: 'reef-fish',
+        grants: { health: 1 },
+        note: 'a thicket to hang in out of the current',
+      },
+    ],
+    tide: {
+      rising: { energy: 1 },
+      falling: { energy: 1 },
+      low: { exposed: true },
+    },
+    text: 'Stands broadside to the current and takes whatever the flood carries past.',
+  },
+  {
+    id: 'spotted-eagle-ray',
+    name: 'Spotted Eagle Ray',
+    species: 'Aetobatus narinari',
+    type: 'creature',
+    taxon: 'shark-ray',
+    cost: 4,
+    attack: 3,
+    health: 5,
+    traits: ['megafauna'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'digs its prey straight out of the sand',
+    },
+    tide: {
+      high: { attack: 2 },
+      low: { attack: -2, exposed: true },
+    },
+    text: 'Shovels shellfish out of the sand with its snout and crushes them in plates.',
+  },
+  {
+    id: 'tawny-nurse-shark',
+    name: 'Tawny Nurse Shark',
+    species: 'Nebrius ferrugineus',
+    type: 'creature',
+    taxon: 'shark-ray',
+    cost: 4,
+    attack: 2,
+    health: 7,
+    keywords: ['reef-guard'],
+    traits: ['megafauna'],
+    tide: {
+      low: { health: 1 },
+      falling: { attack: 1 },
+    },
+    text: 'Sucks prey out of a crevice hard enough that you hear it from the surface.',
+  },
 ];
 
 const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) => [c.id, c]));
@@ -646,6 +964,11 @@ export function isToxic(definitionId: string): boolean {
 /** Whether this card can eat a toxic one and walk away. */
 export function isToxinImmune(definitionId: string): boolean {
   return getCard(definitionId).keywords?.includes('toxin-immune') ?? false;
+}
+
+/** Whether this card's damage goes straight through armour. */
+export function piercesArmour(definitionId: string): boolean {
+  return getCard(definitionId).keywords?.includes('pierce') ?? false;
 }
 
 /** All traits a card carries, for clients that group or filter by them. */

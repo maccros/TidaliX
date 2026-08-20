@@ -56,22 +56,23 @@ export const DEFAULT_CONFIG: GameConfig = {
   // there is no room to make the rate stingier on top of that. Every point is
   // felt the turn it lands, and every point demands a genuinely different animal.
   conservationIncomePer: 1,
-  // Three lineages out of the seven the set contains.
+  // Four lineages out of the seven the set contains.
   //
-  // Was five, and at five the second win condition was simply dead: measured
-  // over 200 games at every difficulty it fired 0% of the time, and the best
-  // pile anyone reached was three. At four it fires 1%. At three it fires 10%
-  // of games against a normal opponent and 7% against a hard one — present
-  // without being the only thing worth doing, which is what a second path is
-  // supposed to feel like.
+  // This number has moved twice, and the reason is worth keeping. At 28 species
+  // the set could not supply lineages — half the cards were fish, reptiles were
+  // a single card reaching a player in 39% of games — so a target of five never
+  // fired at all and three was the honest ceiling.
   //
-  // The binding constraint is time, not the draw: a species needs a full tide
-  // cycle to mature and only one goes back per turn, against a game that ends
-  // around round 6.6. The set being half fish makes it worse — reptiles are a
-  // single card and reach a player in 39% of games — but the honest repair for
-  // that is more non-fish species, not a smaller number here. Left as a
-  // deliberate choice; see the composition table in the README.
-  conservationVictory: 3,
+  // Adding fifteen species fixed the supply, and that made three trivial: 46% of
+  // games ended on the pile, which is not a second path but the main one. The
+  // measured curve on the 43-card set:
+  //
+  //   target 3   46% of games   target 4   15%   target 5   3%
+  //
+  // Four it is. If the set grows again, re-run the measurement rather than
+  // trusting this number — it is a property of what the deck can deal, and it
+  // has been wrong twice for exactly that reason.
+  conservationVictory: 4,
 };
 
 let instanceCounter = 0;

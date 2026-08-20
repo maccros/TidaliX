@@ -26,7 +26,7 @@ import type {
   ReleaseAction,
   GameAction,
 } from './types.js';
-import { getCard, isToxic, isToxinImmune } from './cards.js';
+import { getCard, isToxic, isToxinImmune, piercesArmour } from './cards.js';
 import { arrivalNeedsTarget } from './types.js';
 import { cloneState, canAttack, opponentOf } from './state.js';
 import { effectiveStats, nextPhase, shouldAdvanceTide, statsFor } from './tide.js';
@@ -242,12 +242,12 @@ function resolveArrival(
       const target = them.board.find((c) => c.instanceId === targetId);
       // Legality already allowed an untargeted strike into an empty board.
       if (!target) break;
-      strike(draft, target, arrival.amount, card.instanceId, 'arrival', 0, events);
+      strike(draft, target, arrival.amount, card.instanceId, 'arrival', 0, events, card);
       break;
     }
     case 'sweep': {
       for (const target of [...them.board]) {
-        strike(draft, target, arrival.amount, card.instanceId, 'arrival', 0, events);
+        strike(draft, target, arrival.amount, card.instanceId, 'arrival', 0, events, card);
       }
       break;
     }
@@ -370,6 +370,7 @@ function attack(state: GameState, action: AttackAction): ActionResult {
       'attack',
       bonusToTarget,
       events,
+      draftAttacker,
     );
 
     // Eating something toxic kills you. This is settled here, at the moment of
@@ -411,6 +412,7 @@ function attack(state: GameState, action: AttackAction): ActionResult {
         'retaliation',
         bonusToAttacker,
         events,
+        draftTarget,
       );
     }
   }
@@ -574,8 +576,10 @@ function strike(
   cause: 'attack' | 'retaliation' | 'arrival',
   exposedBonus: number,
   events: GameEvent[],
+  /** The card dealing it, when one is identifiable — `pierce` is read off it. */
+  source?: CardInstance,
 ): number {
-  const armour = statsFor(draft, target).armour;
+  const armour = source && piercesArmour(source.definitionId) ? 0 : statsFor(draft, target).armour;
   const dealt = Math.max(0, raw - armour);
   const absorbed = raw - dealt;
   target.damage += dealt;

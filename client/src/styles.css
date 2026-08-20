@@ -276,6 +276,7 @@ button { font: inherit; color: inherit; }
   color: var(--warn); border-color: var(--warn); font-weight: 700;
   background: color-mix(in srgb, var(--warn) 15%, transparent);
 }
+.tag--pierce { color: var(--accent); border-color: var(--accent); font-weight: 700; }
 .tag--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
 
 /* The arrival is what happens when you play the card, so it leads the effects. */

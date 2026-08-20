@@ -94,6 +94,7 @@ const KEYWORD_TITLE: Record<Keyword, string> = {
   'reef-guard': 'enemies must attack this before anything behind it',
   toxic: 'kills whatever destroys it in combat, unless that animal is immune',
   'toxin-immune': 'can destroy a toxic animal and survive it',
+  pierce: 'its damage ignores armour completely',
 };
 
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`);

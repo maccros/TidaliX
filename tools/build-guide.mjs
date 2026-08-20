@@ -350,6 +350,7 @@ const html = `<title>TidaliX Field Guide</title>
   .arrival__mark { opacity: 0.75; }
   .arrival__note { color: var(--muted, #6d858c); font-style: italic; }
   .kw--toxic { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
+  .kw--pierce { color: var(--accent); border-color: var(--accent); font-weight: 700; }
   .kw--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
   .kw--taxon { color: var(--good, var(--rising)); border-color: color-mix(in srgb, var(--rising) 45%, transparent); text-transform: none; }
   .kw--trait { opacity: .75; text-transform: lowercase; letter-spacing: .02em; }

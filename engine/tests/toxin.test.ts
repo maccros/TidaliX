@@ -156,9 +156,10 @@ describe('eating something toxic', () => {
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[1].board).toHaveLength(0);
     // Alive, and marked only by the retaliation — immunity is to the venom, not
-    // to the animal fighting back.
+    // to the animal fighting back. The lionfish returns 4, of which the turtle's
+    // shell eats 2.
     expect(after.players[0].board).toHaveLength(1);
-    expect(after.players[0].board[0]?.damage).toBe(4);
+    expect(after.players[0].board[0]?.damage).toBe(2);
     expect(after.players[0].board[0]?.poisoned).toBe(false);
   });
 

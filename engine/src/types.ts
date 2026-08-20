@@ -29,7 +29,17 @@ export type Keyword =
    */
   | 'toxic'
   /** Can eat a `toxic` card without dying for it. */
-  | 'toxin-immune';
+  | 'toxin-immune'
+  /**
+   * This card's damage ignores armour entirely.
+   *
+   * The answer to a board that has gone unkillable behind armour, and to the
+   * crown-of-thorns in particular — armour 3 on six health, toxic, so most
+   * attackers either bounce off it or die eating it. Printed on the two animals
+   * that really do get through a shell: a mantis shrimp's club, and the triton
+   * that drills into a starfish.
+   */
+  | 'pierce';
 
 /**
  * Biological tags used to target symbiosis.

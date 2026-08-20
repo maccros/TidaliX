@@ -212,6 +212,12 @@ The two never appear on the same card. Armour goes on the three toxic animals,
 which have an attack and so already answer a blow; spines goes on the urchin and
 the anemone, which do not.
 
+**Pierce** goes straight through armour. It exists because the crown-of-thorns —
+armour 3 on six health, toxic, so most attackers either bounce off it or die
+eating it — had no answer. Printed on the two animals that really do get through
+a shell: a mantis shrimp's club, and the giant triton that drills into a starfish
+and eats it.
+
 Exposure amplifies retaliation too — attacking with a stranded card into anything
 that can answer is doubly punishing, which is the point of the vulnerability
 window.
@@ -307,7 +313,7 @@ the only place a card leaves play as an asset rather than a loss.
 |---|---|
 | **It frees the slot** | The reef holds six. Releasing is the only way to take a species back off it, so a board full of matured animals is a resource, not a lock-up. |
 | **It pays** | The pile is scored on **distinct lineages**, and every `config.conservationIncomePer` (1) of them is `+1` standing energy every turn, for the rest of the game. |
-| **It wins** | Protect `config.conservationVictory` (3) of the 7 distinct lineages and you win outright, whatever the board looks like. |
+| **It wins** | Protect `config.conservationVictory` (4) of the 7 distinct lineages and you win outright, whatever the board looks like. |
 
 The guards are what keep it from being an undo button: a species must live
 through a whole cycle before it can go, and only one goes back per turn.
@@ -331,51 +337,60 @@ species to lineages costs that player **nothing**: their pile scores 1.51 cards,
 animals of the same branch anyway. The metric changes what a *careless* pile is
 worth, which is the point, and leaves a deliberate one untouched.
 
-**The target is three, and it was five.** At five the second win condition was
-dead — 0% of games at every difficulty over 200 games each, with the best pile
-anyone reached being three. At four it fires in 1%. At three:
+**The target is four, and it has moved twice.** At 28 species the set could not
+supply lineages, so five never fired at all (0% at every difficulty over 200
+games each) and three was the honest ceiling. Adding fifteen species fixed the
+supply — and that made three trivial. Measured on the 43-card set:
 
-| Opponent | Games won by the pile | Mean best pile | Rounds |
-|---|---|---|---|
-| easy | 0% | 0.00 | 8.8 |
-| normal | **10%** | 1.40 | 6.6 |
-| hard | **7%** | 1.31 | 6.9 |
+| Target | normal | hard |
+|---|---|---|
+| 3 | 50% | 52% |
+| **4** | **16%** | **15%** |
+| 5 | 4% | 4% |
 
-Present without being the only thing worth doing. Easy never conserves at all,
-by design — it does not value the pile.
+Fifty percent is not a second path, it is the main one. Four is. If the set
+grows again, re-run this rather than trusting the number: it is a property of
+what the deck can deal, and it has been wrong twice for exactly that reason.
 
 The binding constraint is **time**: a species needs a full tide cycle to mature
 and only one goes back per turn, against a game ending around round 6.6. There
 is physically room for about three releases.
 
-### The set is half fish
+### The set was half fish
 
-| Lineage | Cards | Share | Dealt in the first 12 cards |
-|---|---|---|---|
-| Fish | 14 | 50% | 100% |
-| Crustaceans | 3 | 11% | 78% |
-| Sharks & rays | 3 | 11% | 77% |
-| Corals & anemones | 3 | 11% | 79% |
-| Molluscs | 2 | 7% | 63% |
-| Echinoderms | 2 | 7% | 63% |
-| Reptiles | **1** | 4% | **39%** |
+It was, at 28 species, and that made the pile a question about the shuffle: 14
+of 28 cards were fish, reptiles were a *single* card reaching a player in 39% of
+games, and the win target had to be dropped to three to be reachable at all.
 
-A player is dealt 5.00 distinct lineages on average in their first twelve cards,
-so three is comfortably reachable and five is not reliably so. The skew is real
-and it is a set-composition problem, not a tuning one: the honest repair is more
-non-fish species — the giant triton (which eats crown-of-thorns), the banded sea
-krait, Diadema, the banded coral shrimp, fire coral — not a smaller victory
-number. Lowering the target to three is the deliberate stopgap.
+Fifteen species fixed the supply rather than the symptom:
 
-Splitting Fish into its real orders does not rescue this. It yields five clean
-pairs (puffer + triggerfish, tang + idol, wrasse + parrotfish, grouper + snapper,
-trevally + barracuda) and four unavoidable singletons: the moray is the only eel,
-the mudskipper the only goby, the lionfish the only scorpionfish, the anemonefish
-the only damsel. That trades one skew for nine lineages, four of them one card.
+| Lineage | Was | Now | Share | Dealt in the first 12 cards |
+|---|---|---|---|---|
+| Fish | 14 | 14 | 33% | 99% |
+| Corals & anemones | 3 | 6 | 14% | 85% |
+| Crustaceans | 3 | 5 | 12% | 80% |
+| Molluscs | 2 | 5 | 12% | 80% |
+| Echinoderms | 2 | 5 | 12% | 82% |
+| Sharks & rays | 3 | 5 | 12% | 80% |
+| Reptiles | **1** | 3 | 7% | 62% |
 
-Reachability depends heavily on **how aggressive the opponent is**, which is
-worth knowing before retuning any of these numbers. Any balance figure measured
-against a bot is a fact about that bot first.
+A player is now dealt 5.69 distinct lineages on average in their first twelve
+cards, up from 5.00, and reptiles reach them in 62% of games rather than 39%.
+
+Each addition does something the set was missing rather than padding a count.
+The **giant triton** is the crown-of-thorns' actual predator and the reason
+`pierce` exists; the **banded coral shrimp** is a second cleaner so that aura is
+not one card deep; **brain coral** and the **sea fan** give the coral archetype
+enough bodies to build with; the **blue-ringed octopus** and **banded sea krait**
+add toxic animals outside the fish; **Diadema** and the **sea cucumber** give the
+echinoderms walls worth playing.
+
+Splitting Fish into its real orders was considered and rejected. It yields five
+clean pairs (puffer + triggerfish, tang + idol, wrasse + parrotfish, grouper +
+snapper, trevally + barracuda) and four unavoidable singletons: the moray is the
+only eel, the mudskipper the only goby, the lionfish the only scorpionfish, the
+anemonefish the only damsel. That trades one skew for nine lineages, four of them
+one card.
 
 ## The opponent
 
@@ -402,9 +417,10 @@ win rate alone and seven together:
 | life3 | 47% |
 | life1 | 46% |
 
-Head to head, re-measured over 160 games per pairing with both seats and both
-starting players: **hard beats normal 56%**, normal beats easy 61%, hard beats
-easy 69%. Seats have to be swapped on every seed, because the player who moves
+Head to head over 160 games per pairing, both seats and both starting players,
+on the 43-card set: **hard beats normal 61%**, normal beats easy 71%, hard beats
+easy 75%. The gaps widened when the set grew — a deeper set gives the profiles
+that read the tide and check the reply more to work with. Seats have to be swapped on every seed, because the player who moves
 first wins about 63% of games — large enough that an unswapped run reads seat
 advantage as skill.
 
@@ -448,7 +464,7 @@ without a drawing, no drawing without a species.
 
 ## Card set — "Reef Flat"
 
-28 real species across the four phases: low-tide flat dwellers, flood hunters,
+43 real species across the four phases: low-tide flat dwellers, flood hunters,
 high-water residents, drain ambushers, the armed and venomous, and the reef
 structures themselves. Every card carries its binomial name, and its tide line
 has to match the animal — if they disagree, the card is wrong.

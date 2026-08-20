@@ -495,6 +495,257 @@ const ART: Record<string, ReactNode> = {
       </g>
     </>
   ),
+
+  /* ------------------------------------------------------------------ */
+  /* Filling out the lineages                                            */
+  /* ------------------------------------------------------------------ */
+  'giant-triton': (
+    <>
+      <g {...ink}>
+        <path d="M30 56c-10 4-18 6-26 4 8-4 14-10 18-16" fill="#e8dcc0" />
+        {/* A tall spired shell, whorl by whorl, with the foot out in front. */}
+        <path d="M96 10c8 10 10 26 4 40-6 14-20 24-38 24-14 0-24-8-24-18 0-12 12-18 24-18 8 0 14-4 16-12 2-8 0-14-4-20 8 0 16 1 22 4z"
+              fill="#e0c98f" />
+        <path d="M84 18c4 8 4 18 0 26M70 26c4 8 4 18 0 26M56 40c4 6 4 14 0 20" fill="none" strokeWidth={2.2} />
+      </g>
+      <g fill="#a8763f" opacity=".8">
+        <path d="M90 16c4 6 5 14 3 22M76 24c3 6 3 14 1 20" stroke="#a8763f" strokeWidth={3} fill="none" />
+      </g>
+      {eye(26, 52, 2.6)}
+    </>
+  ),
+
+  'blue-ringed-octopus': (
+    <>
+      <g {...ink}>
+        <path d="M40 54c-10 6-20 10-32 12 12 4 20 10 26 16 4-8 10-16 16-20z" fill="#c9a24a" />
+        <path d="M80 54c10 6 20 10 32 12-12 4-20 10-26 16-4-8-10-16-16-20z" fill="#c9a24a" />
+        <path d="M52 60c-4 10-6 16-4 22 6-4 10-10 14-16z" fill="#c9a24a" />
+        <path d="M68 60c4 10 6 16 4 22-6-4-10-10-14-16z" fill="#c9a24a" />
+        <path d="M60 10c-17 0-28 13-28 26 0 10 6 17 13 21h30c7-4 13-11 13-21 0-13-11-26-28-26z" fill="#d9b45c" />
+      </g>
+      {/* The rings, which is the entire warning the animal gives. */}
+      <g fill="none" stroke="#2f6fb5" strokeWidth={2.6}>
+        <circle cx="44" cy="46" r="4" /><circle cx="60" cy="52" r="4" />
+        <circle cx="76" cy="46" r="4" /><circle cx="50" cy="24" r="3.6" />
+        <circle cx="72" cy="24" r="3.6" /><circle cx="61" cy="16" r="3.4" />
+      </g>
+      {ringEye(46, 34, 5)}
+      {ringEye(74, 34, 5)}
+    </>
+  ),
+
+  'bigfin-reef-squid': (
+    <>
+      <g {...ink}>
+        {/* Arms and two longer tentacles, streaming ahead of the head. */}
+        <path d="M40 34 10 24M40 38 8 34M40 42 8 44M40 46 10 54M40 50 14 62" fill="none" stroke="#c98fb0" strokeWidth={4} />
+        <path d="M40 30 6 14M40 54 8 66" fill="none" stroke="#b87fa0" strokeWidth={3} />
+        {/* The fin runs the length of the mantle — the animal's whole name. */}
+        <path d="M56 22c22-6 44-4 56 4-12 8-34 10-56 4z" fill="#c98fb0" />
+        <path d="M56 58c22 6 44 4 56-4-12-8-34-10-56-4z" fill="#c98fb0" />
+        <path d="M42 40c0-10 8-16 22-16 24 0 44 7 52 16-8 9-28 16-52 16-14 0-22-6-22-16z" fill="#dcb0c6" />
+      </g>
+      <g fill="#a8607f" opacity=".5">
+        <circle cx="72" cy="32" r="2.6" /><circle cx="88" cy="36" r="2.4" />
+        <circle cx="78" cy="47" r="2.4" />
+      </g>
+      {ringEye(48, 33, 5)}
+      {ringEye(48, 48, 5)}
+    </>
+  ),
+
+  'long-spined-urchin': (
+    <>
+      <g {...ink}>
+        {/* Longer and thinner than the rock-borer, and far more of them. */}
+        <path d="M60 40 60 0M60 40 60 80M60 40 18 40M60 40 102 40M60 40 30 10M60 40 90 70M60 40 30 70M60 40 90 10M60 40 42 2M60 40 78 78M60 40 20 58M60 40 100 22M60 40 22 24M60 40 98 56"
+              fill="none" stroke="#2f3140" strokeWidth={3} />
+        <circle cx="60" cy="40" r="15" fill="#3d4054" />
+        <circle cx="60" cy="40" r="5" fill="#e8a13c" strokeWidth={2.2} />
+      </g>
+    </>
+  ),
+
+  'blue-sea-star': (
+    <>
+      <g {...ink}>
+        <path d="M60 4 74 32l30 4-22 21 5 31-27-15-27 15 5-31-22-21 30-4z" fill="#3f76c4" />
+        <circle cx="60" cy="42" r="6" fill="#2a5794" strokeWidth={2.4} />
+      </g>
+      <g fill="#79a6e0">
+        <circle cx="60" cy="22" r="2.6" /><circle cx="76" cy="40" r="2.6" />
+        <circle cx="44" cy="40" r="2.6" /><circle cx="51" cy="60" r="2.6" />
+        <circle cx="69" cy="60" r="2.6" />
+      </g>
+    </>
+  ),
+
+  'sea-cucumber': (
+    <>
+      <g {...ink}>
+        <path d="M14 46c0-12 12-20 46-20s46 8 46 20-12 18-46 18-46-6-46-18z" fill="#4a4238" />
+        {/* Papillae along the back, which is how you tell it from a rock. */}
+        <path d="M28 30l-3-10M42 26l-2-11M58 25l0-12M74 26l2-11M90 30l4-10"
+              fill="none" stroke="#5d5346" strokeWidth={4} />
+        <path d="M22 48c18 8 62 8 78-2" fill="none" strokeWidth={2.2} opacity=".5" />
+      </g>
+      <g fill="#8a7a62">
+        <circle cx="34" cy="42" r="2.6" /><circle cx="52" cy="46" r="2.6" />
+        <circle cx="70" cy="44" r="2.6" /><circle cx="88" cy="42" r="2.6" />
+      </g>
+    </>
+  ),
+
+  'banded-coral-shrimp': (
+    <>
+      <g {...ink}>
+        {/* The white antennae it advertises with. */}
+        <path d="M36 30 8 8M36 36 6 22" fill="none" stroke="#f2f2ec" strokeWidth={3} />
+        <path d="M40 30c-8-8-14-10-20-8 6 2 10 6 12 12" fill="#d84a4a" />
+        <path d="M40 52c-8 8-14 10-20 8 6-2 10-6 12-12" fill="#d84a4a" />
+        <path d="M40 42c14-10 48-12 66-4-16 12-52 14-66 4z" fill="#f2f2ec" />
+        <path d="M56 34v18M70 33v20M84 35v16" fill="none" stroke="#d84a4a" strokeWidth={6} strokeLinecap="butt" />
+        <path d="M100 38 116 32c-2 5-2 11 0 16z" fill="#d84a4a" />
+      </g>
+      {eye(42, 38, 2.8)}
+    </>
+  ),
+
+  'coconut-crab': (
+    <>
+      <g {...ink}>
+        <path d="M32 40C22 38 12 40 6 48c8-1 14 1 18 5" fill="#6b3f8c" />
+        <path d="M24 53c-8-2-14-6-18-5 6 8 16 10 24 8z" fill="#5a3577" />
+        <path d="M88 40c10-2 20 0 26 8-8-1-14 1-18 5" fill="#6b3f8c" />
+        <path d="M96 53c8-2 14-6 18-5-6 8-16 10-24 8z" fill="#5a3577" />
+        <path d="M32 56 18 72M46 62l-8 16M74 62l8 16M88 56l14 16" fill="none" strokeWidth={3.4} />
+        <ellipse cx="60" cy="46" rx="30" ry="19" fill="#7d4aa0" />
+        <path d="M38 38c14-7 30-7 44 0" fill="none" strokeWidth={2.4} />
+      </g>
+      {ringEye(50, 36, 4.6)}
+      {ringEye(70, 36, 4.6)}
+    </>
+  ),
+
+  'banded-sea-krait': (
+    <>
+      <g {...ink}>
+        <path d="M108 62c-14 6-22-2-30-10-8-8-14-14-24-12-12 2-16 14-28 14-10 0-18-6-22-14 8 4 14 4 20 0 10-8 14-20 28-22 16-2 24 10 34 20 8 8 14 12 22 10z"
+              fill="#e8e4d6" />
+      </g>
+      {/* The bands, which are the whole animal. */}
+      <g stroke={O} strokeWidth={5} fill="none" strokeLinecap="round">
+        <path d="M22 34c2 6 2 10 0 14M40 26c3 7 3 13 0 19M58 30c3 7 3 13 0 19M76 42c3 6 3 11 0 16M94 54c3 5 3 9 0 13" />
+      </g>
+      {eye(14, 38, 2.6)}
+    </>
+  ),
+
+  'hawksbill-turtle': (
+    <>
+      <g {...ink}>
+        <path d="M26 30c-8-6-16-6-20 0 6 2 10 6 12 12M96 30c8-6 16-6 20 0-6 2-10 6-12 12" fill="#8a6a3a" />
+        <path d="M30 58c-6 6-8 12-4 16 6-2 10-6 12-12M92 58c6 6 8 12 4 16-6-2-10-6-12-12" fill="#8a6a3a" />
+        {/* The hooked beak it is named for. */}
+        <path d="M100 34c8-4 14-2 16 4-3 5-8 7-14 6z" fill="#a5814a" />
+        <path d="M114 36c3 1 4 3 3 5-2 1-4 0-5-2z" fill={O} />
+        <ellipse cx="60" cy="44" rx="34" ry="26" fill="#9a7541" />
+        {/* Overlapping plates, the tortoiseshell pattern. */}
+        <path d="M60 18v52M32 34c18 8 38 8 56 0M32 56c18-8 38-8 56 0M44 20l-6 48M76 20l6 48"
+              fill="none" strokeWidth={2.2} opacity=".75" />
+      </g>
+      {eye(107, 36, 2.6)}
+    </>
+  ),
+
+  'fire-coral': (
+    <>
+      <g {...ink}>
+        {/* Flat plates and blades, not branches — Millepora is not a true coral. */}
+        <path d="M24 72V48c0-12 8-22 16-26-2 10-2 18 0 26 6-8 14-14 22-16-4 10-6 18-4 26 6-6 14-10 22-10-6 8-10 16-10 24z"
+              fill="#e07a34" />
+        <path d="M70 72V56c0-10 8-18 18-22-4 8-6 14-6 22 6-4 12-6 18-6-6 6-10 12-10 22z"
+              fill="#e88f4e" />
+        <path d="M18 72h84" strokeWidth={4} />
+      </g>
+      <g fill="#f6c26a">
+        <circle cx="40" cy="24" r="3.4" /><circle cx="62" cy="30" r="3.4" />
+        <circle cx="86" cy="36" r="3.4" /><circle cx="102" cy="52" r="3.2" />
+      </g>
+    </>
+  ),
+
+  'brain-coral': (
+    <>
+      <g {...ink}>
+        <path d="M10 56c0-24 22-40 50-40s50 16 50 40c-16 10-34 14-50 14s-34-4-50-14z" fill="#c9a86a" />
+        <path d="M26 74h68" strokeWidth={4} />
+      </g>
+      {/* The meandering ridges, which are the only thing that says "brain". */}
+      <g fill="none" stroke={O} strokeWidth={2.6} opacity=".7">
+        <path d="M22 50c8-8 14 4 22-4s14 4 22-4 14 4 22-4 12 3 18-2" />
+        <path d="M20 60c8-8 14 4 22-4s14 4 22-4 14 4 22-4 14 4 20-2" />
+        <path d="M30 38c8-8 14 4 22-4s14 4 22-4 12 3 18-1" />
+      </g>
+    </>
+  ),
+
+  'sea-fan': (
+    <>
+      <g strokeLinejoin="round" strokeLinecap="round" fill="none">
+        {/* A flat lattice standing across the current. */}
+        <path d="M60 74V52" stroke="#a8478c" strokeWidth={8} />
+        <path d="M60 54 30 26M60 54 44 18M60 54 60 12M60 54 76 18M60 54 90 26"
+              stroke="#b8579c" strokeWidth={6} />
+        <path d="M38 34c14-6 30-6 44 0M32 44c18-6 38-6 56 0M46 24c10-4 18-4 28 0"
+              stroke="#b8579c" strokeWidth={4} />
+        <path d="M42 74h36" stroke={O} strokeWidth={4} />
+      </g>
+      <g fill="#e0a0cc" opacity=".9">
+        <circle cx="30" cy="26" r="3.4" /><circle cx="44" cy="18" r="3.4" />
+        <circle cx="60" cy="12" r="3.4" /><circle cx="76" cy="18" r="3.4" />
+        <circle cx="90" cy="26" r="3.4" />
+      </g>
+    </>
+  ),
+
+  'spotted-eagle-ray': (
+    <>
+      <g {...ink}>
+        <path d="M60 58 58 80M60 58l5 22" fill="none" strokeWidth={2.4} />
+        {/* Sharper, more swept wings than the manta, and a pointed snout. */}
+        <path d="M60 14c-6 0-11 4-14 10-8 12-24 22-42 28 16 2 30 6 40 12 6-4 10-6 16-6s10 2 16 6c10-6 24-10 40-12-18-6-34-16-42-28-3-6-8-10-14-10z"
+              fill="#2f3f57" />
+        <path d="M60 14c-4 6-6 14-6 22h12c0-8-2-16-6-22z" fill="#25334a" strokeWidth={2.2} />
+      </g>
+      <g fill="#e8eef4">
+        <circle cx="34" cy="42" r="2.8" /><circle cx="48" cy="46" r="2.6" />
+        <circle cx="72" cy="46" r="2.6" /><circle cx="86" cy="42" r="2.8" />
+        <circle cx="42" cy="34" r="2.4" /><circle cx="78" cy="34" r="2.4" />
+      </g>
+      {eye(50, 26, 2.8)}
+      {eye(70, 26, 2.8)}
+    </>
+  ),
+
+  'tawny-nurse-shark': (
+    <>
+      <g {...ink}>
+        <path d="M104 40 118 30c-2 6-2 14 0 20z" fill="#a8895c" />
+        <path d="M52 24 58 10l10 16z" fill="#a8895c" />
+        <path d="M74 26 80 14l8 14z" fill="#a8895c" />
+        <path d="M46 58l-6 12 14-6z" fill="#a8895c" />
+        {/* Blunt, heavy and slow — nothing like the two reef sharks. */}
+        <path d="M10 44c4-14 20-22 44-22 24 0 44 8 54 20-14 16-36 22-56 22-22 0-40-8-42-20z"
+              fill="#bb9a68" />
+        <path d="M14 48c16 10 58 12 88-2-32 6-68 6-88 2z" fill="#efe6d2" strokeWidth={2.4} />
+        {/* The barbels it feels for prey with. */}
+        <path d="M14 48c-4 4-6 8-4 12M20 50c-3 5-4 9-2 12" fill="none" strokeWidth={2.2} />
+      </g>
+      {eye(28, 38, 3)}
+    </>
+  ),
 };
 
 export interface SpeciesArtProps {

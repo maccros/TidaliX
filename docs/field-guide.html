@@ -117,6 +117,7 @@
   .arrival__mark { opacity: 0.75; }
   .arrival__note { color: var(--muted, #6d858c); font-style: italic; }
   .kw--toxic { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
+  .kw--pierce { color: var(--accent); border-color: var(--accent); font-weight: 700; }
   .kw--toxin-immune { color: var(--rising); border-color: color-mix(in srgb, var(--rising) 55%, transparent); }
   .kw--taxon { color: var(--good, var(--rising)); border-color: color-mix(in srgb, var(--rising) 45%, transparent); text-transform: none; }
   .kw--trait { opacity: .75; text-transform: lowercase; letter-spacing: .02em; }
@@ -160,7 +161,7 @@
 <div class="wrap">
 
   <header class="mast">
-    <p class="mast__eyebrow">Reef Flat &middot; starter set &middot; 28 species</p>
+    <p class="mast__eyebrow">Reef Flat &middot; starter set &middot; 43 species</p>
     <h1>TidaliX <span>Field Guide</span></h1>
     <p class="lede">
       Every rule the engine actually enforces, and every species in the set with
@@ -243,7 +244,7 @@
           <li>A species that has survived a <b>complete tide cycle</b> on your reef can be <b>released</b> back to the wild.</li>
           <li>It leaves the board for good into your <b>conservation pile</b> &mdash; neither board nor discard, and the one place a card leaves play as an asset.</li>
           <li>Only <span class="num">1</span> goes back per turn, and releasing frees the board slot it held.</li>
-          <li>The pile scores <b>distinct lineages</b>, not names: biodiversity is measured across branches of the tree, so a pile of six reef fish is one branch protected. Protect <span class="num">3</span> of the 7 lineages in the set and you <b>win outright</b>.</li>
+          <li>The pile scores <b>distinct lineages</b>, not names: biodiversity is measured across branches of the tree, so a pile of six reef fish is one branch protected. Protect <span class="num">4</span> of the 7 lineages in the set and you <b>win outright</b>.</li>
           <li class="rules__lineages">The lineages: <b>Fish</b>, <b>Crustaceans</b>, <b>Molluscs</b>, <b>Echinoderms</b>, <b>Sharks &amp; rays</b>, <b>Reptiles</b>, <b>Corals &amp; anemones</b>.</li>
         </ul>
       </div>
@@ -378,21 +379,21 @@
         <td class="sym__from">Bluestreak Cleaner Wrasse</td>
         <td><code>megafauna</code></td>
         <td class="sym__grant"><b>0/+2</b></td>
-        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally</td>
+        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark</td>
         <td class="sym__note">picks parasites off anything big enough to queue for it</td>
       </tr>
       <tr class="">
         <td class="sym__from">Staghorn Coral</td>
         <td><code>reef-fish</code></td>
         <td class="sym__grant"><b>0/+2</b></td>
-        <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Great Barracuda, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
+        <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
         <td class="sym__note">a nursery of branches nothing large can reach into</td>
       </tr>
       <tr class="">
         <td class="sym__from">Staghorn Coral</td>
         <td><code>coral</code></td>
         <td class="sym__grant"><b>0/+1</b></td>
-        <td class="sym__who">Table Coral</td>
+        <td class="sym__who">Table Coral, Fire Coral, Brain Coral, Sea Fan</td>
         <td class="sym__note">cements onto the framework beside it</td>
       </tr>
       <tr class="">
@@ -406,22 +407,50 @@
         <td class="sym__from">Crown-of-thorns Starfish</td>
         <td><code>coral</code></td>
         <td class="sym__grant"><b>0/-3</b></td>
-        <td class="sym__who">Staghorn Coral, Table Coral</td>
+        <td class="sym__who">Staghorn Coral, Table Coral, Fire Coral, Brain Coral, Sea Fan</td>
         <td class="sym__note">digests living coral from the outside in</td>
       </tr>
       <tr class="">
         <td class="sym__from">Table Coral</td>
         <td><code>reef-fish</code></td>
         <td class="sym__grant"><b>+1/+1</b></td>
-        <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Great Barracuda, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
+        <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
         <td class="sym__note">a whole storey of shade to hunt out of</td>
       </tr>
       <tr class="">
         <td class="sym__from">Table Coral</td>
         <td><code>coral</code></td>
         <td class="sym__grant"><b>0/+1</b></td>
-        <td class="sym__who">Staghorn Coral</td>
+        <td class="sym__who">Staghorn Coral, Fire Coral, Brain Coral, Sea Fan</td>
         <td class="sym__note">thickens the framework around it</td>
+      </tr>
+      <tr class="">
+        <td class="sym__from">Banded Coral Shrimp</td>
+        <td><code>megafauna</code></td>
+        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark</td>
+        <td class="sym__note">picks parasites off anything patient enough to queue</td>
+      </tr>
+      <tr class="">
+        <td class="sym__from">Fire Coral</td>
+        <td><code>coral</code></td>
+        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__who">Staghorn Coral, Table Coral, Brain Coral, Sea Fan</td>
+        <td class="sym__note">grows into the framework beside it</td>
+      </tr>
+      <tr class="">
+        <td class="sym__from">Brain Coral</td>
+        <td><code>coral</code></td>
+        <td class="sym__grant"><b>0/+2</b></td>
+        <td class="sym__who">Staghorn Coral, Table Coral, Fire Coral, Sea Fan</td>
+        <td class="sym__note">the boulder the rest of the reef builds against</td>
+      </tr>
+      <tr class="">
+        <td class="sym__from">Sea Fan</td>
+        <td><code>reef-fish</code></td>
+        <td class="sym__grant"><b>0/+1</b></td>
+        <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
+        <td class="sym__note">a thicket to hang in out of the current</td>
       </tr>
         </tbody>
       </table>
@@ -441,22 +470,22 @@
       <div class="wants__col wants--low">
       <h4 class="wants__phase">low</h4>
       <p class="wants__income">pays nothing</p>
-      <ul class="wants__list"><li>Atlantic Mudskipper</li><li>Sally Lightfoot Crab</li><li>Horn-eyed Ghost Crab</li><li>Common Octopus</li><li>Rock-boring Urchin</li><li>Whitetip Reef Shark</li><li>Giant Moray</li></ul>
+      <ul class="wants__list"><li>Atlantic Mudskipper</li><li>Sally Lightfoot Crab</li><li>Horn-eyed Ghost Crab</li><li>Common Octopus</li><li>Rock-boring Urchin</li><li>Whitetip Reef Shark</li><li>Giant Moray</li><li>Giant Triton</li><li>Blue-ringed Octopus</li><li>Long-spined Urchin</li><li>Blue Sea Star</li><li>Black Sea Cucumber</li><li>Coconut Crab</li><li>Banded Sea Krait</li><li>Tawny Nurse Shark</li></ul>
     </div>
     <div class="wants__col wants--rising">
       <h4 class="wants__phase">rising</h4>
       <p class="wants__income">pays +2 energy</p>
-      <ul class="wants__list"><li>Peacock Mantis Shrimp</li><li>Coral Grouper</li><li>Mangrove Jack</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Regal Blue Tang</li><li>Bubble-tip Anemone</li><li>Blackspotted Puffer</li></ul>
+      <ul class="wants__list"><li>Peacock Mantis Shrimp</li><li>Coral Grouper</li><li>Mangrove Jack</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Regal Blue Tang</li><li>Bubble-tip Anemone</li><li>Blackspotted Puffer</li><li>Bigfin Reef Squid</li><li>Banded Coral Shrimp</li></ul>
     </div>
     <div class="wants__col wants--high">
       <h4 class="wants__phase">high</h4>
       <p class="wants__income">pays +1 energy</p>
-      <ul class="wants__list"><li>Coral Grouper</li><li>Reef Manta Ray</li><li>Blacktip Reef Shark</li><li>Whitetip Reef Shark</li><li>Green Sea Turtle</li><li>Bumphead Parrotfish</li><li>Staghorn Coral</li><li>Table Coral</li></ul>
+      <ul class="wants__list"><li>Coral Grouper</li><li>Reef Manta Ray</li><li>Blacktip Reef Shark</li><li>Whitetip Reef Shark</li><li>Green Sea Turtle</li><li>Bumphead Parrotfish</li><li>Staghorn Coral</li><li>Table Coral</li><li>Banded Sea Krait</li><li>Hawksbill Turtle</li><li>Spotted Eagle Ray</li></ul>
     </div>
     <div class="wants__col wants--falling">
       <h4 class="wants__phase">falling</h4>
       <p class="wants__income">pays nothing</p>
-      <ul class="wants__list"><li>Giant Trevally</li><li>Great Barracuda</li><li>Giant Moray</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Red Lionfish</li></ul>
+      <ul class="wants__list"><li>Giant Trevally</li><li>Great Barracuda</li><li>Giant Moray</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Red Lionfish</li><li>Giant Triton</li><li>Tawny Nurse Shark</li></ul>
     </div>
     </div>
   </section>
@@ -689,8 +718,8 @@
       </div>
     </div>
     <div class="card__body">
-      <p class="card__text">Strikes at the speed of a bullet; the cavitation does the rest.</p>
-      <p class="card__meta"><span class="printed">base 4/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span></p>
+      <p class="card__text">A club that accelerates like a bullet. A shell is not an obstacle.</p>
+      <p class="card__meta"><span class="printed">base 4/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--pierce">pierce</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 2 damage to an enemy creature
         <span class="arrival__note">opens with a strike fast enough to cavitate the water</span></span></p>
       
@@ -961,7 +990,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Crosses the crest at high water to graze the seagrass behind it.</p>
-      <p class="card__meta"><span class="printed">base 3/7</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Reptiles</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 3/7</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Reptiles</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 2</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       
       
     </div>
@@ -1082,7 +1111,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Holds station where the flat empties and takes what it funnels out.</p>
-      <p class="card__meta"><span class="printed">base 5/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 5/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 2 damage to an enemy creature
         <span class="arrival__note">takes whatever the current funnels past it first</span></span></p>
       
@@ -1589,7 +1618,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Farms algae in its own mantle. A metre of shell does the rest.</p>
-      <p class="card__meta"><span class="printed">base 0/8</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span><span class="kw kw--reef-guard">reef-guard</span></p>
+      <p class="card__meta"><span class="printed">base 0/8</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 2</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> gain 2 energy
         <span class="arrival__note">a metre of mantle filtering from the moment it settles</span></span></p>
       

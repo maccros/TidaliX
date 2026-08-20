@@ -52,6 +52,7 @@ export {
   hasCard,
   isToxic,
   isToxinImmune,
+  piercesArmour,
   taxonOf,
   traitsOf,
 } from './cards.js';

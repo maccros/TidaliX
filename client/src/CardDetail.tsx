@@ -58,6 +58,7 @@ const KEYWORD_TEXT: Record<Keyword, string> = {
   'reef-guard': 'Enemies must deal with this before they can attack anything behind it, your face included.',
   toxic: 'Destroy it by attacking and your attacker dies too — eating it is what kills you. Wounding it costs nothing extra.',
   'toxin-immune': 'Can destroy a toxic animal and survive it. Immunity is to the venom, not to the wound.',
+  pierce: 'Its damage ignores armour completely — the answer to something that has become unkillable behind a shell.',
 };
 
 const ARRIVAL_TEXT: Record<ArrivalEffect['kind'], (n: number) => string> = {
