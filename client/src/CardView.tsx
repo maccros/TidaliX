@@ -253,11 +253,7 @@ export function CardView({
             releasable
           </span>
         )}
-        {def.traits?.map((t) => (
-          <span key={t} className={`tag tag--trait tag--trait-${t}`}>
-            {t}
-          </span>
-        ))}
+        <span className={`tag tag--niche tag--niche-${def.niche}`}>{def.niche}</span>
       </div>
 
       {def.arrival && (

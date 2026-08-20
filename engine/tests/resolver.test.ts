@@ -32,7 +32,9 @@ function stackedGame(deck0: string[], deck1: string[], overrides: CreateGameOpti
     ...overrides,
     decks: [deck(deck0), deck(deck1)],
     shuffleDecks: false,
-    config: { startingHandSize: 0, ...overrides.config },
+    // These cases stack a deck and draw from it, so the opener's skipped first
+    // draw is switched off here and tested on its own below.
+    config: { startingHandSize: 0, firstPlayerSkipsDraw: false, ...overrides.config },
   });
   return startGame(state);
 }
@@ -124,6 +126,37 @@ describe('game setup', () => {
     expect(energyAt(dealt, 1) - energyAt(control, 1)).toBe(1);
     // Three end-turns in, it is player 1's second, and the payment is over.
     expect(energyAt(dealt, 3) - energyAt(control, 3)).toBe(0);
+  });
+
+  it('opens the game the way the rules say: 4 cards each, no draw for the opener', () => {
+    // Both sides look across at four cards. The difference is made entirely on
+    // the first turn: the opener forgoes their draw and starts on base capacity;
+    // whoever is second draws as normal and gets one extra energy.
+    const opened = startGame(createGame({ seed: 7, startingPlayer: 0 }));
+    const s = opened.state;
+
+    expect(s.players[0].hand).toHaveLength(DEFAULT_CONFIG.startingHandSize);
+    expect(s.players[1].hand).toHaveLength(DEFAULT_CONFIG.startingHandSize);
+    expect(s.players[0].energy).toBe(DEFAULT_CONFIG.startingEnergyCap);
+    expect(opened.events.map((e) => e.type)).not.toContain('CARD_DRAWN');
+    expect(opened.events.map((e) => e.type)).toContain('TURN_SKIPPED_DRAW');
+
+    const next = must(s, { type: 'END_TURN', player: 0 }).state;
+    expect(next.players[1].hand).toHaveLength(DEFAULT_CONFIG.startingHandSize + 1);
+    expect(next.players[1].energy).toBe(
+      DEFAULT_CONFIG.startingEnergyCap + DEFAULT_CONFIG.secondPlayerBonusEnergy,
+    );
+  });
+
+  it('puts the second-turn energy in the receipt, not beside it', () => {
+    // The panel builds "earned this turn" from these lines, so an amount that
+    // reached the bank without being one of them was silently missing.
+    let s = startGame(createGame({ seed: 7, startingPlayer: 0 })).state;
+    s = must(s, { type: 'END_TURN', player: 0 }).state;
+
+    const lines = s.players[1].incomeThisTurn;
+    expect(lines.map((l) => l.source)).toContain('compensation');
+    expect(lines.reduce((sum, l) => sum + l.amount, 0)).toBe(s.players[1].energy);
   });
 
   it('opens both players at low tide, whoever moves first', () => {
@@ -278,7 +311,9 @@ describe('turn lifecycle', () => {
       createGame({
         decks: [['clown-anemonefish'], ['clown-anemonefish']],
         shuffleDecks: false,
-        config: { startingHandSize: 0 },
+        // The opener's skipped draw would delay the first empty draw by a turn
+        // and this case is about fatigue, not about who moved first.
+        config: { startingHandSize: 0, firstPlayerSkipsDraw: false },
       }),
     ).state;
 

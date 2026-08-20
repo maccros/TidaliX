@@ -14,7 +14,6 @@ export type {
   ArrivalEffect,
   Aura,
   StatBonus,
-  Trait,
   ActionResult,
   AttackAction,
   CardDefinition,
@@ -34,12 +33,13 @@ export type {
   PlayerState,
   ReleaseAction,
   RngState,
+  Niche,
   Taxon,
   TideEffect,
   TidePhase,
 } from './types.js';
 
-export { TAXON_LABEL, TRAIT_NOTE, arrivalNeedsTarget } from './types.js';
+export { NICHE_NOTE, TAXON_LABEL, arrivalNeedsTarget } from './types.js';
 
 export {
   CARDS,
@@ -54,7 +54,7 @@ export {
   isToxinImmune,
   piercesArmour,
   taxonOf,
-  traitsOf,
+  nicheOf,
 } from './cards.js';
 
 export {

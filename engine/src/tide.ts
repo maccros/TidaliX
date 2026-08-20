@@ -72,9 +72,6 @@ export function symbiosisFor(
   /** The other side's board, for the auras that reach across it. */
   enemies: readonly CardInstance[] = [],
 ): StatBonus {
-  const traits = def.traits;
-  if (!traits || traits.length === 0) return {};
-
   let attack = 0;
   let health = 0;
 
@@ -85,7 +82,8 @@ export function symbiosisFor(
       if (!auras) continue;
       for (const aura of auras) {
         if (crossingOnly && !aura.crossesWaterline) continue;
-        if (!traits.includes(aura.affects)) continue;
+        // One niche per card, so this is an equality rather than a lookup.
+        if (aura.affects !== def.niche) continue;
         attack += aura.grants.attack ?? 0;
         health += aura.grants.health ?? 0;
       }

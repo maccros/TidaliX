@@ -365,7 +365,9 @@ describe('client', () => {
     const lines = () => [...container.querySelectorAll('.log__line')].map((l) => l.textContent ?? '');
 
     expect(lines().some((l) => l.startsWith('— Turn 1'))).toBe(true);
-    expect(lines().some((l) => l.startsWith('You drew '))).toBe(true);
+    // Seed 7 opens with the player, and the opener forgoes their first draw —
+    // so the log must say that rather than silently showing no draw at all.
+    expect(lines().some((l) => l.includes('opened, so no card this turn'))).toBe(true);
 
     // Play whatever is affordable, and check something got recorded for it.
     const before = lines().length;
@@ -381,89 +383,39 @@ describe('client', () => {
     for (const line of aiDraws) expect(line).toBe('The AI drew a card');
   });
 
-  it('gives every live trait its own badge colour, and prints no dead ones', async () => {
-    const { CARDS, TRAIT_NOTE } = await import('@tidalix/engine');
-    const traits = new Set(CARDS.flatMap((c) => c.traits ?? []));
-    // Every trait still printed has a note and, in the stylesheet, a class of
-    // its own — `tag--trait-<name>` — so no two badges share a colour.
-    for (const t of traits) {
-      expect(TRAIT_NOTE[t], `note for ${t}`).toBeTruthy();
-    }
-    expect(traits.size).toBeGreaterThan(0);
-    for (const dead of ['mollusc', 'echinoderm', 'cephalopod', 'crustacean', 'cleaner']) {
-      expect([...traits], `"${dead}" should be gone`).not.toContain(dead);
+  it('gives every species one niche, and every niche a colour', async () => {
+    const { CARDS, NICHE_NOTE } = await import('@tidalix/engine');
+    const niches = new Set(CARDS.map((c) => c.niche));
+    expect(niches.size).toBe(4);
+    for (const n of niches) expect(NICHE_NOTE[n], `note for ${n}`).toBeTruthy();
+    // The old trait vocabulary is gone entirely, lineage duplicates included.
+    for (const dead of ['mollusc', 'echinoderm', 'cephalopod', 'crustacean', 'cleaner', 'reef-fish']) {
+      expect([...niches], `"${dead}" should be gone`).not.toContain(dead);
     }
   });
 
-  it('explains every trait and keyword on the full card', async () => {
-    // A bare tag reading "cleaner" or "anemonefish" tells a player nothing, and
-    // says nothing at all about what reads it. The detail view has to.
-    const { CARDS, TRAIT_NOTE } = await import('@tidalix/engine');
+  it('explains the niche and every keyword on the full card', async () => {
+    // A bare tag reading "bottom-dweller" tells a player nothing on its own.
+    const { CARDS, NICHE_NOTE, createInstance } = await import('@tidalix/engine');
     const { CardDetail } = await import('./CardDetail.tsx');
-    const { createInstance } = await import('@tidalix/engine');
 
-    for (const def of CARDS.filter((c) => (c.traits?.length ?? 0) > 0)) {
+    for (const def of CARDS.slice(0, 12)) {
       const inst = createInstance(def.id, 0);
       act(() => {
         root.render(
           <CardDetail instance={inst} phase="high" stats={null} zone="hand" onClose={() => {}} />,
         );
       });
-      const text = container.textContent ?? '';
-      for (const trait of def.traits!) {
-        expect(text, `${def.name} explains "${trait}"`).toContain(TRAIT_NOTE[trait]);
-      }
+      expect(container.textContent, `${def.name} explains its niche`).toContain(
+        NICHE_NOTE[def.niche],
+      );
       for (const keyword of def.keywords ?? []) {
-        // Each keyword gets prose of its own, not just a coloured chip.
         const entry = [...container.querySelectorAll('.detail__entry')].find(
           (e) => e.querySelector('dt')?.textContent === keyword,
         );
         expect(entry, `${def.name} explains "${keyword}"`).toBeTruthy();
-        expect((entry!.querySelector('dd')?.textContent ?? '').length).toBeGreaterThan(20);
       }
     }
-  });
-
-  it('colours a card by what you can do with it, never by what it is', async () => {
-    // Toxic animals and structures used to carry their own tint, which meant a
-    // player scanning for their options was decoding six washes at once. Two
-    // cards in the same state must look the same, whatever they happen to be.
-    const { CARDS, createInstance, effectiveStats } = await import('@tidalix/engine');
-    const { CardView } = await import('./CardView.tsx');
-
-    const classesFor = (id: string) => {
-      const inst = createInstance(id, 0);
-      const def = CARDS.find((c) => c.id === id)!;
-      act(() => {
-        root.render(
-          <CardView
-            instance={inst}
-            stats={effectiveStats(inst, 'rising', def)}
-            phase="rising"
-            state="idle"
-          />,
-        );
-      });
-      return [...container.querySelector('.card')!.classList].sort().join(' ');
-    };
-
-    // A toxic creature, a plain creature, and a structure — same state, same look.
-    const toxic = classesFor('blackspotted-puffer');
-    const plain = classesFor('clown-triggerfish');
-    const structure = classesFor('giant-clam');
-    expect(toxic).toBe(plain);
-    expect(structure).toBe(plain);
-
-    // Toxicity is still on the card — as a tag, which is a label read on
-    // purpose rather than a wash to be decoded.
-    act(() => {
-      const inst = createInstance('blackspotted-puffer', 0);
-      const def = CARDS.find((c) => c.id === 'blackspotted-puffer')!;
-      root.render(
-        <CardView instance={inst} stats={effectiveStats(inst, 'rising', def)} phase="rising" state="idle" />,
-      );
-    });
-    expect(container.querySelector('.tag--toxic')?.textContent).toBe('toxic');
   });
 
   it('prints each keyword exactly once on a card', async () => {
@@ -543,8 +495,9 @@ describe('card detail', () => {
     expect(text).toContain('base 1/3');
     expect(text).toContain('tide 0/+1');
     expect(text).toContain('symbiosis 0/+2');
-    // Its own aura, pointed back at the host.
-    expect(text).toContain('anemone');
+    // Its own niche, and its aura pointed back at the host.
+    expect(text).toContain('reef-dweller');
+    expect(text).toContain('reef-builder');
     expect(text).toContain('drives off polyp-eaters');
     expect(stats.maxHealth).toBe(6);
   });

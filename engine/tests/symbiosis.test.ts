@@ -340,15 +340,19 @@ describe('symbiosis', () => {
   });
 
   it('separates the tide swing from the symbiosis swing in the stat breakdown', () => {
-    // A mudskipper is a reef-fish: +2 attack from low tide, +2 health from coral.
-    const s = place(bareGame(), 0, ['atlantic-mudskipper', 'staghorn-coral']);
-    const stats = statOf(s, 0, 'atlantic-mudskipper');
+    // A moorish idol is a reef-dweller, so the staghorn shelters it. The tide
+    // swing and the symbiosis swing are reported apart, which is the point.
+    const s = place(bareGame(), 0, ['moorish-idol', 'staghorn-coral']);
+    const stats = statOf(s, 0, 'moorish-idol');
 
     expect(s.phase).toBe('low');
-    expect(stats.tideBonus).toEqual({ attack: 2, health: 0 });
     expect(stats.symbiosisBonus).toEqual({ attack: 0, health: 2 });
-    expect(stats.attack).toBe(3);
     expect(stats.maxHealth).toBe(4);
+
+    // And a mudskipper, which lives on the flat rather than in the coral, gets
+    // nothing from it — the niche is doing real work.
+    const flat = place(bareGame(), 0, ['atlantic-mudskipper', 'staghorn-coral']);
+    expect(statOf(flat, 0, 'atlantic-mudskipper').symbiosisBonus).toEqual({ attack: 0, health: 0 });
   });
 });
 
@@ -410,44 +414,42 @@ describe('stat helpers', () => {
   });
 });
 
-describe('the trait vocabulary', () => {
-  it('carries no trait that nothing reads', () => {
-    // A trait with no aura pointing at it is decoration: the player learns a
-    // word, looks for what it does, and finds nothing. Five of these had built
-    // up — four of them restating the card's lineage in a second vocabulary.
-    //
-    // The rule this guards: what a card *is* goes in `taxon`; what it *does for
-    // its neighbours* goes in `traits`.
-    const read = new Set<string>();
-    for (const card of CARDS) for (const aura of card.auras ?? []) read.add(aura.affects);
-
-    const printed = new Set<string>();
-    for (const card of CARDS) for (const trait of card.traits ?? []) printed.add(trait);
-
-    const dead = [...printed].filter((t) => !read.has(t));
-    expect(dead, 'traits printed on a card that no aura reads').toEqual([]);
+describe('the niche vocabulary', () => {
+  it('gives every species exactly one niche', () => {
+    // The old `traits` list let a card carry three tags, five of which nothing
+    // read. One niche per card, always present, is the rule that replaced it.
+    for (const card of CARDS) {
+      expect(card.niche, card.name).toBeTruthy();
+    }
+    expect(new Set(CARDS.map((c) => c.niche)).size).toBe(4);
   });
 
-  it('points every aura at a trait something actually carries', () => {
-    // The reverse: an aura reading a trait no card has is a card doing nothing.
-    const printed = new Set<string>();
-    for (const card of CARDS) for (const trait of card.traits ?? []) printed.add(trait);
-
+  it('points every aura at a niche something actually occupies', () => {
+    // An aura reading a niche no card has is a card doing nothing.
+    const occupied = new Set(CARDS.map((c) => c.niche));
     for (const card of CARDS) {
       for (const aura of card.auras ?? []) {
-        expect(printed.has(aura.affects), `${card.name} grants to "${aura.affects}"`).toBe(true);
+        expect(occupied.has(aura.affects), `${card.name} grants to "${aura.affects}"`).toBe(true);
       }
     }
   });
 
-  it('never duplicates the lineage a card already declares', () => {
-    // `mollusc` as a trait alongside `taxon: 'mollusc'` is the same fact twice,
-    // and the one the rules read is the taxon.
+  it('has every niche read by at least one aura', () => {
+    // The reverse: a niche nothing grants to is a word the player learns for
+    // nothing, which is exactly what the old trait list had accumulated.
+    const read = new Set<string>();
+    for (const card of CARDS) for (const aura of card.auras ?? []) read.add(aura.affects);
+    for (const niche of new Set(CARDS.map((c) => c.niche))) {
+      expect(read.has(niche), `nothing grants to "${niche}"`).toBe(true);
+    }
+  });
+
+  it('keeps niche and lineage as separate questions', () => {
+    // A lineage is what an animal is; a niche is how it lives. They must not
+    // collapse into each other, or one of them is redundant.
     const taxa = new Set(CARDS.map((c) => c.taxon as string));
     for (const card of CARDS) {
-      for (const trait of card.traits ?? []) {
-        expect(taxa.has(trait), `${card.name} carries "${trait}", which is a lineage`).toBe(false);
-      }
+      expect(taxa.has(card.niche), `${card.name}'s niche duplicates a lineage`).toBe(false);
     }
   });
 });

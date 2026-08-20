@@ -333,11 +333,10 @@ button { font: inherit; color: inherit; }
 .tag--release { --b: var(--good); }
 
 /* Outlined: a trait, which only means something through somebody else's aura. */
-.tag--trait-reef-fish { --b: var(--b-reef-fish); }
-.tag--trait-megafauna { --b: var(--b-megafauna); }
-.tag--trait-coral { --b: var(--b-coral); }
-.tag--trait-anemone { --b: var(--b-anemone); }
-.tag--trait-anemonefish { --b: var(--b-anemonefish); }
+.tag--niche-reef-dweller { --b: var(--b-reef-fish); }
+.tag--niche-open-water { --b: var(--b-megafauna); }
+.tag--niche-reef-builder { --b: var(--b-coral); }
+.tag--niche-bottom-dweller { --b: var(--b-armour); }
 
 .card__arrival {
   margin: 0; font-size: 0.63rem; color: var(--b-arrival);

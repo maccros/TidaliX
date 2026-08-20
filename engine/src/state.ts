@@ -75,22 +75,17 @@ export const DEFAULT_CONFIG: GameConfig = {
   conservationVictory: 4,
 
   // Compensation for moving second, because moving first is worth about 63% of
-  // games. Measured over 480 games per option, counting wins by who *started*
-  // with every seed run from both seats:
+  // games. Both players are dealt the same four cards; the difference is made
+  // entirely on the first turn:
   //
-  //   nothing                    normal 67.1%   hard 59.6%
-  //   first skips its draw       normal 64.6%   hard 64.4%   (barely moves it)
-  //   second +1 card             normal 65.0%   hard 66.2%   (does not work)
-  //   second +1 card +1 energy   normal 62.1%   hard 55.4%   <- this
-  //   all three                  normal 58.3%   hard 54.6%
-  //   second +1 card +2 energy   normal 55.8%   hard 52.1%   (closest to even)
+  //   whoever opens      does not draw, and starts on the base capacity of 2
+  //   whoever is second  draws as normal, and gets one extra energy
   //
-  // Skipping the first draw on its own does almost nothing, so it is off. The
-  // card and the energy together do work, and +2 energy works better still —
-  // left at +1 deliberately, because a bot that races is not a person and the
-  // residual gap should be re-measured against real play before over-correcting.
-  firstPlayerSkipsDraw: false,
-  secondPlayerBonusCards: 1,
+  // Taking the draw away from the opener rather than handing the other side a
+  // card keeps both opening hands the same size, which matters for how the game
+  // reads: two players look across at four cards each.
+  firstPlayerSkipsDraw: true,
+  secondPlayerBonusCards: 0,
   secondPlayerBonusEnergy: 1,
 };
 

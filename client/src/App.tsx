@@ -277,8 +277,8 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       for (const other of board) {
         if (other.instanceId === hovered) continue;
         const otherDef = getCard(other.definitionId);
-        const givesToOther = hoveredDef.auras?.some((a) => otherDef.traits?.includes(a.affects));
-        const getsFromOther = otherDef.auras?.some((a) => hoveredDef.traits?.includes(a.affects));
+        const givesToOther = hoveredDef.auras?.some((a) => a.affects === otherDef.niche);
+        const getsFromOther = otherDef.auras?.some((a) => a.affects === hoveredDef.niche);
         if (givesToOther || getsFromOther) out.add(other.instanceId);
       }
     }
@@ -890,95 +890,124 @@ const ARRIVAL_LOG: Record<ArrivalEffect['kind'], (n: number) => string> = {
   scout: (n) => `draws ${n}`,
 };
 
+/**
+ * One line per thing that happened, and no line for a thing already said.
+ *
+ * The log is read to follow a game, not to be taught the rules, so every entry
+ * is a fact in the same shape: who, what, how much. Several events describe one
+ * moment between them — an arrival that strikes fires both ARRIVAL_RESOLVED and
+ * a DAMAGE_DEALT; a toxin kill fires a poisoning *and* a destruction — and in
+ * each case exactly one of them is printed. Returning null here is how an event
+ * says "somebody else is reporting this".
+ */
 function describe(event: GameEvent, state: GameState): { text: string; kind: string } | null {
   const who = (p: PlayerId) => (p === YOU ? 'You' : 'The AI');
+  const them = (p: PlayerId) => (p === YOU ? 'you' : 'the AI');
+
   switch (event.type) {
-    // A turn header, so a reviewed log reads in blocks rather than as one run-on
-    // stream. Everything under it belongs to that turn.
     case 'TURN_STARTED':
       return {
         text: `— Turn ${event.turn} · ${who(event.player)} · ${event.phase} tide —`,
         kind: 'turn',
       };
 
-    // What a player picked up. The opponent's draw is recorded but never named:
-    // the log is a record of the game, not a way to read the AI's hand.
+    case 'TURN_SKIPPED_DRAW':
+      return { text: `${who(event.player)} opened, so no card this turn`, kind: 'setup' };
+
+    // Only the second-turn payment is worth a line; the rest of the income is
+    // itemised in the energy panel and would bury the log four deep every turn.
+    case 'ENERGY_GAINED':
+      return event.source === 'compensation'
+        ? { text: `${who(event.player)} took the second turn: ⬡+${event.amount}`, kind: 'setup' }
+        : null;
+
     case 'CARD_DRAWN':
       return event.player === YOU
         ? { text: `You drew ${nameOf(state, event.instanceId)}`, kind: 'draw' }
-        : { text: `The AI drew a card`, kind: 'draw' };
+        : { text: 'The AI drew a card', kind: 'draw' };
 
     case 'HAND_OVERFLOW':
       return {
-        text: `${who(event.player)} overflowed a full hand — ${nameOf(state, event.instanceId)} discarded`,
+        text: `${who(event.player)} discarded ${nameOf(state, event.instanceId)} — hand full`,
         kind: 'draw',
       };
 
     case 'DECK_EMPTY':
       return {
-        text: `${who(event.player)} has no deck left — ${event.fatigueDamage} fatigue damage`,
+        text: `${who(event.player)} has no deck left: ${event.fatigueDamage} fatigue`,
         kind: 'death',
       };
 
-    // Card powers, which is the half of the game the log used to omit entirely.
-    case 'ARRIVAL_RESOLVED': {
-      const name = getCard(event.definitionId).name;
-      const target = event.targetId ? ` on ${nameOf(state, event.targetId)}` : '';
-      return { text: `${name} arrives — ${ARRIVAL_LOG[event.kind](event.amount)}${target}`, kind: 'arrival' };
-    }
-
-    case 'CARD_HEALED':
-      return { text: `${nameOf(state, event.instanceId)} heals ${event.amount}`, kind: 'heal' };
-
-    case 'TIDE_CHANGED':
-      return { text: `The tide turns: ${event.from} → ${event.to}`, kind: 'tide' };
     case 'CARD_PLAYED':
       return {
         text: `${who(event.player)} played ${getCard(event.definitionId).name}`,
         kind: 'play',
       };
+
+    // The arrival line carries its own damage, so the DAMAGE_DEALT it produces
+    // is suppressed below rather than repeating the same blow.
+    case 'ARRIVAL_RESOLVED': {
+      const name = getCard(event.definitionId).name;
+      const target = event.targetId ? ` to ${nameOf(state, event.targetId)}` : '';
+      return { text: `${name} arrives: ${ARRIVAL_LOG[event.kind](event.amount)}${target}`, kind: 'arrival' };
+    }
+
+    case 'CARD_HEALED':
+      return { text: `${nameOf(state, event.instanceId)} heals ${event.amount}`, kind: 'heal' };
+
     case 'DAMAGE_DEALT': {
-      if (event.targetId === 'face') return null;
-      const verb =
-        event.cause === 'retaliation' ? 'fights back at' : event.cause === 'arrival' ? 'strikes' : 'hits';
+      if (event.cause === 'arrival') return null; // the arrival line said it
+      const source = nameOf(state, event.sourceId);
       const bonus = event.exposedBonus > 0 ? ` (+${event.exposedBonus} exposed)` : '';
+      if (event.targetId === 'face') {
+        // Which species is hitting you was missing entirely: the face damage
+        // line was dropped and PLAYER_DAMAGED never named an attacker.
+        const victim = state.players[YOU].board.some((c) => c.instanceId === event.sourceId)
+          ? them(BOT)
+          : them(YOU);
+        return { text: `${source} hits ${victim} for ${event.amount}${bonus}`, kind: 'attack' };
+      }
+      const verb = event.cause === 'retaliation' ? 'fights back at' : 'hits';
       return {
-        text: `${nameOf(state, event.sourceId)} ${verb} ${nameOf(state, event.targetId)} for ${event.amount}${bonus}`,
+        text: `${source} ${verb} ${nameOf(state, event.targetId)} for ${event.amount}${bonus}`,
         kind: event.cause,
       };
     }
+
+    // Reported by the DAMAGE_DEALT line above, which names the attacker.
     case 'PLAYER_DAMAGED':
-      return { text: `${who(event.player)} took ${event.amount} (♥ ${event.life})`, kind: 'damage' };
+      return null;
+
+    // The single line for a toxin kill. The CARD_DESTROYED that follows it is
+    // suppressed, or the same death is announced twice.
     case 'SPECIES_POISONED':
       return {
-        text: `${nameOf(state, event.victimId)} ate ${nameOf(state, event.sourceId)} — and the toxin is fatal`,
+        text: `${nameOf(state, event.victimId)} ate ${nameOf(state, event.sourceId)} and dies of the toxin`,
         kind: 'toxin',
       };
+
     case 'CARD_DESTROYED':
-      return {
-        text:
-          event.cause === 'toxin'
-            ? `${getCard(event.definitionId).name} dies of the toxin`
-            : `${getCard(event.definitionId).name} destroyed`,
-        kind: event.cause === 'toxin' ? 'toxin' : 'death',
-      };
+      if (event.cause === 'toxin') return null;
+      return { text: `${getCard(event.definitionId).name} destroyed`, kind: 'death' };
+
+    case 'TIDE_CHANGED':
+      return { text: `The tide turns: ${event.from} → ${event.to}`, kind: 'tide' };
+
     case 'SPECIES_RELEASED':
       return {
-        text: `${who(event.player)} released ${getCard(event.definitionId).name} — ${event.conserved} conserved`,
+        text: `${who(event.player)} released ${getCard(event.definitionId).name} — ${event.conserved} lineage${event.conserved === 1 ? '' : 's'} protected`,
         kind: 'conserve',
       };
+
     case 'GAME_OVER': {
-      const how = event.reason === 'conservation' ? ' by conservation' : '';
+      if (event.winner === null) return { text: 'A draw.', kind: 'over' };
+      const how = event.reason === 'conservation' ? 'the conservation pile' : 'damage';
       return {
-        text:
-          event.winner === null
-            ? 'A draw.'
-            : event.winner === YOU
-              ? `You win${how}.`
-              : `The AI wins${how}.`,
+        text: `${event.winner === YOU ? 'You win' : 'The AI wins'} on ${how}.`,
         kind: 'over',
       };
     }
+
     default:
       return null;
   }

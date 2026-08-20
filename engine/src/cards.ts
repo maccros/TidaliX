@@ -9,7 +9,7 @@
  * Design rule: if a card's tide line contradicts the animal, fix the card.
  */
 
-import type { ArrivalEffect, Aura, CardDefinition, Taxon, TidePhase, Trait } from './types.js';
+import type { ArrivalEffect, Aura, CardDefinition, Niche, Taxon, TidePhase } from './types.js';
 
 export const CARDS: readonly CardDefinition[] = [
   /* ---------------------------------------------------------------- */
@@ -21,10 +21,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Periophthalmus barbarus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'bottom-dweller',
     cost: 1,
     attack: 1,
     health: 2,
-    traits: ['reef-fish'],
     tide: {
       low: { attack: 2 },
       high: { attack: -1, exposed: true },
@@ -37,6 +37,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Grapsus grapsus',
     type: 'creature',
     taxon: 'crustacean',
+    niche: 'bottom-dweller',
     cost: 2,
     attack: 2,
     health: 2,
@@ -53,6 +54,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Ocypode ceratophthalma',
     type: 'creature',
     taxon: 'crustacean',
+    niche: 'bottom-dweller',
     cost: 3,
     attack: 3,
     health: 2,
@@ -69,6 +71,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Octopus vulgaris',
     type: 'creature',
     taxon: 'mollusc',
+    niche: 'reef-dweller',
     cost: 4,
     attack: 3,
     health: 4,
@@ -89,6 +92,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Echinometra mathaei',
     type: 'creature',
     taxon: 'echinoderm',
+    niche: 'bottom-dweller',
     cost: 2,
     attack: 0,
     health: 5,
@@ -109,6 +113,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Odontodactylus scyllarus',
     type: 'creature',
     taxon: 'crustacean',
+    niche: 'bottom-dweller',
     cost: 3,
     attack: 4,
     health: 2,
@@ -130,11 +135,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Plectropomus leopardus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 4,
     attack: 4,
     health: 4,
     keywords: ['toxin-immune'],
-    traits: ['reef-fish'],
     tide: {
       rising: { attack: 1 },
       high: { attack: 1 },
@@ -147,10 +152,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Lutjanus argentimaculatus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 3,
     attack: 3,
     health: 3,
-    traits: ['reef-fish'],
     tide: {
       rising: { attack: 2 },
       low: { attack: -1 },
@@ -163,10 +168,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Zanclus cornutus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 2,
     attack: 2,
     health: 2,
-    traits: ['reef-fish'],
     arrival: {
       kind: 'forage',
       amount: 1,
@@ -187,10 +192,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Mobula alfredi',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 5,
     attack: 4,
     health: 6,
-    traits: ['megafauna'],
     arrival: {
       kind: 'forage',
       amount: 2,
@@ -208,10 +213,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Carcharhinus melanopterus',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 4,
     attack: 4,
     health: 3,
-    traits: ['megafauna'],
     tide: {
       high: { attack: 2 },
       falling: { attack: 1 },
@@ -225,10 +230,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Triaenodon obesus',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 3,
     attack: 3,
     health: 3,
-    traits: ['megafauna'],
     tide: {
       high: { attack: 1 },
       low: { health: 1 },
@@ -241,13 +246,13 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Chelonia mydas',
     type: 'creature',
     taxon: 'reptile',
+    niche: 'open-water',
     cost: 5,
     attack: 3,
     health: 7,
     keywords: ['reef-guard', 'toxin-immune'],
     // A shell is armour. It was carrying reef-guard and nothing to back it up.
     armour: 2,
-    traits: ['megafauna'],
     tide: {
       high: { health: 2 },
     },
@@ -259,10 +264,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Bolbometopon muricatum',
     type: 'creature',
     taxon: 'fish',
+    niche: 'open-water',
     cost: 6,
     attack: 6,
     health: 6,
-    traits: ['megafauna'],
     arrival: {
       kind: 'strike',
       amount: 3,
@@ -280,11 +285,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Caranx ignobilis',
     type: 'creature',
     taxon: 'fish',
+    niche: 'open-water',
     cost: 5,
     attack: 5,
     health: 4,
     keywords: ['surge'],
-    traits: ['megafauna'],
     tide: {
       high: { attack: 1 },
       falling: { attack: 2 },
@@ -301,11 +306,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Sphyraena barracuda',
     type: 'creature',
     taxon: 'fish',
+    niche: 'open-water',
     cost: 4,
     attack: 5,
     health: 2,
     // Open water, not the reef itself — a coral head does not shelter this.
-    traits: ['megafauna'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -323,11 +328,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Gymnothorax javanicus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 4,
     attack: 4,
     health: 4,
     keywords: ['toxin-immune'],
-    traits: ['reef-fish'],
     tide: {
       falling: { attack: 1 },
       low: { health: 1 },
@@ -344,13 +349,13 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Amphiprion ocellaris',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 1,
     attack: 1,
     health: 3,
-    traits: ['reef-fish', 'anemonefish'],
     auras: [
       {
-        affects: 'anemone',
+        affects: 'reef-builder',
         grants: { attack: 1 },
         note: 'drives off polyp-eaters that would strip its host',
       },
@@ -367,10 +372,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Balistoides conspicillum',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 3,
     attack: 3,
     health: 3,
-    traits: ['reef-fish'],
     tide: {
       rising: { attack: 1 },
       falling: { attack: 1 },
@@ -383,10 +388,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Paracanthurus hepatus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 2,
     attack: 2,
     health: 3,
-    traits: ['reef-fish'],
     tide: {
       rising: { attack: 1 },
     },
@@ -398,13 +403,13 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Labroides dimidiatus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 2,
     attack: 1,
     health: 2,
-    traits: ['reef-fish'],
     auras: [
       {
-        affects: 'megafauna',
+        affects: 'open-water',
         grants: { health: 2 },
         note: 'picks parasites off anything big enough to queue for it',
       },
@@ -430,18 +435,18 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Acropora cervicornis',
     type: 'structure',
     taxon: 'cnidarian',
+    niche: 'reef-builder',
     cost: 2,
     attack: 0,
     health: 5,
-    traits: ['coral'],
     auras: [
       {
-        affects: 'reef-fish',
+        affects: 'reef-dweller',
         grants: { health: 2 },
         note: 'a nursery of branches nothing large can reach into',
       },
       {
-        affects: 'coral',
+        affects: 'reef-builder',
         grants: { health: 1 },
         note: 'cements onto the framework beside it',
       },
@@ -459,15 +464,15 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Entacmaea quadricolor',
     type: 'structure',
     taxon: 'cnidarian',
+    niche: 'reef-builder',
     cost: 2,
     attack: 0,
     health: 4,
     keywords: ['reef-guard'],
-    traits: ['anemone'],
     spines: 2,
     auras: [
       {
-        affects: 'anemonefish',
+        affects: 'reef-dweller',
         grants: { health: 2 },
         note: 'stinging tentacles its resident is immune to',
       },
@@ -484,6 +489,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Tridacna gigas',
     type: 'structure',
     taxon: 'mollusc',
+    niche: 'bottom-dweller',
     cost: 3,
     attack: 0,
     health: 8,
@@ -510,11 +516,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Arothron nigropunctatus',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 3,
     attack: 2,
     health: 5,
     keywords: ['toxic'],
-    traits: ['reef-fish'],
     armour: 3,
     tide: {
       rising: { health: 1 },
@@ -527,11 +533,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Pterois volitans',
     type: 'creature',
     taxon: 'fish',
+    niche: 'reef-dweller',
     cost: 4,
     attack: 4,
     health: 3,
     keywords: ['toxic'],
-    traits: ['reef-fish'],
     armour: 2,
     arrival: {
       kind: 'strike',
@@ -550,6 +556,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Acanthaster planci',
     type: 'creature',
     taxon: 'echinoderm',
+    niche: 'bottom-dweller',
     cost: 4,
     attack: 3,
     health: 6,
@@ -557,7 +564,7 @@ export const CARDS: readonly CardDefinition[] = [
     armour: 3,
     auras: [
       {
-        affects: 'coral',
+        affects: 'reef-builder',
         grants: { health: -3 },
         note: 'digests living coral from the outside in, on either side of the channel',
         // The one aura in the game that crosses the waterline. An outbreak is a
@@ -581,18 +588,18 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Acropora hyacinthus',
     type: 'structure',
     taxon: 'cnidarian',
+    niche: 'reef-builder',
     cost: 4,
     attack: 0,
     health: 7,
-    traits: ['coral'],
     auras: [
       {
-        affects: 'reef-fish',
+        affects: 'reef-dweller',
         grants: { attack: 1, health: 1 },
         note: 'a whole storey of shade to hunt out of',
       },
       {
-        affects: 'coral',
+        affects: 'reef-builder',
         grants: { health: 1 },
         note: 'thickens the framework around it',
       },
@@ -620,6 +627,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Charonia tritonis',
     type: 'creature',
     taxon: 'mollusc',
+    niche: 'bottom-dweller',
     cost: 4,
     attack: 3,
     health: 5,
@@ -643,6 +651,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Hapalochlaena lunulata',
     type: 'creature',
     taxon: 'mollusc',
+    niche: 'bottom-dweller',
     cost: 3,
     attack: 2,
     health: 3,
@@ -659,6 +668,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Sepioteuthis lessoniana',
     type: 'creature',
     taxon: 'mollusc',
+    niche: 'open-water',
     cost: 3,
     attack: 3,
     health: 3,
@@ -680,6 +690,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Diadema setosum',
     type: 'creature',
     taxon: 'echinoderm',
+    niche: 'bottom-dweller',
     cost: 3,
     attack: 0,
     health: 6,
@@ -696,6 +707,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Linckia laevigata',
     type: 'creature',
     taxon: 'echinoderm',
+    niche: 'bottom-dweller',
     cost: 2,
     attack: 1,
     health: 4,
@@ -715,7 +727,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Holothuria atra',
     type: 'creature',
     taxon: 'echinoderm',
-    cost: 2,
+    niche: 'bottom-dweller',
+    // Cost 3, not 2: it carries the only aura the flat has, on top of a wall and
+    // an arrival.
+    cost: 3,
     attack: 0,
     health: 6,
     keywords: ['reef-guard'],
@@ -724,6 +739,15 @@ export const CARDS: readonly CardDefinition[] = [
       amount: 1,
       note: 'starts turning sediment over the moment it settles',
     },
+    // The flat needed a relationship of its own. Seventeen species live down
+    // there and nothing was reaching any of them.
+    auras: [
+      {
+        affects: 'bottom-dweller',
+        grants: { health: 1 },
+        note: 'turns the sediment over, and everything on the flat lives off it',
+      },
+    ],
     tide: {
       low: { health: 1 },
     },
@@ -735,13 +759,14 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Stenopus hispidus',
     type: 'creature',
     taxon: 'crustacean',
+    niche: 'bottom-dweller',
     cost: 2,
     attack: 1,
     health: 2,
     // A second cleaner, so the cleaning-station aura is not one card deep.
     auras: [
       {
-        affects: 'megafauna',
+        affects: 'open-water',
         grants: { health: 1 },
         note: 'picks parasites off anything patient enough to queue',
       },
@@ -757,6 +782,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Birgus latro',
     type: 'creature',
     taxon: 'crustacean',
+    niche: 'bottom-dweller',
     cost: 5,
     attack: 5,
     health: 5,
@@ -773,6 +799,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Laticauda colubrina',
     type: 'creature',
     taxon: 'reptile',
+    niche: 'reef-dweller',
     cost: 4,
     attack: 3,
     health: 4,
@@ -794,12 +821,12 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Eretmochelys imbricata',
     type: 'creature',
     taxon: 'reptile',
+    niche: 'open-water',
     cost: 4,
     attack: 2,
     health: 6,
     keywords: ['reef-guard', 'toxin-immune'],
     armour: 2,
-    traits: ['megafauna'],
     tide: {
       high: { health: 1 },
     },
@@ -811,15 +838,15 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Millepora dichotoma',
     type: 'structure',
     taxon: 'cnidarian',
+    niche: 'reef-builder',
     cost: 3,
     attack: 0,
     health: 5,
     keywords: ['toxic'],
-    traits: ['coral'],
     spines: 2,
     auras: [
       {
-        affects: 'coral',
+        affects: 'reef-builder',
         grants: { health: 1 },
         note: 'grows into the framework beside it',
       },
@@ -836,14 +863,14 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Diploria labyrinthiformis',
     type: 'structure',
     taxon: 'cnidarian',
+    niche: 'reef-builder',
     cost: 4,
     attack: 0,
     health: 9,
     keywords: ['reef-guard'],
-    traits: ['coral'],
     auras: [
       {
-        affects: 'coral',
+        affects: 'reef-builder',
         grants: { health: 2 },
         note: 'the boulder the rest of the reef builds against',
       },
@@ -860,13 +887,13 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Gorgonia ventalina',
     type: 'structure',
     taxon: 'cnidarian',
+    niche: 'reef-builder',
     cost: 2,
     attack: 0,
     health: 4,
-    traits: ['coral'],
     auras: [
       {
-        affects: 'reef-fish',
+        affects: 'reef-dweller',
         grants: { health: 1 },
         note: 'a thicket to hang in out of the current',
       },
@@ -884,10 +911,10 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Aetobatus narinari',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 4,
     attack: 3,
     health: 5,
-    traits: ['megafauna'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -905,11 +932,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Nebrius ferrugineus',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 4,
     attack: 2,
     health: 7,
     keywords: ['reef-guard'],
-    traits: ['megafauna'],
     tide: {
       low: { health: 1 },
       falling: { attack: 1 },
@@ -928,6 +955,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Aipysurus laevis',
     type: 'creature',
     taxon: 'reptile',
+    niche: 'open-water',
     cost: 3,
     attack: 3,
     health: 3,
@@ -944,13 +972,13 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Caretta caretta',
     type: 'creature',
     taxon: 'reptile',
+    niche: 'open-water',
     cost: 5,
     attack: 5,
     health: 5,
     // The turtle that goes through a shell rather than around it.
     keywords: ['pierce'],
     armour: 1,
-    traits: ['megafauna'],
     tide: {
       high: { attack: 1 },
       falling: { attack: 1 },
@@ -963,15 +991,15 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Carcharhinus amblyrhynchos',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 4,
     attack: 3,
     health: 4,
-    traits: ['megafauna'],
     // The only aura in the set that grants attack to the big animals: this is
     // the shark that hunts in numbers and makes the others braver.
     auras: [
       {
-        affects: 'megafauna',
+        affects: 'open-water',
         grants: { attack: 1 },
         note: 'hunts in numbers, and the rest of the pack comes in behind it',
       },
@@ -988,6 +1016,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Taeniura lymma',
     type: 'creature',
     taxon: 'shark-ray',
+    niche: 'open-water',
     cost: 3,
     attack: 2,
     health: 4,
@@ -1004,6 +1033,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Hymenocera picta',
     type: 'creature',
     taxon: 'crustacean',
+    niche: 'bottom-dweller',
     cost: 2,
     attack: 2,
     health: 2,
@@ -1020,6 +1050,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Conus textile',
     type: 'creature',
     taxon: 'mollusc',
+    niche: 'bottom-dweller',
     cost: 3,
     attack: 2,
     health: 4,
@@ -1036,6 +1067,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Comanthina schlegelii',
     type: 'creature',
     taxon: 'echinoderm',
+    niche: 'bottom-dweller',
     cost: 2,
     attack: 0,
     health: 5,
@@ -1061,11 +1093,11 @@ const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) =>
  * cannot drift from the set. A trait nothing reads comes back empty, which is
  * the honest answer: it is decoration on this card until something reads it.
  */
-export function auraSourcesFor(trait: Trait): { card: CardDefinition; aura: Aura }[] {
+export function auraSourcesFor(niche: Niche): { card: CardDefinition; aura: Aura }[] {
   const out: { card: CardDefinition; aura: Aura }[] = [];
   for (const card of CARDS) {
     for (const aura of card.auras ?? []) {
-      if (aura.affects === trait) out.push({ card, aura });
+      if (aura.affects === niche) out.push({ card, aura });
     }
   }
   return out;
@@ -1108,9 +1140,9 @@ export function piercesArmour(definitionId: string): boolean {
   return getCard(definitionId).keywords?.includes('pierce') ?? false;
 }
 
-/** All traits a card carries, for clients that group or filter by them. */
-export function traitsOf(definitionId: string): readonly Trait[] {
-  return getCard(definitionId).traits ?? [];
+/** The niche a card occupies — how and where it lives. */
+export function nicheOf(definitionId: string): Niche {
+  return getCard(definitionId).niche;
 }
 
 /**
@@ -1127,7 +1159,7 @@ export function activeSymbioses(
     for (const aura of auras) {
       for (const target of board) {
         if (target.instanceId === source.instanceId) continue;
-        if (!traitsOf(target.definitionId).includes(aura.affects)) continue;
+        if (nicheOf(target.definitionId) !== aura.affects) continue;
         links.push({ sourceId: source.instanceId, targetId: target.instanceId, aura });
       }
     }

@@ -26,6 +26,7 @@ const SOURCE_LABEL: Record<EnergySource, string> = {
   tide: 'Tide',
   card: 'Species',
   conservation: 'Conservation',
+  compensation: 'Second turn',
 };
 
 export interface EnergyPanelProps {

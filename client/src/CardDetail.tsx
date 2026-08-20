@@ -15,7 +15,7 @@ import { useEffect, useRef } from 'react';
 import {
   TAXON_LABEL,
   TIDE_CYCLE,
-  TRAIT_NOTE,
+  NICHE_NOTE,
   type ArrivalEffect,
   effectiveStats,
   getCard,
@@ -188,9 +188,9 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </section>
         )}
 
-        {(def.keywords?.length || def.traits?.length || def.armour || def.spines) && (
+        {(def.keywords?.length || def.armour || def.spines || def.niche) && (
           <section className="detail__section">
-            <h3 className="detail__h">Traits and keywords</h3>
+            <h3 className="detail__h">Niche and keywords</h3>
             <dl className="detail__glossary">
               {def.keywords?.map((k) => (
                 <div key={k} className="detail__entry">
@@ -225,17 +225,14 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                 </div>
               ) : null}
 
-              {/* Every trait says what it is. What reads it is a question about
-                  balancing the set, not about whether to play this card, so it is
-                  not on the card. */}
-              {def.traits?.map((t) => (
-                  <div key={t} className="detail__entry">
-                    <dt>
-                      <span className={`tag tag--trait tag--trait-${t}`}>{t}</span>
-                    </dt>
-                    <dd>{TRAIT_NOTE[t]}</dd>
-                  </div>
-              ))}
+              {/* One niche per card: how and where it lives, which is the axis
+                  every aura in the game is aimed at. */}
+              <div className="detail__entry">
+                <dt>
+                  <span className={`tag tag--niche tag--niche-${def.niche}`}>{def.niche}</span>
+                </dt>
+                <dd>{NICHE_NOTE[def.niche]}</dd>
+              </div>
             </dl>
           </section>
         )}

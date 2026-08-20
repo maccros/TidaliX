@@ -81,12 +81,6 @@ function beginTurn(draft: GameState, events: GameEvent[]): void {
   // reads whatever is still unspent from last turn.
   const income = energyIncome(draft, player.id);
 
-  // The other correction: a one-off payment to whoever moves second, on the
-  // first turn they take. Off by default — see the measurement in the README.
-  const owedForGoingSecond =
-    player.id !== draft.startingPlayer && draft.turn <= 2
-      ? draft.config.secondPlayerBonusEnergy
-      : 0;
 
   // Base capacity steps up once per *complete tide cycle*, not once per round.
   // That is deliberate: a slow ceiling is what forces the reef to be the engine.
@@ -101,16 +95,6 @@ function beginTurn(draft: GameState, events: GameEvent[]): void {
       source: line.source,
     });
   }
-  if (owedForGoingSecond > 0) {
-    player.energy += owedForGoingSecond;
-    events.push({
-      type: 'ENERGY_GAINED',
-      player: player.id,
-      amount: owedForGoingSecond,
-      source: 'turn',
-    });
-  }
-
   // The receipt, kept so the player can be shown what they actually collected
   // this turn beside what they are projected to collect next turn.
   player.incomeThisTurn = income.lines;
@@ -124,7 +108,8 @@ function beginTurn(draft: GameState, events: GameEvent[]): void {
   // something extra to keep track of.
   const skipsDraw =
     draft.turn === 1 && draft.config.firstPlayerSkipsDraw && player.id === draft.startingPlayer;
-  if (!skipsDraw) draw(draft, player.id, events);
+  if (skipsDraw) events.push({ type: 'TURN_SKIPPED_DRAW', player: player.id });
+  else draw(draft, player.id, events);
   sweepDeaths(draft, events);
 }
 
