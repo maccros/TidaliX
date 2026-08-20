@@ -103,15 +103,31 @@
   .card__text { margin: 0; font-size: .86rem; color: var(--ink-soft); line-height: 1.5; }
   .card__meta { margin: 0; display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
   .printed { font-family: var(--mono); font-size: .72rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-  .kw { font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; padding: .18em .5em; border-radius: 2px; border: 1px solid var(--line); color: var(--ink-soft); background: var(--ground); }
-  .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
-  .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
-  .kw--armour { color: var(--high); border-color: var(--high); background: color-mix(in srgb, var(--high) 14%, transparent); font-weight: 700; }
-  .kw--trait-reef-fish { color: #1f7d8c; border-color: color-mix(in srgb, #1f7d8c 50%, transparent); }
-  .kw--trait-megafauna { color: #4b4a9c; border-color: color-mix(in srgb, #4b4a9c 50%, transparent); }
-  .kw--trait-coral { color: #c2603f; border-color: color-mix(in srgb, #c2603f 50%, transparent); }
-  .kw--trait-anemone { color: #9c4a86; border-color: color-mix(in srgb, #9c4a86 50%, transparent); }
-  .kw--trait-anemonefish { color: #b07a1e; border-color: color-mix(in srgb, #b07a1e 50%, transparent); }
+  .kw {
+    font-family: var(--mono); font-size: .62rem; letter-spacing: .05em; text-transform: uppercase;
+    padding: .1em .38em; border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--b, #c4d1d4) 55%, transparent);
+    color: var(--b, #6d858c);
+  }
+  .kw--surge, .kw--reef-guard, .kw--toxic, .kw--toxin-immune,
+  .kw--pierce, .kw--armour, .kw--spines, .kw--arrival {
+    background: color-mix(in srgb, var(--b) 13%, transparent); font-weight: 700;
+  }
+  .kw--surge { --b: #b8791f; }
+  .kw--reef-guard { --b: #2b5f9e; }
+  .kw--toxic { --b: #b3342b; }
+  .kw--toxin-immune { --b: #2f8570; }
+  .kw--pierce { --b: #7a4bb5; }
+  .kw--armour { --b: #8a6a3a; }
+  .kw--spines { --b: #b5316e; }
+  .kw--arrival { --b: #0b7c8c; }
+  .kw--structure { --b: #6d858c; }
+  .kw--taxon { --b: #2f8570; text-transform: none; }
+  .kw--trait-reef-fish { --b: #0f7d9e; }
+  .kw--trait-megafauna { --b: #4a4bb0; }
+  .kw--trait-coral { --b: #c2622a; }
+  .kw--trait-anemone { --b: #9c3f9e; }
+  .kw--trait-anemonefish { --b: #5f8a2a; }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }
@@ -161,7 +177,7 @@
 <div class="wrap">
 
   <header class="mast">
-    <p class="mast__eyebrow">Reef Flat &middot; starter set &middot; 43 species</p>
+    <p class="mast__eyebrow">Reef Flat &middot; starter set &middot; 50 species</p>
     <h1>TidaliX <span>Field Guide</span></h1>
     <p class="lede">
       Every rule the engine actually enforces, and every species in the set with
@@ -379,7 +395,7 @@
         <td class="sym__from">Bluestreak Cleaner Wrasse</td>
         <td><code>megafauna</code></td>
         <td class="sym__grant"><b>0/+2</b></td>
-        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark</td>
+        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark, Loggerhead Turtle, Grey Reef Shark</td>
         <td class="sym__note">picks parasites off anything big enough to queue for it</td>
       </tr>
       <tr class="">
@@ -428,7 +444,7 @@
         <td class="sym__from">Banded Coral Shrimp</td>
         <td><code>megafauna</code></td>
         <td class="sym__grant"><b>0/+1</b></td>
-        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark</td>
+        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark, Loggerhead Turtle, Grey Reef Shark</td>
         <td class="sym__note">picks parasites off anything patient enough to queue</td>
       </tr>
       <tr class="">
@@ -452,6 +468,13 @@
         <td class="sym__who">Atlantic Mudskipper, Coral Grouper, Mangrove Jack, Moorish Idol, Giant Moray, Clown Anemonefish, Clown Triggerfish, Regal Blue Tang, Bluestreak Cleaner Wrasse, Blackspotted Puffer, Red Lionfish</td>
         <td class="sym__note">a thicket to hang in out of the current</td>
       </tr>
+      <tr class="">
+        <td class="sym__from">Grey Reef Shark</td>
+        <td><code>megafauna</code></td>
+        <td class="sym__grant"><b>+1/0</b></td>
+        <td class="sym__who">Reef Manta Ray, Blacktip Reef Shark, Whitetip Reef Shark, Green Sea Turtle, Bumphead Parrotfish, Giant Trevally, Great Barracuda, Hawksbill Turtle, Spotted Eagle Ray, Tawny Nurse Shark, Loggerhead Turtle</td>
+        <td class="sym__note">hunts in numbers, and the rest of the pack comes in behind it</td>
+      </tr>
         </tbody>
       </table>
     </div>
@@ -470,22 +493,22 @@
       <div class="wants__col wants--low">
       <h4 class="wants__phase">low</h4>
       <p class="wants__income">pays nothing</p>
-      <ul class="wants__list"><li>Atlantic Mudskipper</li><li>Sally Lightfoot Crab</li><li>Horn-eyed Ghost Crab</li><li>Common Octopus</li><li>Rock-boring Urchin</li><li>Whitetip Reef Shark</li><li>Giant Moray</li><li>Giant Triton</li><li>Blue-ringed Octopus</li><li>Long-spined Urchin</li><li>Blue Sea Star</li><li>Black Sea Cucumber</li><li>Coconut Crab</li><li>Banded Sea Krait</li><li>Tawny Nurse Shark</li></ul>
+      <ul class="wants__list"><li>Atlantic Mudskipper</li><li>Sally Lightfoot Crab</li><li>Horn-eyed Ghost Crab</li><li>Common Octopus</li><li>Rock-boring Urchin</li><li>Whitetip Reef Shark</li><li>Giant Moray</li><li>Giant Triton</li><li>Blue-ringed Octopus</li><li>Long-spined Urchin</li><li>Blue Sea Star</li><li>Black Sea Cucumber</li><li>Coconut Crab</li><li>Banded Sea Krait</li><li>Tawny Nurse Shark</li><li>Harlequin Shrimp</li></ul>
     </div>
     <div class="wants__col wants--rising">
       <h4 class="wants__phase">rising</h4>
       <p class="wants__income">pays +2 energy</p>
-      <ul class="wants__list"><li>Peacock Mantis Shrimp</li><li>Coral Grouper</li><li>Mangrove Jack</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Regal Blue Tang</li><li>Bubble-tip Anemone</li><li>Blackspotted Puffer</li><li>Bigfin Reef Squid</li><li>Banded Coral Shrimp</li></ul>
+      <ul class="wants__list"><li>Peacock Mantis Shrimp</li><li>Coral Grouper</li><li>Mangrove Jack</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Regal Blue Tang</li><li>Bubble-tip Anemone</li><li>Blackspotted Puffer</li><li>Bigfin Reef Squid</li><li>Banded Coral Shrimp</li><li>Blue-spotted Ribbontail Ray</li></ul>
     </div>
     <div class="wants__col wants--high">
       <h4 class="wants__phase">high</h4>
       <p class="wants__income">pays +1 energy</p>
-      <ul class="wants__list"><li>Coral Grouper</li><li>Reef Manta Ray</li><li>Blacktip Reef Shark</li><li>Whitetip Reef Shark</li><li>Green Sea Turtle</li><li>Bumphead Parrotfish</li><li>Staghorn Coral</li><li>Table Coral</li><li>Banded Sea Krait</li><li>Hawksbill Turtle</li><li>Spotted Eagle Ray</li></ul>
+      <ul class="wants__list"><li>Coral Grouper</li><li>Reef Manta Ray</li><li>Blacktip Reef Shark</li><li>Whitetip Reef Shark</li><li>Green Sea Turtle</li><li>Bumphead Parrotfish</li><li>Staghorn Coral</li><li>Table Coral</li><li>Banded Sea Krait</li><li>Hawksbill Turtle</li><li>Spotted Eagle Ray</li><li>Olive Sea Snake</li><li>Loggerhead Turtle</li><li>Grey Reef Shark</li></ul>
     </div>
     <div class="wants__col wants--falling">
       <h4 class="wants__phase">falling</h4>
       <p class="wants__income">pays nothing</p>
-      <ul class="wants__list"><li>Giant Trevally</li><li>Great Barracuda</li><li>Giant Moray</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Red Lionfish</li><li>Giant Triton</li><li>Tawny Nurse Shark</li></ul>
+      <ul class="wants__list"><li>Giant Trevally</li><li>Great Barracuda</li><li>Giant Moray</li><li>Clown Anemonefish</li><li>Clown Triggerfish</li><li>Red Lionfish</li><li>Giant Triton</li><li>Tawny Nurse Shark</li><li>Loggerhead Turtle</li><li>Textile Cone Snail</li></ul>
     </div>
     </div>
   </section>

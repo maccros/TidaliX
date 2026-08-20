@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { applyAction, legalActions, startGame } from '../src/resolver.js';
-import { DEFAULT_CONFIG, boardView, createGame, resetInstanceIds } from '../src/state.js';
+import { DEFAULT_CONFIG, boardView, createGame, opponentOf, resetInstanceIds } from '../src/state.js';
 import { conservedSpecies, energyIncome } from '../src/economy.js';
 import type {
   ActionResult,
@@ -80,11 +80,64 @@ beforeEach(() => resetInstanceIds());
 describe('game setup', () => {
   it('deals opening hands and leaves the rest in the deck', () => {
     const state = createGame({ seed: 7 });
-    expect(state.players[0].hand).toHaveLength(state.config.startingHandSize);
-    expect(state.players[1].hand).toHaveLength(state.config.startingHandSize);
+    // Whoever moves second is dealt extra, as compensation for moving second.
+    expect(state.players[state.startingPlayer].hand).toHaveLength(state.config.startingHandSize);
+    expect(state.players[opponentOf(state.startingPlayer)].hand).toHaveLength(
+      state.config.startingHandSize + state.config.secondPlayerBonusCards,
+    );
     expect(state.turn).toBe(0);
     expect(state.phase).toBe('low');
     expect(state.winner).toBeUndefined();
+  });
+
+  it('pays whoever moves second, and only on their first turn', () => {
+    // Moving first is worth about 63% of games; this is what it costs.
+    const cfg = { secondPlayerBonusCards: 1, secondPlayerBonusEnergy: 1 };
+    // Checked before `startGame`, which runs the opener's first draw and would
+    // otherwise hide the extra card behind it.
+    const dealt = createGame({
+      seed: 7,
+      startingPlayer: 0,
+      config: { ...cfg, carryOverCap: 0 },
+    });
+    // Explicitly off — the shipped default now *has* the bonus, so a game
+    // created without a config is not a control.
+    const control = createGame({
+      seed: 7,
+      startingPlayer: 0,
+      config: { secondPlayerBonusCards: 0, secondPlayerBonusEnergy: 0, carryOverCap: 0 },
+    });
+    expect(dealt.players[1].hand.length - control.players[1].hand.length).toBe(1);
+    expect(dealt.players[0].hand.length).toBe(control.players[0].hand.length);
+
+    // Energy is compared against an identical game without the bonus, because
+    // income grows on its own and an absolute number proves nothing. Carry-over
+    // is switched off in both, or the unspent bonus would follow player 1 into
+    // every later turn and the "only once" half could not be seen.
+    const energyAt = (game: ReturnType<typeof createGame>, turns: number) => {
+      let s = startGame(game).state;
+      for (let i = 0; i < turns; i++) s = must(s, { type: 'END_TURN', player: s.activePlayer }).state;
+      return s.players[1].energy;
+    };
+
+    // One end-turn in, it is player 1's first turn.
+    expect(energyAt(dealt, 1) - energyAt(control, 1)).toBe(1);
+    // Three end-turns in, it is player 1's second, and the payment is over.
+    expect(energyAt(dealt, 3) - energyAt(control, 3)).toBe(0);
+  });
+
+  it('opens both players at low tide, whoever moves first', () => {
+    // The tide used to advance whenever *player 1* ended a turn, which assumed
+    // player 0 always opened. With an AI opening, the human's first turn landed
+    // on the rising tide — a phase into a game they had not played yet.
+    for (const startingPlayer of [0, 1] as const) {
+      let s = startGame(createGame({ seed: 5, startingPlayer })).state;
+      expect(s.phase).toBe('low');
+      s = must(s, { type: 'END_TURN', player: s.activePlayer }).state;
+      expect(s.phase, 'still low for the second player of round one').toBe('low');
+      s = must(s, { type: 'END_TURN', player: s.activePlayer }).state;
+      expect(s.phase, 'turns once the round is complete').toBe('rising');
+    }
   });
 
   it('is deterministic for a given seed', () => {

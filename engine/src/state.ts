@@ -73,6 +73,25 @@ export const DEFAULT_CONFIG: GameConfig = {
   // trusting this number — it is a property of what the deck can deal, and it
   // has been wrong twice for exactly that reason.
   conservationVictory: 4,
+
+  // Compensation for moving second, because moving first is worth about 63% of
+  // games. Measured over 480 games per option, counting wins by who *started*
+  // with every seed run from both seats:
+  //
+  //   nothing                    normal 67.1%   hard 59.6%
+  //   first skips its draw       normal 64.6%   hard 64.4%   (barely moves it)
+  //   second +1 card             normal 65.0%   hard 66.2%   (does not work)
+  //   second +1 card +1 energy   normal 62.1%   hard 55.4%   <- this
+  //   all three                  normal 58.3%   hard 54.6%
+  //   second +1 card +2 energy   normal 55.8%   hard 52.1%   (closest to even)
+  //
+  // Skipping the first draw on its own does almost nothing, so it is off. The
+  // card and the energy together do work, and +2 energy works better still —
+  // left at +1 deliberately, because a bot that races is not a person and the
+  // residual gap should be re-measured against real play before over-correcting.
+  firstPlayerSkipsDraw: false,
+  secondPlayerBonusCards: 1,
+  secondPlayerBonusEnergy: 1,
 };
 
 let instanceCounter = 0;
@@ -181,6 +200,7 @@ export function createGame(options: CreateGameOptions = {}): GameState {
   }
 
   const state: GameState = {
+    startingPlayer,
     turn: 0,
     round: 0,
     phase: config.startingPhase,
@@ -192,9 +212,11 @@ export function createGame(options: CreateGameOptions = {}): GameState {
     config,
   };
 
-  // Opening hands, dealt without triggering draw events or fatigue.
+  // Opening hands, dealt without triggering draw events or fatigue. Whoever
+  // moves second may be dealt extra, as compensation for moving second.
   for (const player of state.players) {
-    for (let i = 0; i < config.startingHandSize; i++) {
+    const extra = player.id === startingPlayer ? 0 : config.secondPlayerBonusCards;
+    for (let i = 0; i < config.startingHandSize + extra; i++) {
       const card = player.deck.shift();
       if (card) player.hand.push(card);
     }

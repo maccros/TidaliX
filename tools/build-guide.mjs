@@ -336,15 +336,31 @@ const html = `<title>TidaliX Field Guide</title>
   .card__text { margin: 0; font-size: .86rem; color: var(--ink-soft); line-height: 1.5; }
   .card__meta { margin: 0; display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
   .printed { font-family: var(--mono); font-size: .72rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-  .kw { font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; padding: .18em .5em; border-radius: 2px; border: 1px solid var(--line); color: var(--ink-soft); background: var(--ground); }
-  .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
-  .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
-  .kw--armour { color: var(--high); border-color: var(--high); background: color-mix(in srgb, var(--high) 14%, transparent); font-weight: 700; }
-  .kw--trait-reef-fish { color: #1f7d8c; border-color: color-mix(in srgb, #1f7d8c 50%, transparent); }
-  .kw--trait-megafauna { color: #4b4a9c; border-color: color-mix(in srgb, #4b4a9c 50%, transparent); }
-  .kw--trait-coral { color: #c2603f; border-color: color-mix(in srgb, #c2603f 50%, transparent); }
-  .kw--trait-anemone { color: #9c4a86; border-color: color-mix(in srgb, #9c4a86 50%, transparent); }
-  .kw--trait-anemonefish { color: #b07a1e; border-color: color-mix(in srgb, #b07a1e 50%, transparent); }
+  .kw {
+    font-family: var(--mono); font-size: .62rem; letter-spacing: .05em; text-transform: uppercase;
+    padding: .1em .38em; border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--b, #c4d1d4) 55%, transparent);
+    color: var(--b, #6d858c);
+  }
+  .kw--surge, .kw--reef-guard, .kw--toxic, .kw--toxin-immune,
+  .kw--pierce, .kw--armour, .kw--spines, .kw--arrival {
+    background: color-mix(in srgb, var(--b) 13%, transparent); font-weight: 700;
+  }
+  .kw--surge { --b: #b8791f; }
+  .kw--reef-guard { --b: #2b5f9e; }
+  .kw--toxic { --b: #b3342b; }
+  .kw--toxin-immune { --b: #2f8570; }
+  .kw--pierce { --b: #7a4bb5; }
+  .kw--armour { --b: #8a6a3a; }
+  .kw--spines { --b: #b5316e; }
+  .kw--arrival { --b: #0b7c8c; }
+  .kw--structure { --b: #6d858c; }
+  .kw--taxon { --b: #2f8570; text-transform: none; }
+  .kw--trait-reef-fish { --b: #0f7d9e; }
+  .kw--trait-megafauna { --b: #4a4bb0; }
+  .kw--trait-coral { --b: #c2622a; }
+  .kw--trait-anemone { --b: #9c3f9e; }
+  .kw--trait-anemonefish { --b: #5f8a2a; }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }

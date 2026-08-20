@@ -369,6 +369,19 @@ export interface GameConfig {
    */
   conservationIncomePer: number;
   /**
+   * The player who moves first does not draw on their first turn.
+   *
+   * Moving first is worth roughly 62% of games, so it has to be paid for
+   * somehow. This is the cheapest correction available: one rule, no extra
+   * state, and it takes from the advantaged side rather than handing the other
+   * side something.
+   */
+  firstPlayerSkipsDraw: boolean;
+  /** Extra cards dealt to whoever moves second, as compensation. */
+  secondPlayerBonusCards: number;
+  /** Extra energy for whoever moves second, paid on their first turn only. */
+  secondPlayerBonusEnergy: number;
+  /**
    * Distinct lineages conserved to win outright. The second win condition: play
    * for damage, or play for the reef. Zero disables it.
    */
@@ -381,6 +394,8 @@ export interface RngState {
 }
 
 export interface GameState {
+  /** Who took the first turn. Needed to price the second player's compensation. */
+  startingPlayer: PlayerId;
   /** Increments once per player turn. */
   turn: number;
   /** Increments once both players have taken a turn. */

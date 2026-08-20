@@ -913,6 +913,140 @@ export const CARDS: readonly CardDefinition[] = [
     },
     text: 'Sucks prey out of a crevice hard enough that you hear it from the surface.',
   },
+  /* ---------------------------------------------------------------- */
+  /* Levelling the thin lineages                                       */
+  /*                                                                   */
+  /* Seven more, all outside the fish, taking every lineage to five or */
+  /* more and fish down to 28% of the set.                             */
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'olive-sea-snake',
+    name: 'Olive Sea Snake',
+    species: 'Aipysurus laevis',
+    type: 'creature',
+    taxon: 'reptile',
+    cost: 3,
+    attack: 3,
+    health: 3,
+    keywords: ['toxic'],
+    tide: {
+      high: { attack: 1 },
+      low: { attack: -1 },
+    },
+    text: 'Curious to the point of nuisance. Divers report being followed home.',
+  },
+  {
+    id: 'loggerhead-turtle',
+    name: 'Loggerhead Turtle',
+    species: 'Caretta caretta',
+    type: 'creature',
+    taxon: 'reptile',
+    cost: 5,
+    attack: 5,
+    health: 5,
+    // The turtle that goes through a shell rather than around it.
+    keywords: ['pierce'],
+    armour: 1,
+    traits: ['megafauna'],
+    tide: {
+      high: { attack: 1 },
+      falling: { attack: 1 },
+    },
+    text: 'Jaws that crush a conch whole. Nobody has found the shell it cannot open.',
+  },
+  {
+    id: 'grey-reef-shark',
+    name: 'Grey Reef Shark',
+    species: 'Carcharhinus amblyrhynchos',
+    type: 'creature',
+    taxon: 'shark-ray',
+    cost: 4,
+    attack: 3,
+    health: 4,
+    traits: ['megafauna'],
+    // The only aura in the set that grants attack to the big animals: this is
+    // the shark that hunts in numbers and makes the others braver.
+    auras: [
+      {
+        affects: 'megafauna',
+        grants: { attack: 1 },
+        note: 'hunts in numbers, and the rest of the pack comes in behind it',
+      },
+    ],
+    tide: {
+      high: { attack: 1 },
+      low: { attack: -1, exposed: true },
+    },
+    text: 'Arches its back and drops its fins as a warning. It only warns once.',
+  },
+  {
+    id: 'blue-spotted-ribbontail-ray',
+    name: 'Blue-spotted Ribbontail Ray',
+    species: 'Taeniura lymma',
+    type: 'creature',
+    taxon: 'shark-ray',
+    cost: 3,
+    attack: 2,
+    health: 4,
+    keywords: ['toxic'],
+    tide: {
+      rising: { attack: 1 },
+      low: { exposed: true },
+    },
+    text: 'Two venomous barbs held over its back, and it does not hesitate to use them.',
+  },
+  {
+    id: 'harlequin-shrimp',
+    name: 'Harlequin Shrimp',
+    species: 'Hymenocera picta',
+    type: 'creature',
+    taxon: 'crustacean',
+    cost: 2,
+    attack: 2,
+    health: 2,
+    // Eats sea stars for a living, which is why it goes through their armour.
+    keywords: ['pierce'],
+    tide: {
+      low: { attack: 1 },
+    },
+    text: 'Eats sea stars alive, arm by arm, and keeps the rest of the animal fresh.',
+  },
+  {
+    id: 'textile-cone-snail',
+    name: 'Textile Cone Snail',
+    species: 'Conus textile',
+    type: 'creature',
+    taxon: 'mollusc',
+    cost: 3,
+    attack: 2,
+    health: 4,
+    keywords: ['toxic'],
+    armour: 2,
+    tide: {
+      falling: { attack: 1 },
+    },
+    text: 'Fires a harpoon on a stalk of flesh. The shell is the pretty part.',
+  },
+  {
+    id: 'feather-star',
+    name: 'Feather Star',
+    species: 'Comanthina schlegelii',
+    type: 'creature',
+    taxon: 'echinoderm',
+    cost: 2,
+    attack: 0,
+    health: 5,
+    arrival: {
+      kind: 'forage',
+      amount: 1,
+      note: 'opens into the current the moment it has something to climb',
+    },
+    tide: {
+      rising: { energy: 1 },
+      falling: { energy: 1 },
+    },
+    text: 'Climbs to the top of a sea fan at dusk and opens its arms into the current.',
+  },
 ];
 
 const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) => [c.id, c]));

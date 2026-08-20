@@ -25,14 +25,32 @@
   --warn: #a8432b;
   --good: #2f8570;
 
-  /* One hue per trait, so a badge is recognised before it is read. Kept clear
-     of the keyword colours, which are already spoken for: surge is ochre,
-     reef-guard and armour blue, toxic and spines red, toxin-immune green. */
-  --t-reef-fish: #1f7d8c;
-  --t-megafauna: #4b4a9c;
-  --t-coral: #c2603f;
-  --t-anemone: #9c4a86;
-  --t-anemonefish: #b07a1e;
+  /*
+   * One hue per badge, and equal visual weight across all of them.
+   *
+   * Three pairs used to collide outright: toxic and spines were both --warn and
+   * so literally identical, armour shared --high with reef-guard, and pierce
+   * shared --accent with arrival. Weight was uneven too — toxic shouted while
+   * armour whispered — which made the loud ones feel like the important ones
+   * rather than the ones that happened to be red.
+   *
+   * Filled badges are rules the resolver runs. Outlined badges are traits, which
+   * only matter through somebody else's aura. Same alpha throughout, so hue is
+   * the only thing carrying meaning.
+   */
+  --b-toxic:        #b3342b;
+  --b-spines:       #b5316e;
+  --b-armour:       #8a6a3a;
+  --b-surge:        #b8791f;
+  --b-immune:       #2f8570;
+  --b-pierce:       #7a4bb5;
+  --b-guard:        #2b5f9e;
+  --b-arrival:      #0b7c8c;
+  --b-reef-fish:    #0f7d9e;
+  --b-megafauna:    #4a4bb0;
+  --b-coral:        #c2622a;
+  --b-anemone:      #9c3f9e;
+  --b-anemonefish:  #5f8a2a;
 
   --serif: Georgia, 'Iowan Old Style', Palatino, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -60,11 +78,19 @@
     --warn: #e5765f;
     --good: #58bda1;
 
-    --t-reef-fish: #4fb8c9;
-    --t-megafauna: #8f8ee0;
-    --t-coral: #e9926f;
-    --t-anemone: #d68cc2;
-    --t-anemonefish: #dfae55;
+    --b-toxic:        #e5765f;
+    --b-spines:       #ec7aa8;
+    --b-armour:       #c9a874;
+    --b-surge:        #e0a94e;
+    --b-immune:       #58bda1;
+    --b-pierce:       #b18ae8;
+    --b-guard:        #6d9ee0;
+    --b-arrival:      #52bccd;
+    --b-reef-fish:    #4fb8d6;
+    --b-megafauna:    #8f8ee8;
+    --b-coral:        #e9926f;
+    --b-anemone:      #d68cd6;
+    --b-anemonefish:  #a8cc66;
   }
 }
 
@@ -226,10 +252,75 @@ button { font: inherit; color: inherit; }
 .card--support { opacity: 1; }
 /* The arrival is what happens when you play the card, so it leads the effects. */
 .card__arrival {
-  margin: 0; font-size: 0.63rem; color: var(--accent);
+  margin: 0; font-size: 0.63rem; color: var(--b-arrival);
   display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
   padding: 0.15rem 0.3rem; border-radius: 2px;
-  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
+}
+.card__arrival-mark { opacity: 0.8; }
+.card__arrival-note { color: var(--ink-faint); font-style: italic; }
+
+.card.is-linked {
+  box-shadow: 0 0 0 2px var(--good);
+  background: color-mix(in srgb, var(--good) 9%, var(--surface));
+}
+/* A matured species: quietly marked, never shouting over an attack prompt. */
+.card.is-releasable { border-color: color-mix(in srgb, var(--good) 65%, var(--line)); }
+.card[aria-disabled='true'] { cursor: default; }
+.card.is-exposed {
+  background-image: repeating-linear-gradient(
+    -45deg, transparent 0 6px, color-mix(in srgb, var(--warn) 13%, transparent) 6px 8px
+  );
+}
+.card.is-poisoned { opacity: 0.55; filter: grayscale(0.5); }
+
+.card__top { display: flex; gap: 0.45rem; align-items: flex-start; }
+.card__cost {
+  flex: none; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--sunken); color: var(--accent);
+  font-family: var(--mono); font-weight: 700; font-size: 0.82rem;
+}
+.card__title { display: flex; flex-direction: column; min-width: 0; }
+.card__name { font-family: var(--serif); font-size: 0.92rem; font-weight: 600; line-height: 1.15; }
+.card__species { font-family: var(--serif); font-size: 0.7rem; color: var(--ink-faint); }
+.card__text { margin: 0; font-size: 0.68rem; color: var(--ink-soft); line-height: 1.35; }
+
+.card__tags { display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: auto; }
+.tag {
+  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.1em 0.35em; border-radius: 2px;
+  border: 1px solid color-mix(in srgb, var(--b, var(--line)) 55%, transparent);
+  color: var(--b, var(--ink-faint));
+}
+/* Filled: a rule the resolver runs. */
+.tag--surge, .tag--reef-guard, .tag--toxic, .tag--toxin-immune,
+.tag--pierce, .tag--armour, .tag--spines, .tag--energy, .tag--release {
+  background: color-mix(in srgb, var(--b, var(--line)) 13%, transparent);
+  font-weight: 700;
+}
+.tag--surge { --b: var(--b-surge); }
+.tag--reef-guard { --b: var(--b-guard); }
+.tag--toxic { --b: var(--b-toxic); }
+.tag--toxin-immune { --b: var(--b-immune); }
+.tag--pierce { --b: var(--b-pierce); }
+.tag--armour { --b: var(--b-armour); }
+.tag--spines { --b: var(--b-spines); }
+.tag--energy { --b: var(--b-arrival); }
+.tag--release { --b: var(--good); }
+
+/* Outlined: a trait, which only means something through somebody else's aura. */
+.tag--trait-reef-fish { --b: var(--b-reef-fish); }
+.tag--trait-megafauna { --b: var(--b-megafauna); }
+.tag--trait-coral { --b: var(--b-coral); }
+.tag--trait-anemone { --b: var(--b-anemone); }
+.tag--trait-anemonefish { --b: var(--b-anemonefish); }
+
+.card__arrival {
+  margin: 0; font-size: 0.63rem; color: var(--b-arrival);
+  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
+  padding: 0.15rem 0.3rem; border-radius: 2px;
+  background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
 }
 .card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
@@ -281,10 +372,10 @@ button { font: inherit; color: inherit; }
 
 /* The arrival is what happens when you play the card, so it leads the effects. */
 .card__arrival {
-  margin: 0; font-size: 0.63rem; color: var(--accent);
+  margin: 0; font-size: 0.63rem; color: var(--b-arrival);
   display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
   padding: 0.15rem 0.3rem; border-radius: 2px;
-  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
 }
 .card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }

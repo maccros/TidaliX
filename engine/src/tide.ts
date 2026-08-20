@@ -172,13 +172,19 @@ export function isDead(
 
 /**
  * Whether the tide should step forward now that `state.activePlayer` has ended
- * their turn. Per-turn advancement makes the tide race; per-round keeps both
- * players inside the same phase, which is the default.
+ * their turn.
+ *
+ * Per-turn advancement makes the tide race; per-round keeps both players inside
+ * the same phase, which is the default. A round ends when the player who did
+ * *not* open the game finishes their turn — which is the bug this replaced: it
+ * used to test for player 1 specifically, on the assumption that player 0 always
+ * moved first. Once the first turn became a coin flip, an AI opening meant the
+ * tide turned after its very first turn and the player started their own first
+ * turn on the rising tide, a phase into a game they had not played yet.
  */
 export function shouldAdvanceTide(state: GameState): boolean {
   if (state.config.tideAdvancesEvery === 'turn') return true;
-  // Player 1 ends the round, so the tide steps as the turn passes back to 0.
-  return state.activePlayer === 1;
+  return state.activePlayer !== state.startingPlayer;
 }
 
 /** Complete tide cycles elapsed since the game opened. */
@@ -208,9 +214,9 @@ export function tideStepsUntilTurnOf(state: GameState, playerId: PlayerId): numb
       : [state.activePlayer];
 
   if (state.config.tideAdvancesEvery === 'turn') return enders.length;
-  // On `round` the tide steps as player 1 passes the turn back — see
-  // `shouldAdvanceTide`, which this must agree with.
-  return enders.filter((p) => p === 1).length;
+  // On `round` the tide steps as the player who did not open the game passes
+  // the turn back — see `shouldAdvanceTide`, which this must agree with.
+  return enders.filter((p) => p !== state.startingPlayer).length;
 }
 
 /** The phase `playerId` will open their next turn in. */

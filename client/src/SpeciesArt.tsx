@@ -746,6 +746,129 @@ const ART: Record<string, ReactNode> = {
       {eye(28, 38, 3)}
     </>
   ),
+
+  /* ------------------------------------------------------------------ */
+  /* Levelling the thin lineages                                         */
+  /* ------------------------------------------------------------------ */
+  'olive-sea-snake': (
+    <>
+      <g {...ink}>
+        <path d="M110 30c-12-8-20-2-28 6-8 8-14 16-24 16-12 0-18-10-30-10-8 0-16 4-22 12 10-2 16 2 24 6 10 5 18 6 28-2 10-8 16-18 26-20 8-2 16 2 26-8z"
+              fill="#6f7a4a" />
+        <path d="M14 54c-4 4-6 8-4 12 6-2 10-6 12-10" fill="#6f7a4a" />
+      </g>
+      <g stroke="#3d4530" strokeWidth={4} fill="none" strokeLinecap="round">
+        <path d="M34 46c2 5 2 8 0 12M52 46c2 5 2 8 0 11M70 36c2 5 2 8 0 11M88 28c2 4 2 7 0 10" />
+      </g>
+      {eye(106, 30, 2.6)}
+    </>
+  ),
+
+  'loggerhead-turtle': (
+    <>
+      <g {...ink}>
+        <path d="M24 28c-8-6-16-6-20 0 6 2 10 6 12 12M94 28c8-6 16-6 20 0-6 2-10 6-12 12" fill="#8a4a34" />
+        <path d="M28 58c-6 6-8 12-4 16 6-2 10-6 12-12M90 58c6 6 8 12 4 16-6-2-10-6-12-12" fill="#8a4a34" />
+        {/* An outsized head — the whole point of the animal. */}
+        <path d="M96 30c12-4 20 0 20 8s-8 12-20 8z" fill="#a85c40" />
+        <ellipse cx="58" cy="44" rx="33" ry="25" fill="#9c5439" />
+        <path d="M58 19v50M30 34c18 8 38 8 56 0M30 54c18-8 38-8 56 0" fill="none" strokeWidth={2.2} opacity=".7" />
+      </g>
+      {eye(106, 34, 2.8)}
+      <path d="M112 42c3 1 5 3 4 5-2 1-5 0-6-2z" fill={O} />
+    </>
+  ),
+
+  'grey-reef-shark': (
+    <>
+      <g {...ink}>
+        <path d="M102 40 118 26c-2 9-2 19 0 28z" fill="#5e6a72" />
+        <path d="M50 20 58 2l12 20z" fill="#5e6a72" />
+        <path d="M40 56l-6 14 16-8z" fill="#5e6a72" />
+        <path d="M12 42c14-16 58-22 88-2-30 20-74 16-88 2z" fill="#6f7c85" />
+        <path d="M16 44c14 10 54 14 84 0-30 6-64 4-84 0z" fill="#e2e8ea" strokeWidth={2.4} />
+      </g>
+      {/* The dark trailing edge along the tail, and a heavier build. */}
+      <path d="M104 54c4 2 8 4 12 4-2-4-3-8-3-11z" fill={O} />
+      {eye(28, 38, 3.4)}
+    </>
+  ),
+
+  'blue-spotted-ribbontail-ray': (
+    <>
+      <g {...ink}>
+        {/* A long ribbon tail with the two barbs, behind a rounded disc. */}
+        <path d="M60 60c2 10 4 16 6 20" fill="none" strokeWidth={4} stroke="#c8a33e" />
+        <path d="M64 72l4 8" fill="none" strokeWidth={3} stroke="#c8a33e" />
+        <path d="M63 66l4 4M62 60l4 4" fill="none" strokeWidth={2} />
+        {/* Wings that sweep back, not a flat oval. */}
+        <path d="M58 14c-12 0-22 6-30 16-6 8-16 14-24 16 10 4 20 10 26 16 8-4 18-6 28-6s20 2 28 6c6-6 16-12 26-16-8-2-18-8-24-16-8-10-18-16-30-16z"
+              fill="#d0aa42" />
+        <path d="M20 42c10 4 18 8 24 12M96 42c-10 4-18 8-24 12" fill="none" strokeWidth={2} opacity=".4" />
+      </g>
+      <g fill="#2f6fb5" stroke={O} strokeWidth={1.4}>
+        <circle cx="40" cy="34" r="3.4" /><circle cx="56" cy="26" r="3.4" />
+        <circle cx="72" cy="30" r="3.4" /><circle cx="84" cy="40" r="3.2" />
+        <circle cx="46" cy="48" r="3.2" /><circle cx="62" cy="46" r="3.4" />
+        <circle cx="76" cy="50" r="3" /><circle cx="30" cy="42" r="3" />
+      </g>
+      {eye(50, 20, 2.6)}
+      {eye(66, 20, 2.6)}
+    </>
+  ),
+
+  'harlequin-shrimp': (
+    <>
+      <g {...ink}>
+        {/* Side on: arched segmented body, tail fan behind, legs beneath. */}
+        <path d="M96 56 116 48c-4 6-4 12 0 18-8-2-14-4-20-10z" fill="#f0e4ef" />
+        <path d="M40 40c14-16 46-14 58 6-10 12-30 16-46 10-8-3-14-9-12-16z" fill="#f4ecf2" />
+        <path d="M52 60l-4 14M64 62l-2 14M76 62l2 14M88 60l6 12" fill="none" strokeWidth={2.6} />
+        {/* The absurd flattened claws it holds out in front. */}
+        <path d="M36 32c-10-8-20-8-26 0 6 6 18 8 26 4z" fill="#f0e4ef" />
+        <path d="M34 46c-10 2-20 8-24 16 8 2 20-2 26-8z" fill="#f0e4ef" />
+        <path d="M30 26 14 10M28 30 10 20" fill="none" stroke="#e8d8e8" strokeWidth={2.6} />
+      </g>
+      <g fill="#a8497e" opacity=".92">
+        <circle cx="58" cy="38" r="5" /><circle cx="76" cy="40" r="5" />
+        <circle cx="66" cy="52" r="4.4" /><circle cx="88" cy="50" r="4" />
+        <circle cx="20" cy="30" r="4" /><circle cx="20" cy="56" r="4" />
+      </g>
+      {eye(42, 36, 2.8)}
+    </>
+  ),
+
+  'textile-cone-snail': (
+    <>
+      <g {...ink}>
+        {/* The foot and the harpoon proboscis out in front. */}
+        <path d="M28 60c-12 2-20 0-26-4 8-2 14-6 18-10" fill="#e8dcc0" />
+        <path d="M20 46 2 40" fill="none" strokeWidth={2.6} />
+        <path d="M92 8c14 12 18 34 8 50-8 12-24 18-42 14-12-3-18-11-16-19 3-10 15-13 24-13 7 0 12-4 14-11 3-9 2-16-2-23 5 0 10 1 14 2z"
+              fill="#e0cb96" />
+      </g>
+      {/* The textile pattern the animal is named for. */}
+      <g fill="none" stroke="#8a6a3a" strokeWidth={2.2}>
+        <path d="M84 14c5 9 6 21 2 31M72 20c5 9 6 19 2 28M60 32c4 7 5 14 2 20" />
+        <path d="M88 26c-8 2-16 2-22 0M86 40c-10 3-20 3-28 0" />
+      </g>
+      {eye(14, 44, 2.2)}
+    </>
+  ),
+
+  'feather-star': (
+    <>
+      <g strokeLinejoin="round" strokeLinecap="round" fill="none">
+        {/* Arms curling up and out of a central disc, feathered along each side. */}
+        <path d="M60 56 34 26M60 56 48 16M60 56 60 12M60 56 72 16M60 56 86 26"
+              stroke="#c2482f" strokeWidth={6} />
+        <path d="M42 40l-8-4M38 34l-7-6M52 30l-8-3M49 22l-7-4M56 26h-8M56 18h-8M68 30l8-3M71 22l7-4M78 40l8-4M82 34l7-6"
+              stroke="#d4643f" strokeWidth={3} />
+        <path d="M60 56v16M52 72h16" stroke={O} strokeWidth={4} />
+      </g>
+      <circle cx="60" cy="54" r="6" fill="#e8b06a" stroke={O} strokeWidth={2.4} />
+    </>
+  ),
 };
 
 export interface SpeciesArtProps {
