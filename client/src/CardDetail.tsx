@@ -230,7 +230,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
               {def.traits?.map((t) => (
                   <div key={t} className="detail__entry">
                     <dt>
-                      <span className="tag tag--trait">{t}</span>
+                      <span className={`tag tag--trait tag--trait-${t}`}>{t}</span>
                     </dt>
                     <dd>{TRAIT_NOTE[t]}</dd>
                   </div>

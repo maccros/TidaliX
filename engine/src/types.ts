@@ -32,20 +32,24 @@ export type Keyword =
   | 'toxin-immune';
 
 /**
- * Biological tags used to target symbiosis. A trait only earns its place here if
- * some card's aura actually reads it — otherwise it is decoration.
+ * Biological tags used to target symbiosis.
+ *
+ * A trait only earns its place here if some card's aura actually reads it —
+ * otherwise it is decoration a player has to learn and then discover means
+ * nothing. Five did: `crustacean`, `echinoderm`, `cephalopod` and `mollusc` were
+ * restating the card's lineage in a second vocabulary, and `cleaner` described
+ * the wrasse without anything looking for it.
+ *
+ * The rule this leaves behind: what a card *is* goes in `taxon`, what a card
+ * *does for its neighbours* goes in `traits`, and a trait with no reader is a
+ * bug. There is a test that fails if one appears.
  */
 export type Trait =
   | 'reef-fish'
   | 'megafauna'
   | 'coral'
   | 'anemone'
-  | 'anemonefish'
-  | 'cleaner'
-  | 'crustacean'
-  | 'echinoderm'
-  | 'cephalopod'
-  | 'mollusc';
+  | 'anemonefish';
 
 /**
  * What each trait means, biologically.
@@ -61,11 +65,6 @@ export const TRAIT_NOTE: Record<Trait, string> = {
   coral: 'Reef-building stony coral: the structure everything else lives in.',
   anemone: 'A stinging cnidarian that hosts a resident fish.',
   anemonefish: 'Immune to its host\u2019s sting, and its most attentive defender.',
-  cleaner: 'Runs a cleaning station, picking parasites off anything that queues.',
-  crustacean: 'Crabs and shrimps — hard shells, and the splash zone.',
-  echinoderm: 'Urchins and sea stars: radial, slow, and usually armed.',
-  cephalopod: 'Octopus and kin — soft-bodied, and the cleverest thing on the reef.',
-  mollusc: 'Shelled animals that filter or graze rather than hunt.',
 };
 
 /**

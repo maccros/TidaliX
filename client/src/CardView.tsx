@@ -246,7 +246,7 @@ export function CardView({
           </span>
         )}
         {def.traits?.map((t) => (
-          <span key={t} className="tag tag--trait">
+          <span key={t} className={`tag tag--trait tag--trait-${t}`}>
             {t}
           </span>
         ))}

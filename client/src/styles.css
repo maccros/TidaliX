@@ -25,6 +25,15 @@
   --warn: #a8432b;
   --good: #2f8570;
 
+  /* One hue per trait, so a badge is recognised before it is read. Kept clear
+     of the keyword colours, which are already spoken for: surge is ochre,
+     reef-guard and armour blue, toxic and spines red, toxin-immune green. */
+  --t-reef-fish: #1f7d8c;
+  --t-megafauna: #4b4a9c;
+  --t-coral: #c2603f;
+  --t-anemone: #9c4a86;
+  --t-anemonefish: #b07a1e;
+
   --serif: Georgia, 'Iowan Old Style', Palatino, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -50,6 +59,12 @@
     --falling: #97a7c6;
     --warn: #e5765f;
     --good: #58bda1;
+
+    --t-reef-fish: #4fb8c9;
+    --t-megafauna: #8f8ee0;
+    --t-coral: #e9926f;
+    --t-anemone: #d68cc2;
+    --t-anemonefish: #dfae55;
   }
 }
 
@@ -574,6 +589,12 @@ button { font: inherit; color: inherit; }
 }
 .log__line--tide { color: var(--accent); font-weight: 700; }
 .log__line--setup { color: var(--ink-soft); font-style: italic; }
+.log__line--turn {
+  color: var(--accent); font-weight: 700; text-transform: capitalize;
+  margin-top: 0.35rem; padding-top: 0.3rem; border-top: 1px solid var(--line-soft);
+}
+.log__line--draw { color: var(--ink-faint); }
+.log__line--heal { color: var(--good); }
 .log__line--conserve { color: var(--good); font-weight: 700; }
 .log__line--death { color: var(--warn); }
 .log__line--retaliation { color: var(--warn); }

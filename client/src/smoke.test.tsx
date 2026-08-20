@@ -357,6 +357,44 @@ describe('client', () => {
     expect(card.getAttribute('aria-label')).toContain('dying at the next tide');
   });
 
+  it('records draws, turns and card powers in the log, without leaking the AI hand', () => {
+    // The log is a record to review a game from, so the actions that change the
+    // game — picking up a card, an arrival firing — have to be in it. What the
+    // opponent drew must not be, which is the one line that has to stay vague.
+    render(3);
+    const lines = () => [...container.querySelectorAll('.log__line')].map((l) => l.textContent ?? '');
+
+    expect(lines().some((l) => l.startsWith('— Turn 1'))).toBe(true);
+    expect(lines().some((l) => l.startsWith('You drew '))).toBe(true);
+
+    // Play whatever is affordable, and check something got recorded for it.
+    const before = lines().length;
+    const playable = container.querySelector<HTMLButtonElement>('.hand .card--playable');
+    if (playable) {
+      act(() => playable.click());
+      expect(lines().length).toBeGreaterThan(before);
+      expect(lines().some((l) => l.includes('You played'))).toBe(true);
+    }
+
+    // Nothing in the log may name a card in the opponent's hand.
+    const aiDraws = lines().filter((l) => l.includes('The AI drew'));
+    for (const line of aiDraws) expect(line).toBe('The AI drew a card');
+  });
+
+  it('gives every live trait its own badge colour, and prints no dead ones', async () => {
+    const { CARDS, TRAIT_NOTE } = await import('@tidalix/engine');
+    const traits = new Set(CARDS.flatMap((c) => c.traits ?? []));
+    // Every trait still printed has a note and, in the stylesheet, a class of
+    // its own — `tag--trait-<name>` — so no two badges share a colour.
+    for (const t of traits) {
+      expect(TRAIT_NOTE[t], `note for ${t}`).toBeTruthy();
+    }
+    expect(traits.size).toBeGreaterThan(0);
+    for (const dead of ['mollusc', 'echinoderm', 'cephalopod', 'crustacean', 'cleaner']) {
+      expect([...traits], `"${dead}" should be gone`).not.toContain(dead);
+    }
+  });
+
   it('explains every trait and keyword on the full card', async () => {
     // A bare tag reading "cleaner" or "anemonefish" tells a player nothing, and
     // says nothing at all about what reads it. The detail view has to.

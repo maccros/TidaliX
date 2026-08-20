@@ -41,7 +41,6 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 2,
     health: 2,
     keywords: ['surge'],
-    traits: ['crustacean'],
     tide: {
       low: { attack: 1, health: 1 },
       high: { exposed: true },
@@ -58,7 +57,6 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 2,
     keywords: ['surge'],
-    traits: ['crustacean'],
     tide: {
       low: { attack: 1 },
       high: { attack: -1, exposed: true },
@@ -74,7 +72,6 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 4,
     attack: 3,
     health: 4,
-    traits: ['cephalopod'],
     arrival: {
       kind: 'scout',
       amount: 1,
@@ -96,7 +93,6 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 0,
     health: 5,
     keywords: ['reef-guard'],
-    traits: ['echinoderm'],
     spines: 3,
     tide: {
       low: { health: 2 },
@@ -116,7 +112,6 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 3,
     attack: 4,
     health: 2,
-    traits: ['crustacean'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -402,7 +397,7 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 2,
     attack: 1,
     health: 2,
-    traits: ['reef-fish', 'cleaner'],
+    traits: ['reef-fish'],
     auras: [
       {
         affects: 'megafauna',
@@ -489,7 +484,6 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 0,
     health: 8,
     keywords: ['reef-guard'],
-    traits: ['mollusc'],
     arrival: {
       kind: 'forage',
       amount: 2,
@@ -554,7 +548,6 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 6,
     keywords: ['toxic'],
-    traits: ['echinoderm'],
     armour: 3,
     auras: [
       {

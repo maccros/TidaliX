@@ -158,7 +158,7 @@ function cardRow(id) {
     ? `<p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> ${ARRIVAL_TEXT[c.arrival.kind](c.arrival.amount)}
         <span class="arrival__note">${esc(c.arrival.note)}</span></span></p>`
     : '';
-  const traits = c.traits.map((t) => `<span class="kw kw--trait">${t}</span>`).join('');
+  const traits = c.traits.map((t) => `<span class="kw kw--trait kw--trait-${t}">${t}</span>`).join('');
   const taxon = `<span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">${esc(TAXON_LABEL[c.taxon])}</span>`;
 
   const auras = c.auras
@@ -340,6 +340,11 @@ const html = `<title>TidaliX Field Guide</title>
   .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
   .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
   .kw--armour { color: var(--high); border-color: var(--high); background: color-mix(in srgb, var(--high) 14%, transparent); font-weight: 700; }
+  .kw--trait-reef-fish { color: #1f7d8c; border-color: color-mix(in srgb, #1f7d8c 50%, transparent); }
+  .kw--trait-megafauna { color: #4b4a9c; border-color: color-mix(in srgb, #4b4a9c 50%, transparent); }
+  .kw--trait-coral { color: #c2603f; border-color: color-mix(in srgb, #c2603f 50%, transparent); }
+  .kw--trait-anemone { color: #9c4a86; border-color: color-mix(in srgb, #9c4a86 50%, transparent); }
+  .kw--trait-anemonefish { color: #b07a1e; border-color: color-mix(in srgb, #b07a1e 50%, transparent); }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }

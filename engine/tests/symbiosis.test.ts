@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { applyAction, startGame } from '../src/resolver.js';
 import { boardView, createGame, createInstance, resetInstanceIds } from '../src/state.js';
 import { effectiveStats, statsFor } from '../src/tide.js';
-import { activeSymbioses, getCard } from '../src/cards.js';
+import { CARDS, activeSymbioses, getCard } from '../src/cards.js';
 import type { CardInstance, GameEvent, GameState, PlayerId } from '../src/types.js';
 
 /* -------------------------------------------------------------------------- */
@@ -407,5 +407,47 @@ describe('stat helpers', () => {
     resetInstanceIds();
     const lone = createInstance('clown-anemonefish', 0);
     expect(effectiveStats(lone, 'low').maxHealth).toBe(3);
+  });
+});
+
+describe('the trait vocabulary', () => {
+  it('carries no trait that nothing reads', () => {
+    // A trait with no aura pointing at it is decoration: the player learns a
+    // word, looks for what it does, and finds nothing. Five of these had built
+    // up — four of them restating the card's lineage in a second vocabulary.
+    //
+    // The rule this guards: what a card *is* goes in `taxon`; what it *does for
+    // its neighbours* goes in `traits`.
+    const read = new Set<string>();
+    for (const card of CARDS) for (const aura of card.auras ?? []) read.add(aura.affects);
+
+    const printed = new Set<string>();
+    for (const card of CARDS) for (const trait of card.traits ?? []) printed.add(trait);
+
+    const dead = [...printed].filter((t) => !read.has(t));
+    expect(dead, 'traits printed on a card that no aura reads').toEqual([]);
+  });
+
+  it('points every aura at a trait something actually carries', () => {
+    // The reverse: an aura reading a trait no card has is a card doing nothing.
+    const printed = new Set<string>();
+    for (const card of CARDS) for (const trait of card.traits ?? []) printed.add(trait);
+
+    for (const card of CARDS) {
+      for (const aura of card.auras ?? []) {
+        expect(printed.has(aura.affects), `${card.name} grants to "${aura.affects}"`).toBe(true);
+      }
+    }
+  });
+
+  it('never duplicates the lineage a card already declares', () => {
+    // `mollusc` as a trait alongside `taxon: 'mollusc'` is the same fact twice,
+    // and the one the rules read is the taxon.
+    const taxa = new Set(CARDS.map((c) => c.taxon as string));
+    for (const card of CARDS) {
+      for (const trait of card.traits ?? []) {
+        expect(taxa.has(trait), `${card.name} carries "${trait}", which is a lineage`).toBe(false);
+      }
+    }
   });
 });

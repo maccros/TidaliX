@@ -107,6 +107,11 @@
   .kw--surge { color: var(--low); border-color: color-mix(in srgb, var(--low) 45%, transparent); }
   .kw--reef-guard { color: var(--high); border-color: color-mix(in srgb, var(--high) 45%, transparent); }
   .kw--armour { color: var(--high); border-color: var(--high); background: color-mix(in srgb, var(--high) 14%, transparent); font-weight: 700; }
+  .kw--trait-reef-fish { color: #1f7d8c; border-color: color-mix(in srgb, #1f7d8c 50%, transparent); }
+  .kw--trait-megafauna { color: #4b4a9c; border-color: color-mix(in srgb, #4b4a9c 50%, transparent); }
+  .kw--trait-coral { color: #c2603f; border-color: color-mix(in srgb, #c2603f 50%, transparent); }
+  .kw--trait-anemone { color: #9c4a86; border-color: color-mix(in srgb, #9c4a86 50%, transparent); }
+  .kw--trait-anemonefish { color: #b07a1e; border-color: color-mix(in srgb, #b07a1e 50%, transparent); }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }
@@ -490,7 +495,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Breathes through its skin and walks the drained flat on its fins.</p>
-      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -527,7 +532,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Grazes the splash zone faster than the surge can catch it.</p>
-      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">crustacean</span></p>
+      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--surge">surge</span></p>
       
       
     </div>
@@ -564,7 +569,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Runs down the wrack line the moment the water pulls back.</p>
-      <p class="card__meta"><span class="printed">base 3/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">crustacean</span></p>
+      <p class="card__meta"><span class="printed">base 3/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--surge">surge</span></p>
       
       
     </div>
@@ -601,7 +606,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Crosses open rock between pools to raid the stranded ones.</p>
-      <p class="card__meta"><span class="printed">base 3/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span><span class="kw kw--trait">cephalopod</span></p>
+      <p class="card__meta"><span class="printed">base 3/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> draw 1
         <span class="arrival__note">prises open everything it finds to see what is inside</span></span></p>
       
@@ -639,7 +644,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Grinds itself a socket in the limestone and does not leave it.</p>
-      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Echinoderms</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="dealt back to whatever attacks it">spines 3</span><span class="kw kw--trait">echinoderm</span></p>
+      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Echinoderms</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="dealt back to whatever attacks it">spines 3</span></p>
       
       
     </div>
@@ -685,7 +690,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Strikes at the speed of a bullet; the cavitation does the rest.</p>
-      <p class="card__meta"><span class="printed">base 4/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span><span class="kw kw--trait">crustacean</span></p>
+      <p class="card__meta"><span class="printed">base 4/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Crustaceans</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 2 damage to an enemy creature
         <span class="arrival__note">opens with a strike fast enough to cavitate the water</span></span></p>
       
@@ -723,7 +728,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">One of the few animals that will take a lionfish, spines and all.</p>
-      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -760,7 +765,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Rides the push into the roots and takes whatever the water brings.</p>
-      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -797,7 +802,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Picks sponge from the fresh water climbing the reef crest.</p>
-      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 2/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> gain 1 energy
         <span class="arrival__note">picks the reef crest over as soon as it arrives</span></span></p>
       
@@ -844,7 +849,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Barrel-rolls through plankton where the flood stacks it against the reef.</p>
-      <p class="card__meta"><span class="printed">base 4/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 4/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> gain 2 energy
         <span class="arrival__note">barrel-rolls straight into the plankton stacked on the reef</span></span></p>
       
@@ -882,7 +887,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Works the flat in water barely deep enough to cover its fin.</p>
-      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       
       
     </div>
@@ -919,7 +924,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Wedges into a cave by day, then pours through the coral by night.</p>
-      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Sharks &amp; rays</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       
       
     </div>
@@ -956,7 +961,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Crosses the crest at high water to graze the seagrass behind it.</p>
-      <p class="card__meta"><span class="printed">base 3/7</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Reptiles</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 3/7</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Reptiles</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       
       
     </div>
@@ -993,7 +998,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Headbutts living coral apart and excretes the reef as sand.</p>
-      <p class="card__meta"><span class="printed">base 6/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 6/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 3 damage to an enemy creature
         <span class="arrival__note">headbutts the first thing in its way apart</span></span></p>
       
@@ -1031,7 +1036,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Ambushes the flat at speed, and waits in the channel for the drain.</p>
-      <p class="card__meta"><span class="printed">base 5/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--surge">surge</span><span class="kw kw--trait">megafauna</span></p>
+      <p class="card__meta"><span class="printed">base 5/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--surge">surge</span><span class="kw kw--trait kw--trait-megafauna">megafauna</span></p>
       
       
     </div>
@@ -1077,7 +1082,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Holds station where the flat empties and takes what it funnels out.</p>
-      <p class="card__meta"><span class="printed">base 5/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 5/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 2 damage to an enemy creature
         <span class="arrival__note">takes whatever the current funnels past it first</span></span></p>
       
@@ -1115,7 +1120,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">A second set of jaws in the throat drags the catch down whole, venom and all.</p>
-      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 4/4</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxin-immune">toxin-immune</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -1161,7 +1166,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Carries enough tetrodotoxin in its liver to kill whatever swallows it.</p>
-      <p class="card__meta"><span class="printed">base 2/5</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxic">toxic</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 3</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 2/5</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxic">toxic</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 3</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -1198,7 +1203,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Herds prey into a corner with its fans. The venom is for whatever tries it.</p>
-      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxic">toxic</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 2</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 4/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--toxic">toxic</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 2</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 1 damage to an enemy creature
         <span class="arrival__note">fans its prey into a corner the moment it settles</span></span></p>
       
@@ -1236,7 +1241,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Everts its stomach over the coral and leaves white skeleton behind.</p>
-      <p class="card__meta"><span class="printed">base 3/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Echinoderms</span><span class="kw kw--toxic">toxic</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 3</span><span class="kw kw--trait">echinoderm</span></p>
+      <p class="card__meta"><span class="printed">base 3/6</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Echinoderms</span><span class="kw kw--toxic">toxic</span><span class="kw kw--armour" title="comes off the top of every hit it takes">armour 3</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> deal 1 damage to every enemy creature
         <span class="arrival__note">arrives as an outbreak, not as an animal</span></span></p>
       <p class="aura aura--harmful">
@@ -1287,7 +1292,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Never more than a body length from its host, whatever the water does.</p>
-      <p class="card__meta"><span class="printed">base 1/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span><span class="kw kw--trait">anemonefish</span></p>
+      <p class="card__meta"><span class="printed">base 1/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span><span class="kw kw--trait kw--trait-anemonefish">anemonefish</span></p>
       
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
@@ -1328,7 +1333,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Locks its dorsal spine in a crevice and refuses to be pulled out.</p>
-      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 3/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -1365,7 +1370,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Scalpels at the base of the tail, carried everywhere it goes.</p>
-      <p class="card__meta"><span class="printed">base 2/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span></p>
+      <p class="card__meta"><span class="printed">base 2/3</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       
       
     </div>
@@ -1402,7 +1407,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Runs a cleaning station that even the sharks queue for.</p>
-      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait">reef-fish</span><span class="kw kw--trait">cleaner</span></p>
+      <p class="card__meta"><span class="printed">base 1/2</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Fish</span><span class="kw kw--trait kw--trait-reef-fish">reef-fish</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> heal 2 from every friendly creature
         <span class="arrival__note">opens a cleaning station and the queue forms immediately</span></span></p>
       <p class="aura">
@@ -1453,7 +1458,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">The fastest-growing branching coral on the reef, and the first to bleach.</p>
-      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--trait">coral</span></p>
+      <p class="card__meta"><span class="printed">base 0/5</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--trait kw--trait-coral">coral</span></p>
       
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
@@ -1498,7 +1503,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Grows outward into a plate wide enough to shade a hundred fish.</p>
-      <p class="card__meta"><span class="printed">base 0/7</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--trait">coral</span></p>
+      <p class="card__meta"><span class="printed">base 0/7</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--trait kw--trait-coral">coral</span></p>
       
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
@@ -1543,7 +1548,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Withdraws its tentacles when the water leaves, and waits.</p>
-      <p class="card__meta"><span class="printed">base 0/4</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="dealt back to whatever attacks it">spines 2</span><span class="kw kw--trait">anemone</span></p>
+      <p class="card__meta"><span class="printed">base 0/4</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Corals &amp; anemones</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--spines" title="dealt back to whatever attacks it">spines 2</span><span class="kw kw--trait kw--trait-anemone">anemone</span></p>
       
       <p class="aura">
         <span class="aura__mark">&#8644;</span>
@@ -1584,7 +1589,7 @@
     </div>
     <div class="card__body">
       <p class="card__text">Farms algae in its own mantle. A metre of shell does the rest.</p>
-      <p class="card__meta"><span class="printed">base 0/8</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span><span class="kw kw--reef-guard">reef-guard</span><span class="kw kw--trait">mollusc</span></p>
+      <p class="card__meta"><span class="printed">base 0/8</span><span class="kw kw--structure">structure</span><span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">Molluscs</span><span class="kw kw--reef-guard">reef-guard</span></p>
       <p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> gain 2 energy
         <span class="arrival__note">a metre of mantle filtering from the moment it settles</span></span></p>
       

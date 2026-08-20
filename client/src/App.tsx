@@ -30,6 +30,7 @@ import {
   stepsUntilMature,
   takeTurn,
   taxaToNextIncome,
+  type ArrivalEffect,
   type CardInstance,
   type Difficulty,
   type GameAction,
@@ -73,8 +74,15 @@ const PHASE_NOTE: Record<TidePhase, string> = {
   falling: 'The flat empties into the channels. Ambush predators hold station.',
 };
 
-function newGame(seed: number): GameState {
-  return startGame(createGame({ seed })).state;
+/**
+ * A fresh game, and the events that opened it.
+ *
+ * The events matter: `startGame` runs the first turn's start-of-turn step, so
+ * the opening hand's last draw and the first turn header happen there. Throwing
+ * them away left the log missing turn one entirely.
+ */
+function newGame(seed: number): { state: GameState; events: GameEvent[] } {
+  return startGame(createGame({ seed }));
 }
 
 /**
@@ -98,7 +106,8 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [seed, setSeed] = useState(
     () => fixedSeed ?? seedFromUrl() ?? Math.floor(Math.random() * 100000),
   );
-  const [state, setState] = useState<GameState>(() => newGame(seed));
+  const [opening] = useState(() => newGame(seed));
+  const [state, setState] = useState<GameState>(opening.state);
   const [selected, setSelected] = useState<string | null>(null);
   /**
    * A card in hand whose arrival needs a target, waiting for the player to pick
@@ -108,7 +117,12 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [aiming, setAiming] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
-  const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [openingLine(seed, DEFAULT_DIFFICULTY)]);
+  const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [
+    openingLine(seed, DEFAULT_DIFFICULTY),
+    ...opening.events
+      .map((e) => describe(e, opening.state))
+      .filter((l): l is { text: string; kind: string } => l !== null),
+  ]);
   const [botThinking, setBotThinking] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>(DEFAULT_DIFFICULTY);
 
@@ -123,18 +137,26 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
 
   const pushEvents = useCallback((events: GameEvent[], s: GameState) => {
     const lines = events.map((e) => describe(e, s)).filter((l): l is { text: string; kind: string } => l !== null);
-    if (lines.length) setLog((prev) => [...prev.slice(-60), ...lines]);
+    // Kept long, because the log is now a record to review a game from rather
+    // than a ticker of the last few blows.
+    if (lines.length) setLog((prev) => [...prev.slice(-400), ...lines]);
   }, []);
 
   const restart = useCallback(
     (nextSeed: number) => {
       nodes.current.clear();
+      const fresh = newGame(nextSeed);
       setSeed(nextSeed);
-      setState(newGame(nextSeed));
+      setState(fresh.state);
       setSelected(null);
       setAiming(null);
       setInspecting(null);
-      setLog([openingLine(nextSeed, difficulty)]);
+      setLog([
+        openingLine(nextSeed, difficulty),
+        ...fresh.events
+          .map((e) => describe(e, fresh.state))
+          .filter((l): l is { text: string; kind: string } => l !== null),
+      ]);
     },
     [difficulty],
   );
@@ -841,9 +863,55 @@ function nameOf(state: GameState, instanceId: string): string {
   return 'something';
 }
 
+/** How each arrival effect reads in the log. */
+const ARRIVAL_LOG: Record<ArrivalEffect['kind'], (n: number) => string> = {
+  strike: (n) => `${n} damage`,
+  sweep: (n) => `${n} to every enemy`,
+  mend: (n) => `heals the reef ${n}`,
+  forage: (n) => `⬡+${n}`,
+  scout: (n) => `draws ${n}`,
+};
+
 function describe(event: GameEvent, state: GameState): { text: string; kind: string } | null {
   const who = (p: PlayerId) => (p === YOU ? 'You' : 'The AI');
   switch (event.type) {
+    // A turn header, so a reviewed log reads in blocks rather than as one run-on
+    // stream. Everything under it belongs to that turn.
+    case 'TURN_STARTED':
+      return {
+        text: `— Turn ${event.turn} · ${who(event.player)} · ${event.phase} tide —`,
+        kind: 'turn',
+      };
+
+    // What a player picked up. The opponent's draw is recorded but never named:
+    // the log is a record of the game, not a way to read the AI's hand.
+    case 'CARD_DRAWN':
+      return event.player === YOU
+        ? { text: `You drew ${nameOf(state, event.instanceId)}`, kind: 'draw' }
+        : { text: `The AI drew a card`, kind: 'draw' };
+
+    case 'HAND_OVERFLOW':
+      return {
+        text: `${who(event.player)} overflowed a full hand — ${nameOf(state, event.instanceId)} discarded`,
+        kind: 'draw',
+      };
+
+    case 'DECK_EMPTY':
+      return {
+        text: `${who(event.player)} has no deck left — ${event.fatigueDamage} fatigue damage`,
+        kind: 'death',
+      };
+
+    // Card powers, which is the half of the game the log used to omit entirely.
+    case 'ARRIVAL_RESOLVED': {
+      const name = getCard(event.definitionId).name;
+      const target = event.targetId ? ` on ${nameOf(state, event.targetId)}` : '';
+      return { text: `${name} arrives — ${ARRIVAL_LOG[event.kind](event.amount)}${target}`, kind: 'arrival' };
+    }
+
+    case 'CARD_HEALED':
+      return { text: `${nameOf(state, event.instanceId)} heals ${event.amount}`, kind: 'heal' };
+
     case 'TIDE_CHANGED':
       return { text: `The tide turns: ${event.from} → ${event.to}`, kind: 'tide' };
     case 'CARD_PLAYED':

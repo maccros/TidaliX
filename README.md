@@ -266,9 +266,17 @@ commit, and what to answer with it. Pick the card, then pick what it hits.
 
 ## Symbiosis
 
-Cards carry biological **traits** (`coral`, `reef-fish`, `megafauna`, `anemone`,
-`cleaner`…), and some carry **auras** that grant stats to friendly cards with a
-given trait. Mutualism is simply both partners carrying an aura pointed at the
+Cards carry biological **traits** — `reef-fish`, `megafauna`, `coral`, `anemone`,
+`anemonefish` — and some carry **auras** that grant stats to friendly cards with
+a given trait.
+
+There were ten. Five were doing nothing: `crustacean`, `echinoderm`, `cephalopod`
+and `mollusc` restated the card's lineage in a second vocabulary, and `cleaner`
+described the wrasse without anything looking for it. A trait a player learns and
+then discovers means nothing is worse than no trait, so they are gone, and a test
+fails if one reappears. The rule it enforces: **what a card *is* goes in `taxon`;
+what it *does for its neighbours* goes in `traits`.** Each surviving trait has its
+own badge colour. Mutualism is simply both partners carrying an aura pointed at the
 other:
 
 | | |
