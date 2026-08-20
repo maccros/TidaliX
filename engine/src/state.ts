@@ -56,25 +56,22 @@ export const DEFAULT_CONFIG: GameConfig = {
   // there is no room to make the rate stingier on top of that. Every point is
   // felt the turn it lands, and every point demands a genuinely different animal.
   conservationIncomePer: 1,
-  // Five lineages out of the eight the set contains.
+  // Three lineages out of the seven the set contains.
   //
-  // Re-measured after the move from species to lineages, and the honest finding
-  // is that the metric is not what makes this hard. A player committed to the
-  // pile never releases two animals of the same lineage anyway, so across 100
-  // games their pile scores identically either way — 1.51 cards, 1.51 species,
-  // 1.51 lineages. What limits the pile is *time*: a species needs a full cycle
-  // (4 tide steps) to mature and only one goes back per turn, against a game
-  // that ends around round 7.7. There is physically room for about three
-  // releases, and the peak observed is three.
+  // Was five, and at five the second win condition was simply dead: measured
+  // over 200 games at every difficulty it fired 0% of the time, and the best
+  // pile anyone reached was three. At four it fires 1%. At three it fires 10%
+  // of games against a normal opponent and 7% against a hard one — present
+  // without being the only thing worth doing, which is what a second path is
+  // supposed to feel like.
   //
-  // So five is currently out of reach, and was before this change too. It scales
-  // with game length and nothing else — at 40 starting life the peak is four, at
-  // 60 it is five and the pile wins 2% of games; raising how much the bot wants
-  // the pile from weight 40 to 200 moves the number not at all, because it is
-  // already taking every release the clock allows. Closing that gap is a
-  // game-length decision (starting life, maturity cycles, or releases per turn),
-  // not a tweak to this number, so it is left as it stands and flagged here.
-  conservationVictory: 5,
+  // The binding constraint is time, not the draw: a species needs a full tide
+  // cycle to mature and only one goes back per turn, against a game that ends
+  // around round 6.6. The set being half fish makes it worse — reptiles are a
+  // single card and reach a player in 39% of games — but the honest repair for
+  // that is more non-fish species, not a smaller number here. Left as a
+  // deliberate choice; see the composition table in the README.
+  conservationVictory: 3,
 };
 
 let instanceCounter = 0;

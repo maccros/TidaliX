@@ -299,7 +299,7 @@ the only place a card leaves play as an asset rather than a loss.
 |---|---|
 | **It frees the slot** | The reef holds six. Releasing is the only way to take a species back off it, so a board full of matured animals is a resource, not a lock-up. |
 | **It pays** | The pile is scored on **distinct lineages**, and every `config.conservationIncomePer` (1) of them is `+1` standing energy every turn, for the rest of the game. |
-| **It wins** | Protect `config.conservationVictory` (5) of the 7 distinct lineages and you win outright, whatever the board looks like. |
+| **It wins** | Protect `config.conservationVictory` (3) of the 7 distinct lineages and you win outright, whatever the board looks like. |
 
 The guards are what keep it from being an undo button: a species must live
 through a whole cycle before it can go, and only one goes back per turn.
@@ -323,37 +323,47 @@ species to lineages costs that player **nothing**: their pile scores 1.51 cards,
 animals of the same branch anyway. The metric changes what a *careless* pile is
 worth, which is the point, and leaves a deliberate one untouched.
 
-What limits the pile is **time**, not the metric. Maturity is a full cycle (4
-tide steps) and only one species goes back per turn, against a game that ends
-around round 7.7 — so there is physically room for about three releases, and
-three is the peak observed. Five is therefore currently out of reach, and was
-before this change too:
+**The target is three, and it was five.** At five the second win condition was
+dead — 0% of games at every difficulty over 200 games each, with the best pile
+anyone reached being three. At four it fires in 1%. At three:
 
-| Starting life | Mean rounds | Mean lineages | Peak | Pile wins |
-|---|---|---|---|---|
-| 25 (default) | 7.8 | 1.50 | 3 | 0% |
-| 40 | 9.7 | 2.07 | 4 | 0% |
-| 60 | 11.8 | 2.48 | 5 | 2% |
+| Opponent | Games won by the pile | Mean best pile | Rounds |
+|---|---|---|---|
+| easy | 0% | 0.00 | 8.8 |
+| normal | **10%** | 1.40 | 6.6 |
+| hard | **7%** | 1.31 | 6.9 |
 
-Re-measured after retaliation and the arrival system went in, and the ceiling did
-not move — peak three against a target of five, at every difficulty:
+Present without being the only thing worth doing. Easy never conserves at all,
+by design — it does not value the pile.
 
-| Opponent | Mean rounds | Mean best pile | Peak | Pile wins |
-|---|---|---|---|---|
-| easy | 8.6 | 0.00 | 0 | 0% |
-| normal | 6.6 | 1.26 | 3 | 0% |
-| hard | 7.1 | 1.30 | 3 | 0% |
+The binding constraint is **time**: a species needs a full tide cycle to mature
+and only one goes back per turn, against a game ending around round 6.6. There
+is physically room for about three releases.
 
-Retaliation made it slightly *worse* at normal, and that is worth understanding
-rather than patching: a bot that fears trades stops contesting the board and
-races the face instead, which ends the game a round sooner. Easy never conserves
-at all, by design — it does not value the pile.
+### The set is half fish
 
-Raising how much the bot *wants* the pile moves these numbers not at all — it is
-already taking every release the clock allows. Closing
-the gap is a game-length decision (starting life, maturity cycles, or releases
-per turn), not a tweak to the victory number, so the number is left as it stands
-and the finding recorded here.
+| Lineage | Cards | Share | Dealt in the first 12 cards |
+|---|---|---|---|
+| Fish | 14 | 50% | 100% |
+| Crustaceans | 3 | 11% | 78% |
+| Sharks & rays | 3 | 11% | 77% |
+| Corals & anemones | 3 | 11% | 79% |
+| Molluscs | 2 | 7% | 63% |
+| Echinoderms | 2 | 7% | 63% |
+| Reptiles | **1** | 4% | **39%** |
+
+A player is dealt 5.00 distinct lineages on average in their first twelve cards,
+so three is comfortably reachable and five is not reliably so. The skew is real
+and it is a set-composition problem, not a tuning one: the honest repair is more
+non-fish species — the giant triton (which eats crown-of-thorns), the banded sea
+krait, Diadema, the banded coral shrimp, fire coral — not a smaller victory
+number. Lowering the target to three is the deliberate stopgap.
+
+Splitting Fish into its real orders does not rescue this. It yields five clean
+pairs (puffer + triggerfish, tang + idol, wrasse + parrotfish, grouper + snapper,
+trevally + barracuda) and four unavoidable singletons: the moray is the only eel,
+the mudskipper the only goby, the lionfish the only scorpionfish, the anemonefish
+the only damsel. That trades one skew for nine lineages, four of them one card.
 
 Reachability depends heavily on **how aggressive the opponent is**, which is
 worth knowing before retuning any of these numbers. Any balance figure measured
