@@ -60,6 +60,7 @@ export {
   TIDE_CYCLE,
   advancePhase,
   cyclesCompleted,
+  diesAtNextPhase,
   effectiveStats,
   isDead,
   nextPhase,

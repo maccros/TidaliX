@@ -1,310 +1,498 @@
 /**
- * A silhouette per species.
+ * A drawing per species.
  *
- * Every card in TidaliX is a real animal, and until now the only thing carrying
- * that was the binomial name in small italics. A shape is read before any text
+ * Every card in TidaliX is a real animal, and a shape is read before any text
  * is, so this is mostly about making a hand scannable: you should be able to see
- * that you are holding two crabs and a shark without reading a word.
+ * you are holding two crabs and a shark without reading a word.
  *
- * Drawn rather than photographed for two reasons. The deploy's CSP blocks every
- * external image host, so art has to ship inside the page; and a flat silhouette
- * tints, so each animal can take the colour of the phase it is standing in
- * without a second asset.
+ * Flat cartoon rather than silhouette, which is the lesson of the first attempt.
+ * A single-colour shape at card size is a blob — two different fish came out as
+ * the same torpedo — so every animal here gets the same three things: one dark
+ * outline at one weight, two or three flat fills, and a real eye. Consistency in
+ * those is what makes twenty-eight separate drawings read as one set.
  *
- * All of them share one 100x56 viewBox and paint in `currentColor`, so size and
- * colour are decided entirely by CSS at the point of use.
+ * All of them share a 120x80 field and sit on a light plate (see `.card__art`),
+ * because the outline is a fixed dark navy and would vanish on the dark theme.
  */
 
 import type { ReactNode } from 'react';
 
-/* Shared bits, for the body plans that genuinely repeat. */
-const eye = (cx: number, cy: number, r = 1.7) => <circle cx={cx} cy={cy} r={r} className="art__eye" />;
+/** One outline colour and one weight, for the whole set. */
+const O = '#12323d';
+
+/** An eye with a highlight — the single detail that stops a shape being a blob. */
+const eye = (cx: number, cy: number, r = 3.4) => (
+  <>
+    <circle cx={cx} cy={cy} r={r} fill={O} />
+    <circle cx={cx + r * 0.42} cy={cy - r * 0.42} r={r * 0.36} fill="#fff" />
+  </>
+);
+
+/** An eye set in a pale ring, for animals whose eye reads against a dark body. */
+const ringEye = (cx: number, cy: number, r = 5.4) => (
+  <>
+    <circle cx={cx} cy={cy} r={r} fill="#fdfdfa" stroke={O} strokeWidth={2.4} />
+    <circle cx={cx} cy={cy} r={r * 0.46} fill={O} />
+  </>
+);
+
+/** Shared group props: every outlined shape in the set is drawn with these. */
+const ink = {
+  stroke: O,
+  strokeWidth: 3,
+  strokeLinejoin: 'round' as const,
+  strokeLinecap: 'round' as const,
+};
 
 const ART: Record<string, ReactNode> = {
-  /* ---- Fish: deep-bodied ---- */
-  'coral-grouper': (
-    <>
-      <path d="M14 28c8-13 30-18 46-14 9 2 16 7 20 14-4 7-11 12-20 14-16 4-38-1-46-14z" />
-      <path d="M80 28 96 16v24z" />
-      <path d="M44 15c4-6 12-8 16-4z" />
-      <circle cx="70" cy="34" r="2.2" opacity=".45" />
-      <circle cx="56" cy="22" r="2.6" opacity=".45" />
-      <circle cx="38" cy="32" r="2" opacity=".45" />
-      {eye(24, 25)}
-    </>
-  ),
-  'mangrove-jack': (
-    <>
-      <path d="M12 28c9-11 28-16 44-13 10 2 18 6 24 13-6 7-14 11-24 13-16 3-35-2-44-13z" />
-      <path d="M80 28 98 18l-6 10 6 10z" />
-      <path d="M46 16c4-5 11-7 15-3z" />
-      {eye(23, 25)}
-    </>
-  ),
-  'giant-trevally': (
-    <>
-      <path d="M14 28c6-14 24-19 40-16 12 2 21 8 26 16-5 8-14 14-26 16-16 3-34-2-40-16z" />
-      <path d="M80 28 99 15l-7 13 7 13z" />
-      <path d="M40 13c5-7 14-9 18-4z" />
-      <path d="M38 44c5 6 14 8 18 3z" />
-      {eye(24, 24, 2)}
-    </>
-  ),
-  'bumphead-parrotfish': (
-    <>
-      <path d="M18 30c0-14 12-22 30-22 16 0 28 8 33 22-5 14-17 22-33 22-18 0-30-8-30-22z" />
-      <path d="M18 18c-5-6-4-12 3-13 6-1 10 3 11 9z" />
-      <path d="M14 32c-4 0-6-2-6-4s3-4 7-4z" />
-      <path d="M81 30 97 18v24z" />
-      {eye(30, 22)}
-    </>
-  ),
-  'great-barracuda': (
-    <>
-      <path d="M6 30c14-6 40-9 66-7 8 1 14 2 18 4-4 2-10 4-18 5-26 2-52-1-66-2z" />
-      <path d="M6 30c3-3 9-5 14-5l2 5-2 4c-5 0-11-2-14-4z" />
-      <path d="M22 27h14M22 33h14" strokeWidth="1" stroke="currentColor" opacity=".5" />
-      <path d="M90 27 99 20l-3 10 3 10z" />
-      <path d="M52 22c4-4 9-5 12-2z" />
-      {eye(18, 27, 1.5)}
-    </>
-  ),
-  'clown-triggerfish': (
-    <>
-      <path d="M16 28c8-14 26-20 42-16 12 3 20 9 24 16-4 7-12 13-24 16-16 4-34-2-42-16z" />
-      <path d="M52 10v-5M60 11l2-5" stroke="currentColor" strokeWidth="2" />
-      <path d="M82 28 97 20v16z" />
-      <circle cx="34" cy="36" r="3.4" opacity=".5" />
-      <circle cx="46" cy="40" r="2.8" opacity=".5" />
-      <circle cx="58" cy="36" r="3" opacity=".5" />
-      {eye(26, 22)}
-    </>
-  ),
-  'regal-blue-tang': (
-    <>
-      <path d="M14 28c8-13 26-19 44-15 11 2 19 8 23 15-4 7-12 13-23 15-18 4-36-2-44-15z" />
-      <path d="M81 28 97 19v18z" />
-      <path d="M74 26h6v4h-6z" opacity=".55" />
-      {eye(24, 24)}
-    </>
-  ),
-  'moorish-idol': (
-    <>
-      <path d="M20 30c6-12 20-18 34-16 9 1 15 6 19 12-4 8-11 14-20 17-14 4-27-1-33-13z" />
-      <path d="M44 15c3-9 34-14 52-12-14 5-30 10-40 20z" />
-      <path d="M20 30c-6 0-10 3-13 6 5 1 9 0 13-2z" />
-      <path d="M73 38 92 30l-6 10z" />
-      {eye(28, 27)}
-    </>
-  ),
+  /* ------------------------------------------------------------------ */
+  /* Reef fish — deep bodies, bold markings                              */
+  /* ------------------------------------------------------------------ */
   'clown-anemonefish': (
     <>
-      <path d="M16 28c8-11 24-16 38-13 9 2 16 6 20 13-4 7-11 11-20 13-14 3-30-2-38-13z" />
-      <path d="M28 18c3 7 3 13 0 20-3-1-5-2-7-4 2-4 2-8 0-12 2-2 4-3 7-4z" opacity=".55" />
-      <path d="M48 15c3 9 3 17 0 26h-6c3-9 3-17 0-26z" opacity=".55" />
-      <path d="M74 28 94 19l-5 9 5 9z" />
-      {eye(22, 25)}
+      <g {...ink}>
+        <path d="M92 40 108 24v32z" fill="#f08a3c" />
+        <path d="M60 14c-6 0-11 5-13 11 4-2 9-3 13-3z" fill="#f08a3c" />
+        <ellipse cx="55" cy="40" rx="38" ry="24" fill="#f4903f" />
+        <path d="M40 18c6 10 6 34 0 44" fill="#fdfdfa" strokeWidth={2.6} />
+        <path d="M72 20c5 10 5 30 0 40" fill="#fdfdfa" strokeWidth={2.6} />
+        <path d="M22 30c-7 4-9 12-4 18" fill="#f08a3c" />
+        <circle cx="30" cy="36" r="6.5" fill="#fdfdfa" />
+      </g>
+      {eye(30, 36, 3.6)}
     </>
   ),
-  'bluestreak-cleaner-wrasse': (
+
+  'coral-grouper': (
     <>
-      <path d="M8 29c16-8 44-11 70-8 7 1 12 2 15 4-3 2-8 4-15 5-26 3-54 0-70-1z" />
-      <path d="M22 29h62" stroke="currentColor" strokeWidth="3" opacity=".5" />
-      <path d="M93 25 99 20v18l-6-5z" />
-      {eye(16, 27, 1.5)}
+      <g {...ink}>
+        <path d="M90 40 112 24v32z" fill="#b8452f" />
+        <path d="M52 18c8-8 20-8 26 0z" fill="#b8452f" />
+        <path d="M46 62c8 8 20 8 26 0z" fill="#b8452f" />
+        <ellipse cx="52" cy="40" rx="38" ry="23" fill="#c9503a" />
+      </g>
+      <g fill="#4a8fb5" opacity=".85">
+        <circle cx="46" cy="30" r="3" /><circle cx="60" cy="26" r="2.6" />
+        <circle cx="70" cy="34" r="3" /><circle cx="54" cy="44" r="2.8" />
+        <circle cx="68" cy="50" r="2.6" /><circle cx="40" cy="46" r="2.6" />
+        <circle cx="78" cy="42" r="2.4" />
+      </g>
+      {ringEye(28, 34)}
     </>
   ),
-  'blackspotted-puffer': (
+
+  'clown-triggerfish': (
     <>
-      <circle cx="46" cy="29" r="24" />
-      <path d="M70 29 92 20l-6 9 6 9z" />
-      <path d="M28 12l-4-6M46 6l0-6M64 12l4-6M22 29H14M28 46l-4 6M46 52v6M64 46l4 6" stroke="currentColor" strokeWidth="2" />
-      <circle cx="38" cy="22" r="2.4" opacity=".45" />
-      <circle cx="52" cy="34" r="2.4" opacity=".45" />
-      <circle cx="42" cy="38" r="2" opacity=".45" />
-      {eye(30, 24)}
+      <g {...ink}>
+        <path d="M92 40 112 28v24z" fill="#2b3f4a" />
+        <path d="M46 16c10-6 22-2 26 8z" fill="#2b3f4a" />
+        <path d="M44 64c10 6 24 2 28-8z" fill="#2b3f4a" />
+        <ellipse cx="54" cy="40" rx="36" ry="24" fill="#33505e" />
+        <path d="M28 44c10-8 24-8 34 2-10 8-26 8-34-2z" fill="#f6f6f2" strokeWidth={2.4} />
+        <path d="M60 22c10-2 18 2 22 8" fill="none" stroke="#e8c246" strokeWidth={5} />
+      </g>
+      <g fill="#f6f6f2">
+        <circle cx="36" cy="48" r="3.4" /><circle cx="48" cy="54" r="3" />
+        <circle cx="58" cy="50" r="2.6" />
+      </g>
+      {ringEye(34, 30)}
     </>
   ),
-  'red-lionfish': (
+
+  'regal-blue-tang': (
     <>
-      <path d="M26 30c6-9 18-13 30-11 8 1 14 5 17 11-3 6-9 10-17 11-12 2-24-2-30-11z" />
-      <path d="M42 19 34 2M52 17l2-16M62 19l10-16" stroke="currentColor" strokeWidth="2.2" />
-      <path d="M40 41 30 56M52 43l0 13M62 41l10 15" stroke="currentColor" strokeWidth="2.2" />
-      <path d="M26 30 6 20c2 10 2 12 0 20z" opacity=".8" />
-      <path d="M73 30 94 22l-5 8 5 8z" />
-      {eye(34, 27)}
+      <g {...ink}>
+        <path d="M90 40 110 26c-4 9-4 19 0 28z" fill="#e8c246" />
+        <ellipse cx="52" cy="40" rx="37" ry="23" fill="#2f6fb5" />
+        <path d="M40 24c14 2 26 10 34 20-12 4-26 2-36-4-4-6-3-12 2-16z" fill="#12323d" opacity=".8" />
+        <path d="M84 32c4 5 4 11 0 16" fill="#e8c246" strokeWidth={2.4} />
+      </g>
+      {ringEye(28, 34)}
     </>
   ),
+
+  'moorish-idol': (
+    <>
+      <g {...ink}>
+        <path d="M74 22C86 8 96 2 104 2c-4 12-12 24-22 32z" fill="#f6f6f2" />
+        <path d="M88 44 108 34c-2 8-2 14 0 20z" fill="#e8c246" />
+        <ellipse cx="52" cy="42" rx="32" ry="24" fill="#f6f6f2" />
+        <path d="M38 20c6 12 6 32 0 44-6-2-10-6-12-10 4-8 4-16 0-24 2-4 6-8 12-10z" fill="#2b3f4a" />
+        <path d="M66 22c6 12 6 30 0 42-5-2-8-4-10-8 4-8 4-18 0-26 2-4 5-6 10-8z" fill="#2b3f4a" />
+        <path d="M24 34c-6 4-8 10-4 16" fill="#e8c246" />
+      </g>
+      {eye(30, 34, 3.2)}
+    </>
+  ),
+
   'atlantic-mudskipper': (
     <>
-      <path d="M8 34c12-8 34-11 58-9 8 1 14 2 18 4-4 3-10 5-18 6-24 2-46 1-58-1z" />
-      <path d="M22 40c-2 6-1 9 3 10 3 1 6-2 6-6z" />
-      <path d="M44 41c-2 6-1 9 3 10 3 1 6-2 6-6z" />
-      <path d="M84 29 98 22v18z" />
-      <circle cx="14" cy="26" r="4" />
-      <circle cx="22" cy="24" r="4" />
-      {eye(14, 26, 1.8)}
-      {eye(22, 24, 1.8)}
-    </>
-  ),
-
-  /* ---- Sharks and rays ---- */
-  'blacktip-reef-shark': (
-    <>
-      <path d="M6 32c14-9 38-14 62-12 10 1 18 3 24 6-6 4-14 7-24 8-24 2-48-1-62-2z" />
-      <path d="M40 20 46 4l14 14z" />
-      <path d="M40 20 46 4l14 14z" opacity=".9" />
-      <path d="M46 4 44 9l10 8z" fill="currentColor" opacity=".35" />
-      <path d="M34 40l-4 12 14-9z" />
-      <path d="M92 26 99 16l-4 15 4 15z" />
-      {eye(16, 28, 1.6)}
-    </>
-  ),
-  'whitetip-reef-shark': (
-    <>
-      <path d="M6 31c15-8 40-12 64-10 9 1 16 3 22 5-6 4-13 6-22 7-24 2-49-1-64-2z" />
-      <path d="M44 21 50 8l12 12z" />
-      <path d="M50 8l-2 4 8 6z" opacity=".3" />
-      <path d="M36 38l-4 10 12-7z" />
-      <path d="M92 25 99 16l-4 14 4 14z" />
-      {eye(15, 27, 1.6)}
-    </>
-  ),
-  'reef-manta-ray': (
-    <>
-      <path d="M50 8c14 0 30 8 46 24-16-4-30-4-46-4s-30 0-46 4C20 16 36 8 50 8z" />
-      <path d="M40 10c-3-6-6-8-9-6-2 2 0 6 4 9z" />
-      <path d="M60 10c3-6 6-8 9-6 2 2 0 6-4 9z" />
-      <path d="M46 28h8l-2 26-2-6-2 6z" />
-      {eye(38, 14, 1.6)}
-      {eye(62, 14, 1.6)}
-    </>
-  ),
-
-  /* ---- Reptile ---- */
-  'green-sea-turtle': (
-    <>
-      <ellipse cx="50" cy="30" rx="28" ry="20" />
-      <path d="M50 10v40M28 24h44M30 38h40" stroke="var(--surface)" strokeWidth="1.6" opacity=".55" />
-      <path d="M78 24c8-4 14-4 16 0-2 4-8 5-16 4z" />
-      <circle cx="86" cy="25" r="6" />
-      <path d="M26 12c-8-2-14 2-14 7 4 3 10 3 16 0z" />
-      <path d="M26 48c-8 2-14-2-14-7 4-3 10-3 16 0z" />
-      {eye(90, 24, 1.5)}
-    </>
-  ),
-
-  /* ---- Crustaceans ---- */
-  'sally-lightfoot-crab': (
-    <>
-      <ellipse cx="50" cy="30" rx="22" ry="14" />
-      <path d="M30 24 12 14M30 30 8 28M32 38 14 44M38 42 30 54" stroke="currentColor" strokeWidth="2.4" />
-      <path d="M70 24 88 14M70 30 92 28M68 38 86 44M62 42 70 54" stroke="currentColor" strokeWidth="2.4" />
-      <path d="M34 18c-6-6-12-6-14-2-2 4 2 8 8 9z" />
-      <path d="M66 18c6-6 12-6 14-2 2 4-2 8-8 9z" />
-      {eye(44, 24, 2)}
-      {eye(56, 24, 2)}
-    </>
-  ),
-  'horn-eyed-ghost-crab': (
-    <>
-      <rect x="30" y="20" width="40" height="22" rx="5" />
-      <path d="M42 20V8M58 20V8" stroke="currentColor" strokeWidth="2.6" />
-      <circle cx="42" cy="6" r="3.4" />
-      <circle cx="58" cy="6" r="3.4" />
-      <path d="M30 26 10 18M30 34 8 34M32 40 14 50" stroke="currentColor" strokeWidth="2.4" />
-      <path d="M70 26 90 18M70 34 92 34M68 40 86 50" stroke="currentColor" strokeWidth="2.4" />
-      <path d="M34 44c-6 6-6 12-1 13 4 1 7-3 8-9z" />
-    </>
-  ),
-  'peacock-mantis-shrimp': (
-    <>
-      <path d="M22 26h50v12H22z" />
-      <path d="M34 26v12M44 26v12M54 26v12M64 26v12" stroke="var(--surface)" strokeWidth="1.4" opacity=".5" />
-      <path d="M72 26c8-2 14 0 16 6-2 6-8 8-16 6z" />
-      <path d="M88 24 99 16l-4 16 4 16z" />
-      <path d="M22 26c-6-1-10 1-12 6 2 5 6 7 12 6z" />
-      <path d="M14 30 4 22c0 6 0 10-2 14z" />
-      <path d="M20 22c-2-6 0-10 4-11 3-1 5 2 4 6z" stroke="currentColor" strokeWidth="1.6" />
-      {eye(12, 22, 2.2)}
-      {eye(20, 20, 2.2)}
-    </>
-  ),
-
-  /* ---- Echinoderms ---- */
-  'rock-boring-urchin': (
-    <>
-      <circle cx="50" cy="30" r="15" />
-      <g stroke="currentColor" strokeWidth="2.4">
-        <path d="M50 15V2M50 45v13M35 30H22M65 30h13M39 19 30 10M61 19l9-9M39 41l-9 9M61 41l9 9" />
-        <path d="M44 16 40 4M56 16l4-12M44 44l-4 12M56 44l4 12M36 24 24 20M36 36 24 40M64 24l12-4M64 36l12 4" />
+      <g {...ink}>
+        <path d="M96 40 114 30c-3 7-3 13 0 20z" fill="#8a7a52" />
+        <path d="M20 44c18-14 56-16 78-6-20 14-58 16-78 6z" fill="#9c8b5e" />
+        <path d="M44 26c8-6 18-6 24 2-8 2-16 2-24-2z" fill="#8a7a52" />
+        <path d="M34 50c-4 8-2 14 4 16 2-6 2-11 0-16z" fill="#8a7a52" />
+        <path d="M60 52c-4 8-2 14 4 16 2-6 2-11 0-16z" fill="#8a7a52" />
+        <circle cx="26" cy="28" r="7" fill="#9c8b5e" />
+        <circle cx="38" cy="26" r="7" fill="#9c8b5e" />
       </g>
+      {eye(26, 28, 3)}
+      {eye(38, 26, 3)}
     </>
   ),
-  'crown-of-thorns-starfish': (
+
+  'mangrove-jack': (
     <>
-      <path d="M50 30 62 8l-2 20 20-12-14 16 22 2-22 6 14 14-20-10 2 20-12-18-12 18 2-20-20 10 14-14-22-6 22-2-14-16 20 12-2-20z" />
-      <g stroke="currentColor" strokeWidth="1.4" opacity=".85">
-        <path d="M56 14l3-7M72 20l6-5M78 34l8 2M66 46l5 7M46 48l-3 8M30 42l-7 6M22 28l-8-2M34 16l-5-7" />
+      <g {...ink}>
+        <path d="M92 40 114 26 108 40l6 14z" fill="#9e3a2e" />
+        <path d="M46 20c10-6 22-4 28 4z" fill="#9e3a2e" />
+        <path d="M14 40c16-16 62-18 80-4-18 16-64 18-80 4z" fill="#b2483a" />
+        <path d="M40 54c-2 8 0 12 6 14 2-6 1-10-1-14z" fill="#9e3a2e" />
       </g>
-      <circle cx="50" cy="30" r="4" fill="var(--surface)" opacity=".5" />
+      {ringEye(28, 34, 5)}
     </>
   ),
 
-  /* ---- Molluscs ---- */
-  'common-octopus': (
+  'great-barracuda': (
     <>
-      <path d="M50 4c14 0 22 10 22 22 0 6-2 10-4 14H32c-2-4-4-8-4-14C28 14 36 4 50 4z" />
-      <path d="M34 40c-6 8-16 10-24 6 8-1 12-4 14-10zM42 42c-4 10-12 14-22 14 8-4 12-8 14-16zM50 42c0 10-4 16-10 18 4-6 5-12 4-18zM58 42c4 10 12 14 22 14-8-4-12-8-14-16zM66 40c6 8 16 10 24 6-8-1-12-4-14-10z" />
-      {eye(40, 22, 2.6)}
-      {eye(60, 22, 2.6)}
-    </>
-  ),
-  'giant-clam': (
-    <>
-      <path d="M50 30c-14-14-32-16-40-8 6 14 22 24 40 26z" />
-      <path d="M50 30c14-14 32-16 40-8-6 14-22 24-40 26z" />
-      <path d="M50 48c-14-2-26-8-34-16 10 12 22 18 34 20 12-2 24-8 34-20-8 8-20 14-34 16z" opacity=".55" />
-      <path d="M20 26c8 8 18 14 30 16 12-2 22-8 30-16" stroke="currentColor" strokeWidth="1.4" fill="none" opacity=".5" />
-    </>
-  ),
-
-  /* ---- Cnidarians ---- */
-  'staghorn-coral': (
-    <>
-      <path d="M46 56V34l-10-10-6-14 10 10 6 12V22l-6-14 10 12v-6l6 8 8-14-4 16 12-12-10 18 12-6-14 12 4 10-12-8v18z" />
-      <path d="M30 56V44l-8-10 10 8v14z" />
-      <path d="M70 56V42l8-8-4 10v12z" />
-    </>
-  ),
-  'table-coral': (
-    <>
-      <path d="M8 26c10-8 26-12 42-12s32 4 42 12c-10 4-26 6-42 6s-32-2-42-6z" />
-      <path d="M44 30h12v26H44z" />
-      <path d="M34 56c2-10 6-16 10-20M66 56c-2-10-6-16-10-20" stroke="currentColor" strokeWidth="2.4" fill="none" />
-      <path d="M16 24c8 2 18 4 34 4s26-2 34-4" stroke="var(--surface)" strokeWidth="1.4" fill="none" opacity=".45" />
-    </>
-  ),
-  'bubble-tip-anemone': (
-    <>
-      <path d="M38 56c-2-10-2-18 0-24h24c2 6 2 14 0 24z" />
-      <g>
-        <circle cx="26" cy="26" r="5" /><circle cx="38" cy="18" r="5.5" />
-        <circle cx="50" cy="14" r="6" /><circle cx="62" cy="18" r="5.5" />
-        <circle cx="74" cy="26" r="5" /><circle cx="32" cy="34" r="4.5" />
-        <circle cx="68" cy="34" r="4.5" /><circle cx="50" cy="28" r="5" />
+      <g {...ink}>
+        <path d="M100 40 118 28c-3 8-3 16 0 24z" fill="#9fb0bb" />
+        <path d="M58 28c10-2 18 0 22 4z" fill="#9fb0bb" />
+        <path d="M52 50c-2 8 0 12 6 13 1-5 0-9-2-13z" fill="#9fb0bb" />
+        {/* A long cylinder that tapers to a jaw, not an oval. */}
+        <path d="M2 40 24 32c26-6 60-4 78 4-18 8-52 12-78 6z" fill="#c2ced6" />
+        <path d="M22 34c22 8 56 10 78 2" fill="none" strokeWidth={2} opacity=".5" />
       </g>
-      <path d="M30 30c4-6 10-10 20-10s16 4 20 10z" opacity=".7" />
+      <g stroke={O} strokeWidth={1.6} fill="none">
+        <path d="M4 40 22 36M6 41l16 2" />
+        <path d="M10 39v3M14 39.5v3M18 40v3" />
+      </g>
+      <g fill={O} opacity=".55">
+        <circle cx="56" cy="46" r="2.4" /><circle cx="70" cy="44" r="2.2" />
+        <circle cx="44" cy="48" r="2" />
+      </g>
+      {eye(24, 38, 3.2)}
     </>
   ),
 
-  /* ---- Eel ---- */
+  'giant-trevally': (
+    <>
+      <g {...ink}>
+        <path d="M94 40 116 22c-5 12-5 24 0 36z" fill="#6f7f8d" />
+        <path d="M44 16c12-4 22 2 26 10z" fill="#6f7f8d" />
+        <path d="M42 64c12 4 22-2 26-10z" fill="#6f7f8d" />
+        {/* Steep blunt forehead and a deep flank — the silhouette of a big jack. */}
+        <path d="M14 44c2-16 16-28 36-28 22 0 38 10 46 24-16 16-38 24-58 24-14 0-24-8-24-20z"
+              fill="#8a99a6" />
+        <path d="M22 46c18 10 52 10 70-4" fill="none" strokeWidth={2.2} opacity=".45" />
+      </g>
+      {ringEye(28, 33, 5)}
+    </>
+  ),
+
   'giant-moray': (
     <>
-      <path d="M6 20c8-8 18-6 22 2 4 10-2 16 2 22 4 7 14 8 22 4 10-5 18-4 26 2-8 2-14 2-20 6-10 6-24 6-32-2-8-9-6-18-8-24-2-5-8-8-12-4z" />
-      <path d="M10 14c6-6 14-6 18 0-6-2-12-1-18 4z" />
-      <path d="M6 20c-4-2-6-6-4-9 4 2 8 4 10 8z" />
-      {eye(16, 16, 1.8)}
+      <g {...ink}>
+        <path d="M108 58c-16 6-24-2-34-10-8-6-16-10-26-6-10 4-14 14-24 14-8 0-14-4-18-10 6 2 12 2 18-2 10-6 14-16 26-18 14-2 22 8 32 16 8 6 16 10 26 6z"
+              fill="#6f7f4a" />
+        <path d="M22 40c6-2 10-6 12-10" fill="none" strokeWidth={2.2} />
+        <path d="M14 44c6 4 12 4 18 0" fill="#f0ede0" strokeWidth={2.4} />
+      </g>
+      <g fill="#4c5a30" opacity=".7">
+        <circle cx="52" cy="34" r="3" /><circle cx="68" cy="40" r="2.6" />
+        <circle cx="84" cy="48" r="2.6" /><circle cx="40" cy="42" r="2.4" />
+      </g>
+      {eye(20, 34, 2.8)}
+    </>
+  ),
+
+  'bluestreak-cleaner-wrasse': (
+    <>
+      <g {...ink}>
+        <path d="M100 40 116 30c-2 7-2 13 0 20z" fill="#3d6f9e" />
+        <path d="M10 40c22-12 66-12 90-4-24 12-68 14-90 4z" fill="#5b8fc0" />
+        <path d="M16 40c22 6 62 6 82-2" fill="none" stroke={O} strokeWidth={4} />
+      </g>
+      {eye(24, 37, 2.8)}
+    </>
+  ),
+
+  'bumphead-parrotfish': (
+    <>
+      <g {...ink}>
+        <path d="M92 40 114 26c-5 9-5 19 0 28z" fill="#3f7f6a" />
+        <path d="M50 16c10-6 22-4 28 6z" fill="#3f7f6a" />
+        <path d="M14 44c0-12 8-20 20-25 2-11 14-15 22-9 6 4 6 10 3 15 13 5 21 14 21 25-4 14-24 22-40 22S16 56 14 44z"
+              fill="#4a9179" />
+        <path d="M34 19c8-4 16-2 21 3" fill="none" strokeWidth={2.2} opacity=".5" />
+        <path d="M22 46c8-8 14-10 20-8-4 6-4 10-2 14-8 2-14 0-18-6z" fill="#f0ede0" strokeWidth={2.4} />
+      </g>
+      {ringEye(34, 32, 5)}
+    </>
+  ),
+
+  'blackspotted-puffer': (
+    <>
+      <g {...ink}>
+        <path d="M96 40 112 28v24z" fill="#c9a24a" />
+        <circle cx="56" cy="42" r="28" fill="#d7b158" />
+        <path d="M34 24l-8-8M84 26l8-10M30 60l-10 8M82 60l10 8M56 12V2M56 74v8" fill="none" />
+        <path d="M40 56c10 6 22 6 32 0" fill="none" strokeWidth={2.4} />
+      </g>
+      <g fill={O} opacity=".5">
+        <circle cx="64" cy="48" r="3" /><circle cx="52" cy="56" r="2.4" />
+        <circle cx="70" cy="34" r="2.4" />
+      </g>
+      {ringEye(42, 34)}
+    </>
+  ),
+
+  'red-lionfish': (
+    <>
+      <g {...ink}>
+        <path d="M50 18 44 2M60 16 60 0M70 18 78 2M40 62 30 78M54 66 52 80M68 64 78 78"
+              fill="none" stroke="#b8452f" strokeWidth={4} />
+        <path d="M92 42 110 32c-2 7-2 13 0 20z" fill="#b8452f" />
+        <ellipse cx="54" cy="42" rx="32" ry="22" fill="#e0e0d8" />
+        <path d="M40 22c4 12 4 28 0 40M56 20c4 12 4 32 0 44M72 24c4 10 4 26 0 36"
+              fill="none" stroke="#b8452f" strokeWidth={6} strokeLinecap="butt" />
+        <ellipse cx="54" cy="42" rx="32" ry="22" fill="none" />
+      </g>
+      {ringEye(30, 36)}
+    </>
+  ),
+
+  /* ------------------------------------------------------------------ */
+  /* Sharks, rays and the turtle                                         */
+  /* ------------------------------------------------------------------ */
+  'blacktip-reef-shark': (
+    <>
+      <g {...ink}>
+        <path d="M100 40 116 26c-2 9-2 19 0 28z" fill="#9a8f75" />
+        <path d="M52 20 60 4l10 18z" fill="#9a8f75" />
+        <path d="M40 56l-6 14 16-8z" fill="#9a8f75" />
+        <path d="M14 42c14-16 56-22 86-2-30 20-72 16-86 2z" fill="#a89c80" />
+        <path d="M18 44c14 10 52 14 82 0-30 6-62 4-82 0z" fill="#f0ece0" strokeWidth={2.4} />
+      </g>
+      {/* The black tips the animal is named for, unmissable at card size. */}
+      <g fill={O}>
+        <path d="M56 12 60 4l5 9c-3-1-6-1-9 0z" />
+        <path d="M110 30c3-2 5-3 6-4-1 4-2 8-2 11-1-3-2-5-4-7z" />
+        <path d="M110 46c2-2 3-4 4-7 0 3 1 7 2 11-1-1-3-2-6-4z" />
+        <path d="M36 64l-2 6 7-3z" />
+      </g>
+      {eye(30, 38, 3.4)}
+      <path d="M18 46c4 2 9 3 13 3" stroke={O} strokeWidth="2" fill="none" strokeLinecap="round" />
+    </>
+  ),
+
+  'whitetip-reef-shark': (
+    <>
+      <g {...ink}>
+        <path d="M102 40 116 30c-2 6-2 14 0 20z" fill="#7e8b93" />
+        <path d="M50 22 58 6l12 18z" fill="#7e8b93" />
+        <path d="M44 58l-6 12 14-6z" fill="#7e8b93" />
+        {/* Blunter head and a deeper body than the blacktip — a cave shark, not a
+            flats racer — so the two are told apart by shape as well as by tips. */}
+        <path d="M12 42c6-16 22-24 44-24 22 0 38 8 46 22-14 16-34 22-50 22-18 0-34-8-40-20z"
+              fill="#8e9ba3" />
+        <path d="M16 46c14 10 54 14 84 0-30 6-64 4-84 0z" fill="#eef2f3" strokeWidth={2.4} />
+      </g>
+      <g fill="#fdfdfa" stroke={O} strokeWidth={2}>
+        <path d="M54 14 58 6l5 8c-3-1-6-1-9 0z" />
+        <path d="M110 32c2-1 4-2 6-2-1 3-1 7 0 10-2-1-4-2-6-3z" />
+      </g>
+      {eye(28, 38, 3.2)}
+    </>
+  ),
+
+  'reef-manta-ray': (
+    <>
+      <g {...ink}>
+        <path d="M60 62 58 78M60 62l4 16" fill="none" strokeWidth={2.6} />
+        <path d="M60 20c-10 0-19 3-25 8-10 8-22 12-31 12 10 5 19 12 25 20 8-6 20-10 31-10s23 4 31 10c6-8 15-15 25-20-9 0-21-4-31-12-6-5-15-8-25-8z"
+              fill="#4a6f96" />
+        <path d="M46 26c-3-6-9-9-13-6-3 2-2 7 2 9M74 26c3-6 9-9 13-6 3 2 2 7-2 9" fill="#4a6f96" />
+        <path d="M60 24c-6 10-6 26 0 36 6-10 6-26 0-36z" fill="#3a5c80" strokeWidth={2.2} />
+      </g>
+      {eye(48, 31, 3.2)}
+      {eye(72, 31, 3.2)}
+    </>
+  ),
+
+  'green-sea-turtle': (
+    <>
+      <g {...ink}>
+        <path d="M26 30c-8-6-16-6-20 0 6 2 10 6 12 12M96 30c8-6 16-6 20 0-6 2-10 6-12 12" fill="#4f7f5c" />
+        <path d="M30 58c-6 6-8 12-4 16 6-2 10-6 12-12M92 58c6 6 8 12 4 16-6-2-10-6-12-12" fill="#4f7f5c" />
+        <path d="M100 34c8-4 14-2 16 4-4 6-10 8-16 6z" fill="#67a074" />
+        <ellipse cx="60" cy="44" rx="34" ry="26" fill="#5c9268" />
+        <path d="M60 18v52M32 34c18 8 38 8 56 0M32 56c18-8 38-8 56 0" fill="none" strokeWidth={2.4} opacity=".8" />
+      </g>
+      {eye(108, 36, 2.8)}
+    </>
+  ),
+
+  /* ------------------------------------------------------------------ */
+  /* Crustaceans                                                         */
+  /* ------------------------------------------------------------------ */
+  'sally-lightfoot-crab': (
+    <>
+      <g {...ink}>
+        <path d="M30 34C22 26 16 24 8 26c6 2 10 6 12 12" fill="#e2603f" />
+        <path d="M90 34c8-8 14-10 22-8-6 2-10 6-12 12" fill="#e2603f" />
+        <path d="M34 54l-12 14M46 60l-6 16M74 60l6 16M86 54l12 14" fill="none" />
+        <ellipse cx="60" cy="44" rx="28" ry="18" fill="#ea6d48" />
+        <path d="M40 36c12-6 28-6 40 0" fill="none" strokeWidth={2.4} />
+      </g>
+      {ringEye(50, 34, 4.4)}
+      {ringEye(70, 34, 4.4)}
+    </>
+  ),
+
+  'horn-eyed-ghost-crab': (
+    <>
+      <g {...ink}>
+        <path d="M52 26 50 6M70 26 72 6" fill="none" strokeWidth={3.4} />
+        <path d="M32 40c-8-6-14-8-22-6 6 2 10 6 12 10" fill="#d8c79a" />
+        <path d="M88 40c8-6 14-8 22-6-6 2-10 6-12 10" fill="#d8c79a" />
+        <path d="M38 58l-12 14M50 62l-6 14M72 62l6 14M84 58l12 14" fill="none" />
+        <ellipse cx="60" cy="46" rx="26" ry="17" fill="#e6d7ad" />
+        <path d="M44 40c10-4 22-4 32 0" fill="none" strokeWidth={2.2} />
+      </g>
+      {ringEye(50, 6, 5)}
+      {ringEye(72, 6, 5)}
+    </>
+  ),
+
+  'peacock-mantis-shrimp': (
+    <>
+      <g {...ink}>
+        <path d="M104 40 118 32c-2 5-2 11 0 16z" fill="#3f8f6a" />
+        <path d="M28 34c-8-8-14-10-20-8 4 4 6 8 6 12" fill="#e0a23c" />
+        <path d="M28 48c-8 8-14 10-20 8 4-4 6-8 6-12" fill="#e0a23c" />
+        <path d="M26 40c14-10 62-12 78-4-16 12-64 14-78 4z" fill="#4aa87d" />
+        <path d="M46 32v18M58 30v20M70 31v19M82 33v15" fill="none" stroke="#2f7357" strokeWidth={3} />
+        <path d="M92 30c6 2 10 6 12 10" fill="none" strokeWidth={2.4} />
+      </g>
+      {ringEye(30, 30, 5)}
+      {ringEye(30, 50, 5)}
+    </>
+  ),
+
+  /* ------------------------------------------------------------------ */
+  /* Echinoderms                                                         */
+  /* ------------------------------------------------------------------ */
+  'rock-boring-urchin': (
+    <>
+      <g {...ink}>
+        <path d="M60 40 60 4M60 40 60 76M60 40 24 40M60 40 96 40M60 40 34 14M60 40 86 66M60 40 34 66M60 40 86 14M60 40 44 6M60 40 76 74M60 40 26 56M60 40 94 24"
+              fill="none" stroke="#5a4a6e" strokeWidth={4} />
+        <circle cx="60" cy="40" r="20" fill="#6f5b86" />
+        <circle cx="60" cy="40" r="7" fill="#4a3c5c" strokeWidth={2.4} />
+      </g>
+    </>
+  ),
+
+  'crown-of-thorns-starfish': (
+    <>
+      <g {...ink}>
+        <path d="M60 6 72 30l26 2-18 18 6 26-26-14-26 14 6-26-18-18 26-2z" fill="#8f4a5c" />
+        <path d="M60 6v-4M96 30l6-4M80 72l6 6M40 72l-6 6M24 30l-6-4M74 20l4-8M46 20l-4-8M88 46l8 2M32 46l-8 2"
+              fill="none" stroke="#6e3546" strokeWidth={3.4} />
+        <circle cx="60" cy="42" r="7" fill="#c98a97" strokeWidth={2.4} />
+      </g>
+      <g fill="#6e3546">
+        <circle cx="60" cy="24" r="2.4" /><circle cx="74" cy="40" r="2.4" />
+        <circle cx="46" cy="40" r="2.4" /><circle cx="52" cy="58" r="2.4" />
+        <circle cx="68" cy="58" r="2.4" />
+      </g>
+    </>
+  ),
+
+  /* ------------------------------------------------------------------ */
+  /* Molluscs                                                            */
+  /* ------------------------------------------------------------------ */
+  'common-octopus': (
+    <>
+      <g {...ink}>
+        <path d="M40 52c-8 6-18 10-30 12 12 4 20 10 26 16 4-8 10-14 16-18z" fill="#a44b6e" />
+        <path d="M80 52c8 6 18 10 30 12-12 4-20 10-26 16-4-8-10-14-16-18z" fill="#a44b6e" />
+        <path d="M50 58c-4 10-6 16-4 22 6-4 10-10 14-16z" fill="#a44b6e" />
+        <path d="M70 58c4 10 6 16 4 22-6-4-10-10-14-16z" fill="#a44b6e" />
+        <path d="M60 8c-18 0-30 14-30 28 0 10 6 18 14 22h32c8-4 14-12 14-22 0-14-12-28-30-28z" fill="#bb5a80" />
+      </g>
+      {ringEye(46, 32, 6)}
+      {ringEye(74, 32, 6)}
+    </>
+  ),
+
+  'giant-clam': (
+    <>
+      <g {...ink}>
+        <path d="M12 46c8-16 28-24 48-24s40 8 48 24c-14 8-32 12-48 12s-34-4-48-12z" fill="#cfd8da" />
+        <path d="M12 46c14 12 32 18 48 18s34-6 48-18c-14 10-32 14-48 14s-34-4-48-14z" fill="#b7c3c6" />
+        <path d="M60 22v24M40 25l-4 20M80 25l4 20M24 33l-4 12M96 33l4 12" fill="none" strokeWidth={2.4} opacity=".7" />
+        <path d="M22 44c14 8 62 8 76 0-12 10-64 10-76 0z" fill="#3f8f8a" strokeWidth={2.4} />
+      </g>
+      <g fill="#7fd2c8">
+        <circle cx="42" cy="46" r="2.6" /><circle cx="60" cy="48" r="2.6" />
+        <circle cx="78" cy="46" r="2.6" />
+      </g>
+    </>
+  ),
+
+  /* ------------------------------------------------------------------ */
+  /* Cnidarians                                                          */
+  /* ------------------------------------------------------------------ */
+  'staghorn-coral': (
+    <>
+      <g strokeLinejoin="round" strokeLinecap="round" fill="none">
+        <path d="M42 76V50M42 56 26 38M42 60l14-14M26 38V22M56 46V28M26 30 16 20M56 36l10-10"
+              stroke="#e0846f" strokeWidth={11} />
+        <path d="M78 76V44M78 50 94 34M78 56 64 44M94 34V20M64 44V32M94 26l8-8"
+              stroke="#e0846f" strokeWidth={11} />
+        <path d="M42 76V50M42 56 26 38M42 60l14-14M26 38V22M56 46V28M26 30 16 20M56 36l10-10M78 76V44M78 50 94 34M78 56 64 44M94 34V20M64 44V32M94 26l8-8"
+              stroke={O} strokeWidth={3} strokeOpacity=".22" />
+        <path d="M24 74h72" stroke={O} strokeWidth={4} />
+      </g>
+      <g fill="#f6b8a6" stroke={O} strokeWidth={2}>
+        <circle cx="16" cy="20" r="4" /><circle cx="26" cy="22" r="4" />
+        <circle cx="66" cy="26" r="4" /><circle cx="56" cy="28" r="4" />
+        <circle cx="94" cy="20" r="4" /><circle cx="102" cy="18" r="4" />
+        <circle cx="64" cy="32" r="4" />
+      </g>
+    </>
+  ),
+
+  'table-coral': (
+    <>
+      <g {...ink}>
+        <path d="M52 76V44h16v32z" fill="#c98f6a" />
+        <path d="M8 42c14-12 34-18 52-18s38 6 52 18c-14 8-34 12-52 12S22 50 8 42z" fill="#e0a377" />
+        <path d="M8 42c14 8 34 12 52 12s38-4 52-12" fill="none" strokeWidth={2.4} />
+        <path d="M28 74h64" strokeWidth={4} />
+      </g>
+      <g fill="#f3c9a8">
+        <circle cx="30" cy="34" r="3" /><circle cx="46" cy="30" r="3" />
+        <circle cx="62" cy="29" r="3" /><circle cx="78" cy="31" r="3" />
+        <circle cx="92" cy="35" r="3" />
+      </g>
+    </>
+  ),
+
+  'bubble-tip-anemone': (
+    <>
+      <g {...ink}>
+        <path d="M44 76 46 52c0-6 28-6 28 0l2 24z" fill="#a86a9e" />
+        <path d="M46 52c-8-8-16-14-24-16M52 48c-6-10-12-20-18-26M58 46c-2-12-4-22-6-32M64 46c2-12 4-22 6-32M70 48c6-10 12-20 18-26M74 52c8-8 16-14 24-16"
+              fill="none" stroke="#c47fb6" strokeWidth={5} />
+      </g>
+      <g fill="#f0b6de" stroke={O} strokeWidth={2}>
+        <circle cx="22" cy="36" r="5" /><circle cx="34" cy="26" r="5" />
+        <circle cx="52" cy="14" r="5" /><circle cx="70" cy="14" r="5" />
+        <circle cx="88" cy="26" r="5" /><circle cx="98" cy="36" r="5" />
+      </g>
     </>
   ),
 };
@@ -315,22 +503,22 @@ export interface SpeciesArtProps {
 }
 
 /**
- * The silhouette for a species, or nothing at all.
+ * The drawing for a species, or nothing.
  *
- * Returning null for an unknown id is deliberate: a missing drawing should leave
- * a card slightly plainer, never break it or leave a broken-image box behind.
+ * A missing entry renders nothing rather than a placeholder: a card with no art
+ * should look like a card with no art, not like a card whose art failed.
  */
 export function SpeciesArt({ definitionId, className = 'art' }: SpeciesArtProps) {
   const art = ART[definitionId];
   if (!art) return null;
   return (
-    <svg className={className} viewBox="0 0 100 56" aria-hidden="true" focusable="false">
+    <svg className={className} viewBox="0 0 120 80" role="presentation" aria-hidden="true">
       {art}
     </svg>
   );
 }
 
-/** Which species have a drawing. Exported so a test can hold the set complete. */
+/** Whether a species has a drawing. Used by the tests to keep the set honest. */
 export function hasArt(definitionId: string): boolean {
   return definitionId in ART;
 }

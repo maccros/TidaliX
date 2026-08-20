@@ -402,6 +402,12 @@ measurement run. What one attacker can do to one card is a subtraction.
 
 ## Reading the board
 
+A card the coming tide will kill **on its own** — no attack, no other play, just
+the phase turning and its own tide line taking its ceiling below the damage
+already marked on it — is flagged as **dying**. It is the one loss a player can
+still prevent, by attacking with it now or releasing it, and without the warning
+it reads as the game quietly taking a card away.
+
 Colour on a card means **what you can do with it right now** — playable, ready,
 selected, targetable, spent, or exposed by this phase. It is never used for what
 a card permanently *is*.

@@ -311,6 +311,52 @@ describe('client', () => {
     expect(card?.className).toMatch(/card--phase-(low|rising|high|falling)/);
   });
 
+  it('says which opponent you are facing in the log, from the first line', () => {
+    // The selector is a small control in the corner of the bar, so the log is
+    // where a player can actually confirm which bot they drew.
+    render(3);
+    const first = container.querySelector('.log__line');
+    expect(first?.textContent).toContain('Normal opponent');
+    expect(first?.textContent).toContain('seed 3');
+  });
+
+  it('records a mid-game opponent change, and says when it takes effect', () => {
+    render(3);
+    const select = container.querySelector<HTMLSelectElement>('.bar__difficulty select')!;
+    act(() => {
+      select.value = 'hard';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    const lines = [...container.querySelectorAll('.log__line')].map((l) => l.textContent ?? '');
+    expect(lines.some((l) => l.includes('Hard') && l.includes('next turn'))).toBe(true);
+  });
+
+  it('warns on a card the coming tide will kill by itself', async () => {
+    // The one loss a player can still prevent, and the one they would otherwise
+    // discover only after it happened.
+    const { createInstance, effectiveStats, CARDS } = await import('@tidalix/engine');
+    const { CardView } = await import('./CardView.tsx');
+    const def = CARDS.find((c) => c.id === 'whitetip-reef-shark')!;
+    const inst = createInstance(def.id, 0);
+    inst.damage = 3;
+
+    act(() => {
+      root.render(
+        <CardView
+          instance={inst}
+          stats={effectiveStats(inst, 'low', def)}
+          phase="low"
+          state="idle"
+          dying
+        />,
+      );
+    });
+    const card = container.querySelector('.card')!;
+    expect(card.classList.contains('is-dying')).toBe(true);
+    expect(container.querySelector('.chip--dying')?.textContent).toBe('dying');
+    expect(card.getAttribute('aria-label')).toContain('dying at the next tide');
+  });
+
   it('explains every trait and keyword on the full card', async () => {
     // A bare tag reading "cleaner" or "anemonefish" tells a player nothing, and
     // says nothing at all about what reads it. The detail view has to.

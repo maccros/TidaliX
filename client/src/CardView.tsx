@@ -51,6 +51,12 @@ export interface CardViewProps {
   facedown?: boolean;
   /** Matured on your reef and eligible to be released this turn. */
   releasable?: boolean;
+  /**
+   * The coming tide kills it on its own. Worth shouting about: it is the one
+   * loss a player can still do something about, and the one they would otherwise
+   * only discover after it happened.
+   */
+  dying?: boolean;
   onClick?: () => void;
   /** Open the full card. Bound to right-click and long-press, never to a tap. */
   onInspect?: () => void;
@@ -108,6 +114,7 @@ export function CardView({
   linked = false,
   facedown = false,
   releasable = false,
+  dying = false,
   onClick,
   onInspect,
   onHover,
@@ -146,6 +153,7 @@ export function CardView({
     linked ? 'is-linked' : '',
     stats.exposed ? 'is-exposed' : '',
     releasable ? 'is-releasable' : '',
+    dying ? 'is-dying' : '',
     instance.poisoned ? 'is-poisoned' : '',
   ]
     .filter(Boolean)
@@ -191,6 +199,7 @@ export function CardView({
         `${stats.attack} attack`,
         `${stats.health} health`,
         toxic ? 'toxic' : '',
+        dying ? 'dying at the next tide' : '',
         state === 'support' ? 'no attack this phase' : '',
       ]
         .filter(Boolean)
@@ -280,6 +289,11 @@ export function CardView({
           {stats.exposed && (
             <span className="chip chip--exposed" title="takes +1 damage from attacks">
               exposed
+            </span>
+          )}
+          {dying && (
+            <span className="chip chip--dying" title="the coming tide kills it on its own">
+              dying
             </span>
           )}
           {instance.poisoned && (

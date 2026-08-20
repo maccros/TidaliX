@@ -13,7 +13,7 @@ import type {
 } from './types.js';
 import { CARDS, getCard } from './cards.js';
 import { shuffle } from './rng.js';
-import { effectiveStats, cyclesCompleted } from './tide.js';
+import { effectiveStats, cyclesCompleted, diesAtNextPhase } from './tide.js';
 import { isMature, stepsUntilMature } from './economy.js';
 import type { Taxon } from './types.js';
 
@@ -206,6 +206,8 @@ export interface BoardCardView {
   reefGuard: boolean;
   /** Damage it shrugs off from every source. */
   armour: number;
+  /** The coming tide kills it on its own, with no other interaction. */
+  dyingNextPhase: boolean;
   /** Damage it deals back on top of its attack. */
   spines: number;
   /** Eating this card kills the eater. */
@@ -245,6 +247,7 @@ export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
       exposed: stats.exposed,
       reefGuard: def.keywords?.includes('reef-guard') ?? false,
       armour: stats.armour,
+      dyingNextPhase: diesAtNextPhase(state, inst),
       spines: stats.spines,
       toxic: def.keywords?.includes('toxic') ?? false,
       toxinImmune: def.keywords?.includes('toxin-immune') ?? false,

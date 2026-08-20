@@ -21,6 +21,7 @@ import {
   conservedTaxa,
   createGame,
   cyclesCompleted,
+  diesAtNextPhase,
   effectiveStats,
   getCard,
   legalActions,
@@ -45,6 +46,25 @@ import { SymbiosisLinks } from './SymbiosisLinks.tsx';
 
 const YOU: PlayerId = 0;
 const BOT: PlayerId = 1;
+
+const DEFAULT_DIFFICULTY: Difficulty = 'normal';
+
+const capitalise = (s: string) => s[0]!.toUpperCase() + s.slice(1);
+
+/**
+ * The first line of every game's log.
+ *
+ * The difficulty selector is a small control in the corner of the bar, so which
+ * opponent you actually drew is easy to lose track of — especially after a
+ * restart. Stating it in the log means the answer is always somewhere on screen,
+ * in the one place that already records what happened.
+ */
+function openingLine(seed: number, difficulty: Difficulty): { text: string; kind: string } {
+  return {
+    text: `New game · ${capitalise(difficulty)} opponent · seed ${seed}`,
+    kind: 'setup',
+  };
+}
 
 const PHASE_NOTE: Record<TidePhase, string> = {
   low: 'The flat is drained. Reef-dwellers are stranded and take bonus damage.',
@@ -88,9 +108,9 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [aiming, setAiming] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
-  const [log, setLog] = useState<{ text: string; kind: string }[]>([]);
+  const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [openingLine(seed, DEFAULT_DIFFICULTY)]);
   const [botThinking, setBotThinking] = useState(false);
-  const [difficulty, setDifficulty] = useState<Difficulty>('normal');
+  const [difficulty, setDifficulty] = useState<Difficulty>(DEFAULT_DIFFICULTY);
 
   const [boardEl, setBoardEl] = useState<HTMLElement | null>(null);
   const nodes = useRef(new Map<string, HTMLElement>());
@@ -106,15 +126,18 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     if (lines.length) setLog((prev) => [...prev.slice(-60), ...lines]);
   }, []);
 
-  const restart = useCallback((nextSeed: number) => {
-    nodes.current.clear();
-    setSeed(nextSeed);
-    setState(newGame(nextSeed));
-    setSelected(null);
-    setAiming(null);
-    setInspecting(null);
-    setLog([]);
-  }, []);
+  const restart = useCallback(
+    (nextSeed: number) => {
+      nodes.current.clear();
+      setSeed(nextSeed);
+      setState(newGame(nextSeed));
+      setSelected(null);
+      setAiming(null);
+      setInspecting(null);
+      setLog([openingLine(nextSeed, difficulty)]);
+    },
+    [difficulty],
+  );
 
   const run = useCallback(
     (action: GameAction) => {
@@ -433,7 +456,17 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
           <span className="bar__difficulty-label">opponent</span>
           <select
             value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            onChange={(e) => {
+              const next = e.target.value as Difficulty;
+              setDifficulty(next);
+              setLog((prev) => [
+                ...prev,
+                {
+                  text: `Opponent set to ${capitalise(next)} — from its next turn.`,
+                  kind: 'setup',
+                },
+              ]);
+            }}
             aria-label="Opponent difficulty"
           >
             {DIFFICULTIES.map((d) => (
@@ -594,6 +627,7 @@ function Row({
           state={cardState(card.instanceId, mine)}
           linked={linked.has(card.instanceId)}
           releasable={releasable.has(card.instanceId)}
+          dying={diesAtNextPhase(state, card)}
           onClick={() => onClick(card.instanceId, mine)}
           onInspect={() => onInspect(card.instanceId)}
           onHover={onHover}

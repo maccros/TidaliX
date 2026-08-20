@@ -303,6 +303,19 @@ button { font: inherit; color: inherit; }
 .chip--symbiosis { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--ink); }
 .chip--exposed { background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--warn); font-weight: 700; }
 .chip--poisoned { background: var(--warn); color: var(--surface); font-weight: 700; }
+.chip--dying { background: var(--warn); color: var(--surface); font-weight: 700; }
+
+/*
+ * The coming tide will kill this card on its own. Marked loudly, because it is
+ * the one loss the player can still prevent — by attacking with it now, or by
+ * releasing it — and the one they would otherwise only find out about after the
+ * fact. A state, not an identity, so it earns its colour.
+ */
+.card.is-dying {
+  border-color: var(--warn);
+  box-shadow: inset 0 0 0 1px var(--warn);
+}
+.card.is-dying .card__art { border-color: color-mix(in srgb, var(--warn) 45%, #dbe4e6); }
 
 /* ---- Player bars ---- */
 .player {
@@ -560,6 +573,7 @@ button { font: inherit; color: inherit; }
   font-size: 0.74rem; font-family: var(--mono); color: var(--ink-soft);
 }
 .log__line--tide { color: var(--accent); font-weight: 700; }
+.log__line--setup { color: var(--ink-soft); font-style: italic; }
 .log__line--conserve { color: var(--good); font-weight: 700; }
 .log__line--death { color: var(--warn); }
 .log__line--retaliation { color: var(--warn); }
@@ -638,4 +652,29 @@ button { font: inherit; color: inherit; }
 }
 @media (max-width: 32rem) {
   .detail__entry { grid-template-columns: 1fr; gap: 0.15rem; }
+}
+
+/* ---- Species art ---- */
+/*
+ * Each drawing sits on its own light plate, in both themes.
+ *
+ * The art carries a fixed dark outline — which is what makes it read at card
+ * size, and which would vanish against the dark theme's card surface. A plate is
+ * the honest fix rather than recolouring every outline per theme: a specimen
+ * card has a plate, and the animal keeps the same colours wherever it is shown.
+ */
+.art { display: block; width: 100%; height: 2.9rem; }
+.art--large { width: 100%; max-width: 13rem; height: 7.5rem; }
+
+.card__art {
+  background: #f2f6f7;
+  border: 1px solid #dbe4e6;
+  border-radius: 3px;
+  padding: 0.15rem 0.2rem;
+  margin: 0.1rem 0;
+}
+.detail__art {
+  display: flex; justify-content: center;
+  background: #f2f6f7; border: 1px solid #dbe4e6; border-radius: 4px;
+  padding: 0.5rem; margin-bottom: 0.55rem;
 }

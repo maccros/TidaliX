@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { TIDE_CYCLE, advancePhase, effectiveStats, nextPhase } from '../src/tide.js';
+import { TIDE_CYCLE, advancePhase, diesAtNextPhase, effectiveStats, nextPhase } from '../src/tide.js';
 import { getCard, CARDS } from '../src/cards.js';
-import { createInstance, resetInstanceIds } from '../src/state.js';
-import type { TidePhase } from '../src/types.js';
+import { boardView, createGame, createInstance, resetInstanceIds } from '../src/state.js';
+import { startGame } from '../src/resolver.js';
+import type { GameState, TidePhase } from '../src/types.js';
 
 describe('tide phase machine', () => {
   it('cycles low → rising → high → falling → low', () => {
@@ -97,5 +98,58 @@ describe('card set integrity', () => {
       });
       expect(favoured.length, `cards favouring ${phase}`).toBeGreaterThanOrEqual(3);
     }
+  });
+});
+
+describe('dying at the next tide', () => {
+  /** A started game with empty decks; boards get populated directly. */
+  function board(phase: TidePhase) {
+    resetInstanceIds();
+    return startGame(
+      createGame({
+        decks: [Array<string>(10).fill('moorish-idol'), Array<string>(10).fill('moorish-idol')],
+        shuffleDecks: false,
+        config: { startingHandSize: 0, startingPhase: phase },
+      }),
+    ).state;
+  }
+
+  function put(state: GameState, definitionId: string, damage = 0): GameState {
+    const next = structuredClone(state);
+    const inst = createInstance(definitionId, 0);
+    inst.playedOnTurn = 0;
+    inst.damage = damage;
+    next.players[0].board.push(inst);
+    return next;
+  }
+
+  it('sees a card the coming phase will take below zero', () => {
+    // A manta is 4/6 at high water and loses nothing to health at falling — but
+    // a bumphead loses 2 attack and nothing else, so use the card that really
+    // does lose a ceiling: the anemonefish standing on a partner's aura is
+    // covered elsewhere. Here the tide itself does it.
+    const s = put(board('low'), 'whitetip-reef-shark', 3);
+    const shark = s.players[0].board[0]!;
+    // Low tide gives the whitetip +1 health: 4 total, 3 marked, 1 left. At
+    // rising it drops back to 3, which the 3 damage exactly finishes.
+    expect(effectiveStats(shark, 'low', getCard(shark.definitionId), s.players[0].board).health).toBe(1);
+    expect(diesAtNextPhase(s, shark)).toBe(true);
+  });
+
+  it('leaves a healthy card alone', () => {
+    const s = put(board('low'), 'whitetip-reef-shark');
+    expect(diesAtNextPhase(s, s.players[0].board[0]!)).toBe(false);
+  });
+
+  it('does not flag something that is already dead', () => {
+    // Already at zero is not "dying" — it is about to be swept, which is a
+    // different thing and would make the warning fire on corpses.
+    const s = put(board('low'), 'whitetip-reef-shark', 99);
+    expect(diesAtNextPhase(s, s.players[0].board[0]!)).toBe(false);
+  });
+
+  it('is surfaced on the board view, where the client reads it', () => {
+    const s = put(board('low'), 'whitetip-reef-shark', 3);
+    expect(boardView(s, 0)[0]?.dyingNextPhase).toBe(true);
   });
 });

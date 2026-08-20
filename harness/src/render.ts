@@ -112,7 +112,9 @@ function tags(view: BoardCardView, showReady: boolean): string {
   if (view.reefGuard) out.push(blue('reef-guard'));
   // Toxicity has to be legible before an attack is declared, not after.
   if (view.armour > 0) out.push(blue(`armour ${view.armour}`));
+  if (view.dyingNextPhase) out.push(red('dying at the next tide'));
   if (view.armour > 0) out.push(blue(`armour ${view.armour}`));
+  if (view.dyingNextPhase) out.push(red('dying at the next tide'));
   if (view.toxic) out.push(red('toxic'));
   if (view.toxinImmune) out.push(green('immune'));
   if (view.poisoned) out.push(red('POISONED'));

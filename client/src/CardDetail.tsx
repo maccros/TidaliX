@@ -16,7 +16,6 @@ import {
   TAXON_LABEL,
   TIDE_CYCLE,
   TRAIT_NOTE,
-  auraSourcesFor,
   type ArrivalEffect,
   effectiveStats,
   getCard,
@@ -185,11 +184,6 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
               <b>{ARRIVAL_TEXT[def.arrival.kind](def.arrival.amount)}</b>
               <span className="detail__arrivalnote">{def.arrival.note}</span>
             </p>
-            <p className="detail__arrivalrule">
-              Resolves the moment the card is played, before anything else happens — which
-              is what lets a card answer a board rather than merely join one. It does not let
-              the card attack: that still waits a turn unless it has <em>surge</em>.
-            </p>
           </section>
         )}
 
@@ -230,60 +224,18 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                 </div>
               ) : null}
 
-              {/* Every trait is explained, and — more usefully — says what in the
-                  set actually reads it. A trait nothing reads is decoration, and
-                  the player deserves to be able to tell which is which. */}
-              {def.traits?.map((t) => {
-                const readers = auraSourcesFor(t).filter((r) => r.card.id !== def.id);
-                return (
+              {/* Every trait says what it is. What reads it is a question about
+                  balancing the set, not about whether to play this card, so it is
+                  not on the card. */}
+              {def.traits?.map((t) => (
                   <div key={t} className="detail__entry">
                     <dt>
                       <span className="tag tag--trait">{t}</span>
                     </dt>
-                    <dd>
-                      {TRAIT_NOTE[t]}
-                      {readers.length > 0 ? (
-                        <span className="detail__readers">
-                          Read by{' '}
-                          {readers.map((r, i) => (
-                            <span key={r.card.id}>
-                              {i > 0 ? ', ' : ''}
-                              <b>{r.card.name}</b> ({deltaLabel(r.aura.grants)})
-                            </span>
-                          ))}
-                          .
-                        </span>
-                      ) : (
-                        <span className="detail__readers">
-                          Nothing in the set reads this yet — on this card it is description, not
-                          a rule.
-                        </span>
-                      )}
-                    </dd>
+                    <dd>{TRAIT_NOTE[t]}</dd>
                   </div>
-                );
-              })}
+              ))}
             </dl>
-          </section>
-        )}
-
-        {(def.keywords?.includes('toxic') || def.keywords?.includes('toxin-immune')) && (
-          <section className="detail__section">
-            <h3 className="detail__h">Toxin</h3>
-            {def.keywords?.includes('toxic') && (
-              <p className="detail__toxin">
-                <b>Toxic.</b> Anything that destroys this animal by attacking it dies too —
-                eating it is what kills you. A predator with <em>toxin-immune</em> is the
-                exception, and so is anything that merely wounds it: the toxin only answers a
-                kill.
-              </p>
-            )}
-            {def.keywords?.includes('toxin-immune') && (
-              <p className="detail__toxin">
-                <b>Toxin-immune.</b> It can destroy a <em>toxic</em> animal and swim away. Spines
-                still hurt it — immunity is to the venom, not to the wound.
-              </p>
-            )}
           </section>
         )}
 
@@ -350,13 +302,12 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
             <p className="detail__lineage">
               {release.lineageHeld ? (
                 <>
-                  You already protect <b>{TAXON_LABEL[def.taxon]}</b>. Releasing this adds a
-                  species to the pile but no income — the pile pays per lineage.
+                  <b>{TAXON_LABEL[def.taxon]}</b> is already protected — no extra income.
                 </>
               ) : (
                 <>
-                  A lineage you do not hold: <b>{TAXON_LABEL[def.taxon]}</b>. Releasing it takes
-                  the pile&rsquo;s standing income to <b>⬡+{release.incomeAfter} a turn</b>.
+                  Protects <b>{TAXON_LABEL[def.taxon]}</b> — takes the pile to{' '}
+                  <b>⬡+{release.incomeAfter} a turn</b>.
                 </>
               )}
             </p>

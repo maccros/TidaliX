@@ -84,10 +84,7 @@ export function EnergyPanel({ state, player }: EnergyPanelProps) {
         <ul className="energy__lines">
           <Lines lines={next.lines} />
         </ul>
-        <p className="energy__caveat">
-          An estimate: your reef has to survive the opponent&rsquo;s turn, and what you carry over
-          falls as you spend.
-        </p>
+        <p className="energy__caveat">Falls as you spend, and assumes your reef survives.</p>
       </div>
     </section>
   );
