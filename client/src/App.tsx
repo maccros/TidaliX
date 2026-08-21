@@ -747,13 +747,18 @@ function ConservationPanel({
             {toNext > 0 && (
               <span className="conserve__next">
                 {' '}
-                — {toNext} more {toNext === 1 ? 'taxon' : 'taxa'} for ⬡+{income + 1}
+                — {toNext} more <b>different</b> {toNext === 1 ? 'taxon' : 'taxa'} for ⬡+
+                {income + 1}
               </span>
             )}
           </>
         ) : (
           <>
-            Protect {toNext} {toNext === 1 ? 'taxon' : 'taxa'} for <b>⬡+1 every turn</b>
+            {/* "Different" is the whole rule. A second reef fish looks like
+                progress and pays nothing, so the word has to be in the line
+                that promises the energy, not only in the one about winning. */}
+            Protect {toNext} <b>different</b> {toNext === 1 ? 'taxon' : 'taxa'} for{' '}
+            <b>⬡+1 every turn</b>
           </>
         )}
       </p>
@@ -785,7 +790,7 @@ function ConservationPanel({
         </ul>
       )}
 
-      {ready.length > 0 ? (
+      {ready.length > 0 && (
         <div className="conserve__actions">
           <span className="conserve__prompt">Release back to the wild:</span>
           {ready.map((c) => {
@@ -809,13 +814,27 @@ function ConservationPanel({
             );
           })}
         </div>
-      ) : (
-        <p className="conserve__hint">
-          {target > 0
-            ? `Protect ${target} different taxa to win. A species matures after one full cycle of the tide.`
-            : 'A species matures after one full cycle of the tide.'}
-        </p>
       )}
+
+      {/* Always on screen, including while the release buttons are up — which
+          is exactly when the one-per-turn limit matters and when this used to
+          be replaced by them. */}
+      <p className="conserve__hint">
+        {target > 0 && (
+          <>
+            Protect {target} different taxa to win. A species matures after one full cycle of
+            the tide.
+            <br />
+          </>
+        )}
+        {target === 0 && (
+          <>
+            A species matures after one full cycle of the tide.
+            <br />
+          </>
+        )}
+        You may release <b>one species per turn</b>.
+      </p>
     </section>
   );
 }

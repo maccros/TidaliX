@@ -191,11 +191,13 @@ const ART: Record<string, ReactNode> = {
   'bluestreak-cleaner-wrasse': (
     <>
       <g {...ink}>
-        <path d="M90 33 116 24c-2 8-2 16 0 24L90 40c2-3 2-4 0-7z" fill="#3d6f9e" />
-        <path d="M10 40c22-12 66-12 90-4-24 12-68 14-90 4z" fill="#5b8fc0" />
-        <path d="M16 40c22 6 62 6 82-2" fill="none" stroke={O} strokeWidth={4} />
+        <path d="M92 32 116 24c-2 8-2 16 0 24L92 42c2-4 2-6 0-10z" fill="#3d6f9e" />
+        <path d="M8 40c24-14 68-14 92-6-24 14-70 16-92 6z" fill="#5b8fc0" />
       </g>
-      {eye(24, 37, 2.8)}
+      {/* The streak itself: a wedge down the flank, thin at the snout and
+          broad at the tail, which is how the fish is recognised underwater. */}
+      <path d="M14 37c24 2 60 0 84-5v6c-26 5-60 6-84 4z" fill={O} />
+      {eye(24, 34, 2.8)}
     </>
   ),
 
@@ -263,7 +265,7 @@ const ART: Record<string, ReactNode> = {
       {/* The white tips themselves: on the first dorsal and the upper tail lobe. */}
       <g fill="#fdfdfa" stroke={O} strokeWidth={2}>
         <path d="M54 16 58 8l5 9c-3-1-6-1-9-1z" />
-        <path d="M111 26 118 22c-2 4-2 8-1 12-3-3-5-7-6-8z" />
+        <path d="M108 28 116 24c-2 4-2 6-1 9z" />
       </g>
       {eye(28, 38, 3.2)}
     </>
@@ -685,16 +687,16 @@ const ART: Record<string, ReactNode> = {
   'tawny-nurse-shark': (
     <>
       <g {...ink}>
-        {/* One long upper lobe and almost no lower one — a nurse shark's tail,
-            and the quickest way to tell it from the two reef sharks. */}
-        <path d="M100 35 118 18c1 10-1 19-6 26L100 48c3-4 3-9 0-13z" fill="#a8895c" />
+        {/* One long sweeping lobe and no lower one — a nurse shark's tail, and
+            the quickest way to tell it from the two reef sharks. */}
+        <path d="M100 38 118 20c2 10-1 19-8 25L98 36z" fill="#a8895c" />
         <path d="M48 25 58 8 70 27z" fill="#a8895c" />
         <path d="M74 26 82 12 90 30z" fill="#a8895c" />
-        <path d="M44 56 34 70 54 62z" fill="#a8895c" />
+        <path d="M42 57 32 71 54 63z" fill="#a8895c" />
         {/* Blunt, heavy and slow — nothing like the two reef sharks. */}
-        <path d="M10 44c4-14 20-22 44-22 24 0 44 8 54 20-14 16-36 22-56 22-22 0-40-8-42-20z"
+        <path d="M10 44c4-14 20-22 44-22 22 0 40 7 48 18-13 15-34 20-52 20-22 0-38-8-40-16z"
               fill="#bb9a68" />
-        <path d="M14 48c16 10 58 12 88-2-32 6-68 6-88 2z" fill="#efe6d2" strokeWidth={2.4} />
+        <path d="M14 48c16 10 56 12 84-2-30 6-64 6-84 2z" fill="#efe6d2" strokeWidth={2.4} />
         {/* The barbels it feels for prey with. */}
         <path d="M14 48c-4 4-6 8-4 12M20 50c-3 5-4 9-2 12" fill="none" strokeWidth={2.2} />
       </g>
