@@ -84,16 +84,18 @@ const ART: Record<string, ReactNode> = {
   'clown-triggerfish': (
     <>
       <g {...ink}>
-        <path d="M92 40 112 28v24z" fill="#2b3f4a" />
+        <path d="M68 36 106 24c-3 10-3 22 0 32L68 44c2-3 2-5 0-8z" fill="#2b3f4a" />
         <path d="M46 16c10-6 22-2 26 8z" fill="#2b3f4a" />
         <path d="M44 64c10 6 24 2 28-8z" fill="#2b3f4a" />
         <ellipse cx="54" cy="40" rx="36" ry="24" fill="#33505e" />
-        <path d="M28 44c10-8 24-8 34 2-10 8-26 8-34-2z" fill="#f6f6f2" strokeWidth={2.4} />
         <path d="M60 22c10-2 18 2 22 8" fill="none" stroke="#e8c246" strokeWidth={5} />
-      </g>
-      <g fill="#f6f6f2">
-        <circle cx="36" cy="48" r="3.4" /><circle cx="48" cy="54" r="3" />
-        <circle cx="58" cy="50" r="2.6" />
+        {/* Big round blotches over the lower half. Merged into one patch they
+            read as a mouth, which is what the last drawing did. */}
+        <g fill="#f6f6f2" strokeWidth={2.2}>
+          <circle cx="34" cy="48" r="6" /><circle cx="48" cy="55" r="7" />
+          <circle cx="63" cy="52" r="5.5" /><circle cx="75" cy="46" r="4.5" />
+        </g>
+        <path d="M20 44c4 3 8 4 12 3" fill="none" stroke="#e8873a" strokeWidth={3} />
       </g>
       {ringEye(34, 30)}
     </>
@@ -103,8 +105,8 @@ const ART: Record<string, ReactNode> = {
   'moorish-idol': (
     <>
       <g {...ink}>
+        <path d="M68 38 104 26c-2 10-2 18 0 26L68 46c2-3 2-5 0-8z" fill="#e8c246" />
         <path d="M74 22C86 8 96 2 104 2c-4 12-12 24-22 32z" fill="#f6f6f2" />
-        <path d="M88 44 108 34c-2 8-2 14 0 20z" fill="#e8c246" />
         <ellipse cx="52" cy="42" rx="32" ry="24" fill="#f6f6f2" />
         <path d="M38 20c6 12 6 32 0 44-6-2-10-6-12-10 4-8 4-16 0-24 2-4 6-8 12-10z" fill="#2b3f4a" />
         <path d="M66 22c6 12 6 30 0 42-5-2-8-4-10-8 4-8 4-18 0-26 2-4 5-6 10-8z" fill="#2b3f4a" />
@@ -174,17 +176,28 @@ const ART: Record<string, ReactNode> = {
 
   'giant-moray': (
     <>
+      {/* Body drawn as a coloured stroke over a heavier dark one, so the
+          mottling laid over it afterwards cannot spill past the edge.
+          Chocolate and gold, not olive: at card size the olive read as the
+          olive sea snake, and two long green animals in one set is one too many. */}
+      <path d="M26 36c16-14 28 12 44 6 14-5 24 12 36 6" fill="none" stroke={O}
+            strokeWidth={20} strokeLinecap="round" />
+      <path d="M26 36c16-14 28 12 44 6 14-5 24 12 36 6" fill="none" stroke="#6b4632"
+            strokeWidth={14} strokeLinecap="round" />
       <g {...ink}>
-        <path d="M108 58c-16 6-24-2-34-10-8-6-16-10-26-6-10 4-14 14-24 14-8 0-14-4-18-10 6 2 12 2 18-2 10-6 14-16 26-18 14-2 22 8 32 16 8 6 16 10 26 6z"
-              fill="#6f7f4a" />
-        <path d="M22 40c6-2 10-6 12-10" fill="none" strokeWidth={2.2} />
-        <path d="M14 44c6 4 12 4 18 0" fill="#f0ede0" strokeWidth={2.4} />
+        {/* The head, and the jaw it holds open to breathe. */}
+        <path d="M28 25c-11-1-20 4-22 12 5 4 12 6 19 6 8 0 14-3 17-8z" fill="#7d543c" />
+        <path d="M7 39c5 4 12 6 19 6 5 0 10-1 13-3-5 6-13 9-21 8-6-1-10-5-11-11z"
+              fill="#f0ede0" strokeWidth={2.2} />
       </g>
-      <g fill="#4c5a30" opacity=".7">
-        <circle cx="52" cy="34" r="3" /><circle cx="68" cy="40" r="2.6" />
-        <circle cx="84" cy="48" r="2.6" /><circle cx="40" cy="42" r="2.4" />
+      {/* The leopard rosettes it is patterned with. */}
+      <g fill="#dfa94a" opacity=".9">
+        <circle cx="26" cy="28" r="2.4" /><circle cx="48" cy="36" r="3.2" />
+        <circle cx="57" cy="40" r="2.6" /><circle cx="66" cy="42" r="3.4" />
+        <circle cx="75" cy="41" r="2.6" /><circle cx="84" cy="43" r="3" />
+        <circle cx="92" cy="46" r="2.4" /><circle cx="100" cy="48" r="2.8" />
       </g>
-      {eye(20, 34, 2.8)}
+      {eye(18, 31, 2.8)}
     </>
   ),
 
@@ -204,45 +217,56 @@ const ART: Record<string, ReactNode> = {
   'bumphead-parrotfish': (
     <>
       <g {...ink}>
-        <path d="M92 40 114 26c-5 9-5 19 0 28z" fill="#3f7f6a" />
-        <path d="M50 16c10-6 22-4 28 6z" fill="#3f7f6a" />
-        <path d="M14 44c0-12 8-20 20-25 2-11 14-15 22-9 6 4 6 10 3 15 13 5 21 14 21 25-4 14-24 22-40 22S16 56 14 44z"
-              fill="#4a9179" />
-        <path d="M34 19c8-4 16-2 21 3" fill="none" strokeWidth={2.2} opacity=".5" />
-        <path d="M22 46c8-8 14-10 20-8-4 6-4 10-2 14-8 2-14 0-18-6z" fill="#f0ede0" strokeWidth={2.4} />
+        <path d="M62 36 106 22c-4 12-4 28 0 40L62 44c3-3 3-5 0-8z" fill="#3f7f6a" />
+        {/* The squared-off forehead, which is the whole animal: same green as
+            the body, so head and body read as one mass with a bulge on it. */}
+        <path d="M30 36c-4-22 12-32 26-22 8 6 10 16 8 24-14 6-28 6-34-2z" fill="#4a9179" />
+        <ellipse cx="52" cy="44" rx="30" ry="24" fill="#4a9179" />
+        {/* The fused beak it grinds coral with. */}
+        <path d="M22 48c8-4 14-5 19-3-4 4-4 9-2 12-9 1-15-2-17-9z" fill="#f0ede0" strokeWidth={2.4} />
       </g>
-      {ringEye(34, 32, 5)}
+      {ringEye(36, 34, 5)}
     </>
   ),
 
   'blackspotted-puffer': (
     <>
       <g {...ink}>
-        <path d="M96 40 112 28v24z" fill="#c9a24a" />
-        <circle cx="56" cy="42" r="28" fill="#d7b158" />
-        <path d="M34 24l-8-8M84 26l8-10M30 60l-10 8M82 60l10 8M56 12V2M56 74v8" fill="none" />
-        <path d="M40 56c10 6 22 6 32 0" fill="none" strokeWidth={2.4} />
+        <path d="M70 38 104 26c-3 10-3 20 0 30L70 46c2-3 2-5 0-8z" fill="#c9a24a" />
+        {/* Spines as a spiny rim rather than eight long rays: the old drawing
+            read as a sun with a face on it. */}
+        <path d="M52 14 59 10 63 16 71 16 73 23 80 26 79 33 84 39 80 45 83 52 76 56 76 64 68 65 65 72 58 69 52 74 46 69 39 72 36 65 28 64 28 56 21 52 24 45 20 39 25 33 24 26 31 23 33 16 41 16 45 10z"
+              fill="#d7b158" strokeLinejoin="miter" />
+        <path d="M28 48c5 4 10 5 14 2" fill="none" strokeWidth={2.6} />
       </g>
-      <g fill={O} opacity=".5">
-        <circle cx="64" cy="48" r="3" /><circle cx="52" cy="56" r="2.4" />
-        <circle cx="70" cy="34" r="2.4" />
+      {/* The spots it is named for: black, and big enough to count. */}
+      <g fill={O}>
+        <circle cx="62" cy="50" r="3.6" /><circle cx="48" cy="57" r="3.2" />
+        <circle cx="66" cy="34" r="3" /><circle cx="52" cy="28" r="2.6" />
+        <circle cx="40" cy="48" r="2.8" /><circle cx="72" cy="44" r="2.6" />
       </g>
-      {ringEye(42, 34)}
+      {ringEye(38, 34)}
     </>
   ),
 
   'red-lionfish': (
     <>
       <g {...ink}>
-        <path d="M50 18 44 2M60 16 60 0M70 18 78 2M40 62 30 78M54 66 52 80M68 64 78 78"
-              fill="none" stroke="#b8452f" strokeWidth={4} />
-        <path d="M92 42 110 32c-2 7-2 13 0 20z" fill="#b8452f" />
-        <ellipse cx="54" cy="42" rx="32" ry="22" fill="#e0e0d8" />
-        <path d="M40 22c4 12 4 28 0 40M56 20c4 12 4 32 0 44M72 24c4 10 4 26 0 36"
+        {/* Plumes, each rooted inside the body and swept back the way the
+            animal holds them. The old drawing was loose red sticks over a
+            striped ball, and read as a sun. */}
+        <path d="M40 30c-3-11 0-20 5-26 4 9 4 18 1 27z" fill="#e8d8d4" />
+        <path d="M50 28c1-12 5-21 12-26 1 10-2 20-7 28z" fill="#e8d8d4" />
+        <path d="M60 30c6-10 13-16 21-19-2 10-8 19-15 25z" fill="#e8d8d4" />
+        <path d="M40 56c-3 9 0 17 4 22 4-8 4-15 1-23z" fill="#e8d8d4" />
+        <path d="M50 58c1 10 5 18 11 22 1-9-2-17-6-24z" fill="#e8d8d4" />
+        <path d="M60 56c6 8 13 14 20 16-2-9-7-16-14-21z" fill="#e8d8d4" />
+        <path d="M74 38 106 28c-3 9-3 17 0 26L74 46c2-3 2-5 0-8z" fill="#b8452f" />
+        <ellipse cx="50" cy="42" rx="26" ry="19" fill="#efe8e0" />
+        <path d="M38 26c4 11 4 21 0 32M52 24c4 12 4 24 0 36M66 29c4 10 4 17 0 26"
               fill="none" stroke="#b8452f" strokeWidth={6} strokeLinecap="butt" />
-        <ellipse cx="54" cy="42" rx="32" ry="22" fill="none" />
       </g>
-      {ringEye(30, 36)}
+      {ringEye(36, 36)}
     </>
   ),
 
@@ -288,13 +312,20 @@ const ART: Record<string, ReactNode> = {
   'green-sea-turtle': (
     <>
       <g {...ink}>
-        <path d="M26 30c-8-6-16-6-20 0 6 2 10 6 12 12M96 30c8-6 16-6 20 0-6 2-10 6-12 12" fill="#4f7f5c" />
-        <path d="M30 58c-6 6-8 12-4 16 6-2 10-6 12-12M92 58c6 6 8 12 4 16-6-2-10-6-12-12" fill="#4f7f5c" />
-        <path d="M100 34c8-4 14-2 16 4-4 6-10 8-16 6z" fill="#67a074" />
+        {/* Four paddles, each rooted inside the carapace so the shell's own fill
+            closes over its base. They used to be open hooks: the front-left one
+            floated clear of the shell entirely and read as a loose tail, and the
+            front-right one had fused into the head. */}
+        <path d="M46 26c-10-10-22-16-30-15 2 9 10 18 22 24z" fill="#4f7f5c" />
+        <path d="M72 26c10-10 20-15 26-14-2 9-8 17-19 23z" fill="#4f7f5c" />
+        <path d="M46 62c-10 10-22 16-30 15 2-9 10-18 22-24z" fill="#4f7f5c" />
+        <path d="M72 62c10 10 20 15 26 14-2-9-8-17-19-23z" fill="#4f7f5c" />
+        {/* The head is drawn back into the shell, not parked beside it. */}
+        <path d="M90 34c14-5 22-3 24 4-4 7-12 9-24 6z" fill="#67a074" />
         <ellipse cx="60" cy="44" rx="34" ry="26" fill="#5c9268" />
         <path d="M60 18v52M32 34c18 8 38 8 56 0M32 56c18-8 38-8 56 0" fill="none" strokeWidth={2.4} opacity=".8" />
       </g>
-      {eye(108, 36, 2.8)}
+      {eye(106, 36, 2.8)}
     </>
   ),
 
@@ -304,8 +335,11 @@ const ART: Record<string, ReactNode> = {
   'sally-lightfoot-crab': (
     <>
       <g {...ink}>
-        <path d="M30 34C22 26 16 24 8 26c6 2 10 6 12 12" fill="#e2603f" />
-        <path d="M90 34c8-8 14-10 22-8-6 2-10 6-12 12" fill="#e2603f" />
+        {/* Arms out from the shell, so the claws hang off the animal rather
+            than floating either side of it. */}
+        <path d="M36 38 24 32M84 38 96 32" fill="none" strokeWidth={6} />
+        <path d="M28 36C20 34 12 29 9 22c5 0 9 2 12 5-3-4-4-9-2-14 4 4 7 10 9 17z" fill="#c8492c" />
+        <path d="M92 36C100 34 108 29 111 22c-5 0-9 2-12 5 3-4 4-9 2-14-4 4-7 10-9 17z" fill="#c8492c" />
         <path d="M34 54l-12 14M46 60l-6 16M74 60l6 16M86 54l12 14" fill="none" />
         <ellipse cx="60" cy="44" rx="28" ry="18" fill="#ea6d48" />
         <path d="M40 36c12-6 28-6 40 0" fill="none" strokeWidth={2.4} />
@@ -379,14 +413,21 @@ const ART: Record<string, ReactNode> = {
   'giant-clam': (
     <>
       <g {...ink}>
-        <path d="M12 46c8-16 28-24 48-24s40 8 48 24c-14 8-32 12-48 12s-34-4-48-12z" fill="#cfd8da" />
-        <path d="M12 46c14 12 32 18 48 18s34-6 48-18c-14 10-32 14-48 14s-34-4-48-14z" fill="#b7c3c6" />
-        <path d="M60 22v24M40 25l-4 20M80 25l4 20M24 33l-4 12M96 33l4 12" fill="none" strokeWidth={2.4} opacity=".7" />
-        <path d="M22 44c14 8 62 8 76 0-12 10-64 10-76 0z" fill="#3f8f8a" strokeWidth={2.4} />
+        {/* The mantle, which is the only reason anyone can name this animal.
+            It is laid down whole and the two valves close over it, so the band
+            of it left showing is as wide as the gape actually is. */}
+        <path d="M12 40h96c-2 18-22 28-48 28s-46-10-48-28z" fill="#2f8f96" />
+        {/* Both valve edges zigzagged, the way a giant clam's shell is. */}
+        <path d="M10 44c10-18 28-28 50-28s40 10 50 28l-8 4-8-4-9 4-8-4-8 4-9-4-8 4-8-4-9 4-8-4-9 4-8-4z"
+              fill="#cfd8da" />
+        <path d="M10 56l8-4 8 4 9-4 8 4 8-4 9 4 8-4 8 4 9-4 8 4 9-4 8 4c-2 12-24 20-50 20s-48-8-50-20z"
+              fill="#b7c3c6" />
+        <path d="M60 16v24M38 19l-5 21M82 19l5 21M22 27l-4 13M98 27l4 13" fill="none" strokeWidth={2.4} opacity=".6" />
+        <path d="M60 58v16M40 57l-4 13M80 57l4 13" fill="none" strokeWidth={2.4} opacity=".6" />
       </g>
       <g fill="#7fd2c8">
-        <circle cx="42" cy="46" r="2.6" /><circle cx="60" cy="48" r="2.6" />
-        <circle cx="78" cy="46" r="2.6" />
+        <circle cx="38" cy="50" r="2.8" /><circle cx="60" cy="51" r="2.8" />
+        <circle cx="82" cy="50" r="2.8" />
       </g>
     </>
   ),
@@ -500,21 +541,28 @@ const ART: Record<string, ReactNode> = {
 
   'bigfin-reef-squid': (
     <>
+      {/* Arms are outlined the same way everything else is — a dark stroke laid
+          under a coloured one — so they read as limbs and not as loose sticks. */}
+      <g fill="none" strokeLinecap="round">
+        <g stroke={O} strokeWidth={8}>
+          <path d="M46 32c-9-1-18-5-26-11M46 37c-10 0-20-2-29-6M46 43c-10 0-20 3-28 8M46 48c-9 2-17 7-23 14" />
+        </g>
+        <g stroke="#c98fb0" strokeWidth={4}>
+          <path d="M46 32c-9-1-18-5-26-11M46 37c-10 0-20-2-29-6M46 43c-10 0-20 3-28 8M46 48c-9 2-17 7-23 14" />
+        </g>
+      </g>
       <g {...ink}>
-        {/* Arms and two longer tentacles, streaming ahead of the head. */}
-        <path d="M40 34 10 24M40 38 8 34M40 42 8 44M40 46 10 54M40 50 14 62" fill="none" stroke="#c98fb0" strokeWidth={4} />
-        <path d="M40 30 6 14M40 54 8 66" fill="none" stroke="#b87fa0" strokeWidth={3} />
-        {/* The fin runs the length of the mantle — the animal's whole name. */}
-        <path d="M56 22c22-6 44-4 56 4-12 8-34 10-56 4z" fill="#c98fb0" />
-        <path d="M56 58c22 6 44 4 56-4-12-8-34-10-56-4z" fill="#c98fb0" />
-        <path d="M42 40c0-10 8-16 22-16 24 0 44 7 52 16-8 9-28 16-52 16-14 0-22-6-22-16z" fill="#dcb0c6" />
+        {/* The fin runs the whole length of the mantle — the animal's own name. */}
+        <path d="M54 24c22-6 44-4 58 6-14 8-36 10-58 6z" fill="#c98fb0" />
+        <path d="M54 56c22 6 44 4 58-6-14-8-36-10-58-6z" fill="#c98fb0" />
+        <path d="M44 40c0-11 8-18 22-18 26 0 46 8 52 18-6 10-26 18-52 18-14 0-22-7-22-18z" fill="#dcb0c6" />
       </g>
-      <g fill="#a8607f" opacity=".5">
-        <circle cx="72" cy="32" r="2.6" /><circle cx="88" cy="36" r="2.4" />
-        <circle cx="78" cy="47" r="2.4" />
+      <g fill="#a8607f" opacity=".45">
+        <circle cx="74" cy="32" r="2.8" /><circle cx="90" cy="37" r="2.6" />
+        <circle cx="78" cy="48" r="2.6" />
       </g>
-      {ringEye(48, 33, 5)}
-      {ringEye(48, 48, 5)}
+      {ringEye(50, 33, 5)}
+      {ringEye(50, 48, 5)}
     </>
   ),
 
@@ -533,13 +581,14 @@ const ART: Record<string, ReactNode> = {
   'blue-sea-star': (
     <>
       <g {...ink}>
-        <path d="M60 4 74 32l30 4-22 21 5 31-27-15-27 15 5-31-22-21 30-4z" fill="#3f76c4" />
-        <circle cx="60" cy="42" r="6" fill="#2a5794" strokeWidth={2.4} />
+        {/* Sized to the field: the old star ran an arm's length off the plate. */}
+        <path d="M60 10 69 32 92 34 74 49 80 71 60 59 40 71 46 49 28 34 51 32z" fill="#3f76c4" />
+        <circle cx="60" cy="44" r="7" fill="#2a5794" strokeWidth={2.4} />
       </g>
       <g fill="#79a6e0">
-        <circle cx="60" cy="22" r="2.6" /><circle cx="76" cy="40" r="2.6" />
-        <circle cx="44" cy="40" r="2.6" /><circle cx="51" cy="60" r="2.6" />
-        <circle cx="69" cy="60" r="2.6" />
+        <circle cx="60" cy="23" r="2.6" /><circle cx="80" cy="38" r="2.6" />
+        <circle cx="40" cy="38" r="2.6" /><circle cx="48" cy="61" r="2.6" />
+        <circle cx="72" cy="61" r="2.6" />
       </g>
     </>
   ),
@@ -566,12 +615,12 @@ const ART: Record<string, ReactNode> = {
         {/* Tail fan, laid down first so the last segment closes over its base. */}
         <path d="M92 48c10-1 18 3 22 11-8 5-18 4-24-2z" fill="#d84a4a" />
         {/* A shrimp is a chain of segments, not a torpedo: overlapping plates
-            down an arching abdomen, banded red on white as the animal is. */}
-        <ellipse cx="90" cy="48" rx="8" ry="9" fill="#f2f2ec" />
+            down an arching abdomen, banded red on cream as the animal is. */}
+        <ellipse cx="90" cy="48" rx="8" ry="9" fill="#f5f0e2" />
         <ellipse cx="78" cy="44" rx="9" ry="10" fill="#d84a4a" />
-        <ellipse cx="66" cy="41" rx="10" ry="11" fill="#f2f2ec" />
+        <ellipse cx="66" cy="41" rx="10" ry="11" fill="#f5f0e2" />
         <ellipse cx="53" cy="39" rx="11" ry="12" fill="#d84a4a" />
-        <ellipse cx="38" cy="38" rx="12" ry="11" fill="#f2f2ec" />
+        <ellipse cx="38" cy="38" rx="12" ry="11" fill="#f5f0e2" />
         <path d="M44 48l-4 14M56 51l-1 13M68 52l3 12M80 52l6 11" fill="none" strokeWidth={2.4} />
         {/* The two long claws it boxes with. */}
         <path d="M34 32 20 22 24 18 36 28z" fill="#d84a4a" />
@@ -579,10 +628,12 @@ const ART: Record<string, ReactNode> = {
         <path d="M20 26C12 24 6 20 4 14c4 1 7 3 10 6-2-5-2-9 0-13 3 5 5 10 8 15z" fill="#d84a4a" />
         <path d="M20 54C12 56 6 60 4 66c4-1 7-3 10-6-2 5-2 9 0 13 3-5 5-10 8-15z" fill="#d84a4a" />
       </g>
-      {/* Antennae longer than the animal — drawn last, over the claws, or the
-          claws hide the one feature that names it. */}
-      <path d="M36 30 12 6M38 34 6 20" fill="none" stroke="#f2f2ec" strokeWidth={3.4}
-            strokeLinecap="round" />
+      {/* Antennae longer than the animal — drawn last, over the claws, and
+          outlined, or a pale stroke on a pale plate is not there at all. */}
+      <g fill="none" strokeLinecap="round">
+        <path d="M36 30 12 6M38 34 6 20" stroke={O} strokeWidth={7} />
+        <path d="M36 30 12 6M38 34 6 20" stroke="#f7f2e2" strokeWidth={3.4} />
+      </g>
       {eye(35, 34, 3.2)}
     </>
   ),
@@ -608,32 +659,47 @@ const ART: Record<string, ReactNode> = {
 
   'banded-sea-krait': (
     <>
+      {/* The body is one stroke, the outline a heavier stroke beneath it, and
+          the bands a dashed stroke of the same width laid over the top — so a
+          band cannot spill past the edge of the animal, which is what the
+          hand-placed bands used to do. */}
+      <path d="M16 33c14-18 30 14 46 2 14-10 24 16 42 8" fill="none" stroke={O}
+            strokeWidth={17} strokeLinecap="round" />
+      <path d="M16 33c14-18 30 14 46 2 14-10 24 16 42 8" fill="none" stroke="#cdd8dd"
+            strokeWidth={11} strokeLinecap="round" />
+      <path d="M16 33c14-18 30 14 46 2 14-10 24 16 42 8" fill="none" stroke={O}
+            strokeWidth={11} strokeDasharray="7 12" strokeDashoffset="-6" />
       <g {...ink}>
-        <path d="M108 62c-14 6-22-2-30-10-8-8-14-14-24-12-12 2-16 14-28 14-10 0-18-6-22-14 8 4 14 4 20 0 10-8 14-20 28-22 16-2 24 10 34 20 8 8 14 12 22 10z"
-              fill="#e8e4d6" />
+        {/* A paddle tail is what makes it a sea snake rather than a snake. */}
+        <ellipse cx="106" cy="45" rx="9" ry="13" fill="#cdd8dd" transform="rotate(-22 106 45)" />
+        <ellipse cx="17" cy="32" rx="11" ry="9" fill="#cdd8dd" />
+        <path d="M8 34c4 2 8 2 12 0" fill="none" strokeWidth={2.2} />
       </g>
-      {/* The bands, which are the whole animal. */}
-      <g stroke={O} strokeWidth={5} fill="none" strokeLinecap="round">
-        <path d="M22 34c2 6 2 10 0 14M40 26c3 7 3 13 0 19M58 30c3 7 3 13 0 19M76 42c3 6 3 11 0 16M94 54c3 5 3 9 0 13" />
-      </g>
-      {eye(14, 38, 2.6)}
+      {eye(13, 29, 2.6)}
     </>
   ),
 
   'hawksbill-turtle': (
     <>
       <g {...ink}>
-        <path d="M26 30c-8-6-16-6-20 0 6 2 10 6 12 12M96 30c8-6 16-6 20 0-6 2-10 6-12 12" fill="#8a6a3a" />
-        <path d="M30 58c-6 6-8 12-4 16 6-2 10-6 12-12M92 58c6 6 8 12 4 16-6-2-10-6-12-12" fill="#8a6a3a" />
-        {/* The hooked beak it is named for. */}
-        <path d="M100 34c8-4 14-2 16 4-3 5-8 7-14 6z" fill="#a5814a" />
-        <path d="M114 36c3 1 4 3 3 5-2 1-4 0-5-2z" fill={O} />
+        {/* Four paddles, each rooted inside the carapace so the shell's own fill
+            closes over its base. They used to be open hooks: the front-left one
+            floated clear of the shell entirely and read as a loose tail, and the
+            front-right one had fused into the head. */}
+        <path d="M46 26c-10-10-22-16-30-15 2 9 10 18 22 24z" fill="#8a6a3a" />
+        <path d="M72 26c10-10 20-15 26-14-2 9-8 17-19 23z" fill="#8a6a3a" />
+        <path d="M46 62c-10 10-22 16-30 15 2-9 10-18 22-24z" fill="#8a6a3a" />
+        <path d="M72 62c10 10 20 15 26 14-2-9-8-17-19-23z" fill="#8a6a3a" />
+        {/* The hooked beak it is named for, on a head set into the shell. */}
+        <path d="M90 34c14-5 22-3 24 4-3 6-9 8-16 7z" fill="#a5814a" />
+        <path d="M112 36c3 1 4 3 3 5-2 1-4 0-5-2z" fill={O} />
         <ellipse cx="60" cy="44" rx="34" ry="26" fill="#9a7541" />
-        {/* Overlapping plates, the tortoiseshell pattern. */}
+        {/* Scutes that overlap like roof tiles rather than meeting edge to edge:
+            the other half of how this animal is told from the green turtle. */}
         <path d="M60 18v52M32 34c18 8 38 8 56 0M32 56c18-8 38-8 56 0M44 20l-6 48M76 20l6 48"
               fill="none" strokeWidth={2.2} opacity=".75" />
       </g>
-      {eye(107, 36, 2.6)}
+      {eye(104, 36, 2.6)}
     </>
   ),
 
@@ -692,12 +758,14 @@ const ART: Record<string, ReactNode> = {
     <>
       <g {...ink}>
         <path d="M60 58 58 80M60 58l5 22" fill="none" strokeWidth={2.4} />
-        {/* Sharper, more swept wings than the manta, and a pointed snout. */}
+        {/* Sharper, more swept wings than the manta, and a pointed snout. The
+            fill has to sit clear of the outline colour or the whole animal
+            collapses into a silhouette. */}
         <path d="M60 14c-6 0-11 4-14 10-8 12-24 22-42 28 16 2 30 6 40 12 6-4 10-6 16-6s10 2 16 6c10-6 24-10 40-12-18-6-34-16-42-28-3-6-8-10-14-10z"
-              fill="#2f3f57" />
-        <path d="M60 14c-4 6-6 14-6 22h12c0-8-2-16-6-22z" fill="#25334a" strokeWidth={2.2} />
+              fill="#46608a" />
+        <path d="M60 14c-4 6-6 14-6 22h12c0-8-2-16-6-22z" fill="#375079" strokeWidth={2.2} />
       </g>
-      <g fill="#e8eef4">
+      <g fill="#eef3f8">
         <circle cx="34" cy="42" r="2.8" /><circle cx="48" cy="46" r="2.6" />
         <circle cx="72" cy="46" r="2.6" /><circle cx="86" cy="42" r="2.8" />
         <circle cx="42" cy="34" r="2.4" /><circle cx="78" cy="34" r="2.4" />
@@ -732,30 +800,43 @@ const ART: Record<string, ReactNode> = {
   /* ------------------------------------------------------------------ */
   'olive-sea-snake': (
     <>
+      {/* Built the same way as the banded sea krait — body stroke, heavier
+          outline beneath, banding dashed over the top — so a band cannot spill
+          past the edge of the animal, which is what the old ones did. */}
+      <path d="M104 30c-14-4-18 14-32 16-14 2-18-14-32-10-10 3-16 12-20 20" fill="none"
+            stroke={O} strokeWidth={18} strokeLinecap="round" />
+      <path d="M104 30c-14-4-18 14-32 16-14 2-18-14-32-10-10 3-16 12-20 20" fill="none"
+            stroke="#6f7a4a" strokeWidth={12} strokeLinecap="round" />
+      <path d="M104 30c-14-4-18 14-32 16-14 2-18-14-32-10-10 3-16 12-20 20" fill="none"
+            stroke="#3d4530" strokeWidth={12} strokeDasharray="5 15" strokeDashoffset="-9" />
       <g {...ink}>
-        <path d="M110 30c-12-8-20-2-28 6-8 8-14 16-24 16-12 0-18-10-30-10-8 0-16 4-22 12 10-2 16 2 24 6 10 5 18 6 28-2 10-8 16-18 26-20 8-2 16 2 26-8z"
-              fill="#6f7a4a" />
-        <path d="M14 54c-4 4-6 8-4 12 6-2 10-6 12-10" fill="#6f7a4a" />
+        {/* The paddle tail, which is what makes it a sea snake. */}
+        <ellipse cx="18" cy="60" rx="9" ry="13" fill="#6f7a4a" transform="rotate(28 18 60)" />
+        <ellipse cx="104" cy="29" rx="11" ry="8" fill="#7e8a56" />
       </g>
-      <g stroke="#3d4530" strokeWidth={4} fill="none" strokeLinecap="round">
-        <path d="M34 46c2 5 2 8 0 12M52 46c2 5 2 8 0 11M70 36c2 5 2 8 0 11M88 28c2 4 2 7 0 10" />
-      </g>
-      {eye(106, 30, 2.6)}
+      {eye(108, 26, 2.6)}
     </>
   ),
 
   'loggerhead-turtle': (
     <>
       <g {...ink}>
-        <path d="M24 28c-8-6-16-6-20 0 6 2 10 6 12 12M94 28c8-6 16-6 20 0-6 2-10 6-12 12" fill="#8a4a34" />
-        <path d="M28 58c-6 6-8 12-4 16 6-2 10-6 12-12M90 58c6 6 8 12 4 16-6-2-10-6-12-12" fill="#8a4a34" />
-        {/* An outsized head — the whole point of the animal. */}
-        <path d="M96 30c12-4 20 0 20 8s-8 12-20 8z" fill="#a85c40" />
+        {/* Four paddles, each rooted inside the carapace so the shell's own fill
+            closes over its base. They used to be open hooks: the front-left one
+            floated clear of the shell entirely and read as a loose tail, and the
+            front-right one had fused into the head. */}
+        <path d="M46 26c-10-10-22-16-30-15 2 9 10 18 22 24z" fill="#8a4a34" />
+        <path d="M72 26c10-10 20-15 26-14-2 9-8 17-19 23z" fill="#8a4a34" />
+        <path d="M46 62c-10 10-22 16-30 15 2-9 10-18 22-24z" fill="#8a4a34" />
+        <path d="M72 62c10 10 20 15 26 14-2-9-8-17-19-23z" fill="#8a4a34" />
+        {/* An outsized head — the whole point of the animal — set into the
+            shell rather than parked beside it. */}
+        <path d="M86 29c14-4 24 0 24 9s-10 13-24 9z" fill="#a85c40" />
         <ellipse cx="58" cy="44" rx="33" ry="25" fill="#9c5439" />
-        <path d="M58 19v50M30 34c18 8 38 8 56 0M30 54c18-8 38-8 56 0" fill="none" strokeWidth={2.2} opacity=".7" />
+        <path d="M58 19v50M40 22v44M76 22v44M27 41c20 5 44 5 64 0" fill="none" strokeWidth={2.2} opacity=".7" />
       </g>
-      {eye(106, 34, 2.8)}
-      <path d="M112 42c3 1 5 3 4 5-2 1-5 0-6-2z" fill={O} />
+      {eye(101, 34, 2.8)}
+      <path d="M108 41c3 1 5 3 4 5-2 1-5 0-6-2z" fill={O} />
     </>
   ),
 
@@ -769,7 +850,7 @@ const ART: Record<string, ReactNode> = {
         <path d="M16 44c14 10 54 14 84 0-30 6-64 4-84 0z" fill="#e2e8ea" strokeWidth={2.4} />
       </g>
       {/* The black rear margin on the tail, which is what names the animal. */}
-      <path d="M118 22c-3 10-3 20 0 30" fill="none" stroke={O} strokeWidth={6} strokeLinecap="round" />
+      <path d="M116 24c-3 9-3 18 0 26" fill="none" stroke={O} strokeWidth={6} strokeLinecap="round" />
       {eye(28, 38, 3.4)}
     </>
   ),
@@ -842,6 +923,12 @@ const ART: Record<string, ReactNode> = {
   'spanish-dancer': (
     <>
       <g {...ink}>
+        {/* The pale ruffled margin, laid down first and the red mantle closed
+            over it, so what shows is a frill along the trailing edge. Drawn as
+            an unoutlined white stroke it was white on a near-white plate and
+            simply was not there. */}
+        <path d="M20 42c6-15 24-23 42-23s34 8 40 23c-8 7-12 16-19 16-6 0-8-6-14-6s-9 8-16 8-9-8-15-8-9 6-14 6c-4 0-4-10-4-16z"
+              fill="#f7ddd6" />
         {/* The mantle unrolled into a swimming skirt, wavy along the trailing edge. */}
         <path d="M20 42c6-15 24-23 42-23s34 8 40 23c-8 3-12 10-19 10-6 0-8-6-14-6s-9 8-16 8-9-8-15-8-9 6-14 6c-4 0-4-6-4-10z"
               fill="#c8382e" />
@@ -850,8 +937,6 @@ const ART: Record<string, ReactNode> = {
         {/* Six gills in a rosette at the back end. */}
         <path d="M94 28c8-4 15-2 17 5-6-1-11 1-14 5" fill="#e07d6c" />
       </g>
-      <path d="M26 41c8 8 21 12 36 12s26-4 34-12" fill="none" stroke="#fdfdfa"
-            strokeWidth={3.4} strokeLinecap="round" />
       <g fill="#8f231d" opacity=".5">
         <ellipse cx="58" cy="29" rx="9" ry="5" /><ellipse cx="78" cy="34" rx="7" ry="4" />
       </g>
@@ -884,21 +969,21 @@ const ART: Record<string, ReactNode> = {
   'mandarinfish': (
     <>
       <g {...ink}>
-        <path d="M92 40 110 29v22z" fill="#2f6fa8" />
+        <path d="M72 36 106 24c-3 10-3 22 0 32L72 44c2-3 2-5 0-8z" fill="#2f6fa8" />
         <path d="M40 20c10-9 24-9 32 0" fill="#e8873a" />
         <ellipse cx="56" cy="40" rx="34" ry="22" fill="#2f6fa8" />
       </g>
       {/* The swirls, which are the entire reason anyone knows this fish. */}
-      <g fill="none" stroke="#e8873a" strokeWidth={4.6} strokeLinecap="round">
-        <path d="M34 33c7-6 16-4 20 2M38 49c6 4 14 3 19-3M64 29c6 3 11 9 12 15M68 51c5-2 9-6 11-11" />
+      <g fill="none" stroke="#e8873a" strokeWidth={5} strokeLinecap="round">
+        <path d="M34 32c8-5 16-2 20 4M40 50c8 3 16 0 20-6M66 30c6 4 10 10 10 16M64 52c6-2 10-6 12-11" />
       </g>
-      <g fill="none" stroke="#1f8f6a" strokeWidth={2.6} strokeLinecap="round">
-        <path d="M36 41c7 2 14 1 19-2M60 43c6 2 11 1 15-2" />
+      <g fill="none" stroke="#1f8f6a" strokeWidth={2.8} strokeLinecap="round">
+        <path d="M36 41c7 3 14 2 19-2M62 44c6 2 11 0 14-3" />
       </g>
       <ellipse cx="56" cy="40" rx="34" ry="22" fill="none" {...ink} />
       {/* The fan-shaped pectoral it holds out like a hand. */}
-      <ellipse cx="56" cy="53" rx="13" ry="9" fill="#e8873a" {...ink} strokeWidth={2.6} />
-      {ringEye(36, 33, 5)}
+      <path d="M44 47c8 0 14 4 16 9-7 4-15 3-20-2z" fill="#e8873a" {...ink} strokeWidth={2.6} />
+      {ringEye(34, 33, 5)}
     </>
   ),
 
@@ -932,19 +1017,21 @@ const ART: Record<string, ReactNode> = {
   'tasselled-wobbegong': (
     <>
       <g {...ink}>
-        <path d="M84 42c10-2 18-8 26-14-4 10-4 18 0 28-8-6-16-12-26-14z" fill="#b58f4a" />
+        <path d="M76 34 112 22c-4 10-4 20 0 30L76 50c3-5 3-11 0-16z" fill="#b58f4a" />
+        {/* Pectorals spread flat, the way a carpet shark rests — fins with a
+            shape, rooted in the body, not hooks hanging off its side. */}
+        <path d="M44 28c-3-10 1-17 10-20-3 8-3 14-1 21z" fill="#b58f4a" />
+        <path d="M44 56c-3 10 1 17 10 20-3-8-3-14-1-21z" fill="#b58f4a" />
         {/* Seen from above, because it never leaves the sand. */}
         <path d="M18 42c0-13 10-20 26-20 22 0 40 8 44 20-4 12-22 20-44 20-16 0-26-7-26-20z" fill="#c9a45e" />
-        {/* Pectorals spread flat, the way a carpet shark rests. */}
-        <path d="M48 61c-4 8-2 13 6 15M48 23c-4-8-2-13 6-15" fill="#b58f4a" />
         {/* The fringe of skin tassels round the whole front of the head. */}
         <path d="M19 34l-9-5M16 40l-10-3M16 45l-10 3M19 51l-9 5M25 29l-6-8M25 56l-6 8M32 26l-3-9M32 59l-3 9"
               fill="none" strokeWidth={3} />
         <path d="M20 42h18" fill="none" strokeWidth={3} />
       </g>
       <g fill="#8a6428" opacity=".45">
-        <ellipse cx="54" cy="32" rx="9" ry="5" /><ellipse cx="76" cy="36" rx="7" ry="4" />
-        <ellipse cx="60" cy="52" rx="10" ry="5" /><ellipse cx="80" cy="50" rx="6" ry="4" />
+        <ellipse cx="54" cy="32" rx="9" ry="5" /><ellipse cx="74" cy="36" rx="7" ry="4" />
+        <ellipse cx="58" cy="52" rx="10" ry="5" /><ellipse cx="76" cy="49" rx="6" ry="4" />
       </g>
       {eye(38, 34, 3)}
     </>

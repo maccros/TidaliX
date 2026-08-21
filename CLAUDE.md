@@ -83,9 +83,16 @@ of line: *what it does*, then *who it lands on*, then *why*, with the explanatio
 on its own line beneath.
 
 ```
-▸  ON ARRIVAL      ♥-1     [EVERY ENEMY]
+✕  STRIKE          ♥-1     [EVERY ENEMY]
 →  [FRAME-BUILDER]  +0/-3   [BOTH REEFS]
 ```
+
+**Strike or arrival.** Only the damage-dealing arrivals — `strike`, `sweep` — say
+*strike* and draw a cross (`✕`); everything else that happens on arrival (a heal,
+an energy gain, a draw) says *arrival* and keeps the plain triangle (`▸`). The
+same split applies to the log line's verb and the full card's section heading.
+Never label a heal or a draw as a strike — the cross reads as a hit landing, and
+only a hit should wear it.
 
 **One pill.** Every small labelled thing — niche badge, keyword, armour, spines,
 reach marker, arrival target, taxon chip — shares one geometry. Colour and border
@@ -103,8 +110,8 @@ without its symbol — "1 to every enemy" is a riddle.
 
 **The full card is complete; the face is a summary.** The face prints the
 mechanical line; the sentence explaining a relationship lives on the full card,
-where there is room. Section order: Through the tide, Niche and traits, On
-arrival, Symbiosis gift, Live stats, Conservation.
+where there is room. Section order: Through the tide, Niche and traits,
+Arrival, Symbiosis gift, Live stats, Conservation.
 
 **Say it once.** Conservation reports release readiness and nothing else — what
 a card protects is already under its name, and what the pile would pay is the
@@ -149,7 +156,30 @@ document.documentElement.scrollWidth > document.documentElement.clientWidth
 Art written blind comes out as unreadable blobs — this has happened. Render and
 view before committing. Build shapes from primitives (overlapping ellipses,
 short paths) rather than one long freehand bezier, which is much easier to get
-subtly wrong.
+subtly wrong. Two checks are worth scripting against the rendered page after any
+art change, because both catch what the eye slides over: every element's `getBBox`
+against the 120x80 viewBox, and the contrast of every pale fill or stroke against
+the plate.
+
+**A fin's base belongs inside the outline.** An appendage that meets the body at
+a single point — or misses it — reads at card size as a part floating beside the
+animal rather than attached to it. Thirteen of the fifty were drawn that way at
+once: dorsal fins hovering over backs, a turtle's head parked next to its shell.
+Draw the appendage *before* the body and sink its base edge well inside, so the
+body's own fill closes over the join.
+
+**A pale mark needs its own dark edge.** The art plate stays light in both themes
+because the ink in these drawings is hard-coded dark — dropping it would sink all
+fifty in dark mode, so it is not the thing to change. A near-white mark earns its
+place by carrying an outline instead: the same path drawn twice, a light stroke
+over a heavier dark one. Unoutlined white on that plate is not faint, it is
+absent.
+
+**No two species may share a colour or a silhouette.** The giant moray and the
+olive sea snake were five units apart in one channel and read as the same animal;
+the whitetip and the nurse shark were one oval in two greys. Every pair has to be
+separated by one or the other, and the check is to put them side by side at card
+size rather than to compare hex values.
 
 ## Deploying
 
