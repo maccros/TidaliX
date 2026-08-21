@@ -72,6 +72,24 @@ const ARRIVAL_TEXT: Record<ArrivalEffect['kind'], (n: number) => string> = {
 
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
+/**
+ * One row of the live-stats grid: always "attack / health", always spaced.
+ *
+ * The grid is a sum read down a column — base, then what the tide and the
+ * neighbours and any damage add to it, then the total — so every row has to be
+ * the same shape or the arithmetic is invisible. It used to mix "3 / 6" with
+ * "+1/0" with the prose "no change", which is three shapes in four rows.
+ */
+function pair(attack: number, health: number, signed = false): string {
+  // In a delta row both halves carry a sign, zero included: "+2 / 0" reads as
+  // a pair of stats, "+2 / +0" reads as the change it is.
+  const one = (n: number) => (!signed || n < 0 ? String(n) : `+${n}`);
+  return `${one(attack)} / ${one(health)}`;
+}
+
+/** Nothing to report. The same glyph the tide table prints for no energy. */
+const NIL = '—';
+
 function deltaLabel(bonus: { attack?: number; health?: number }): string | null {
   const a = bonus.attack ?? 0;
   const h = bonus.health ?? 0;
@@ -256,25 +274,33 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
 
         {stats && (
           <section className="detail__section">
-            <h3 className="detail__h">Right now</h3>
+            <h3 className="detail__h">Live stats</h3>
             <dl className="detail__grid">
               <dt>Base</dt>
-              <dd>
-                {def.attack} / {def.health}
-              </dd>
+              <dd>{pair(def.attack, def.health)}</dd>
               <dt>Tide ({phase})</dt>
-              <dd>{deltaLabel(stats.tideBonus) ?? 'no change'}</dd>
+              <dd>
+                {stats.tideBonus.attack || stats.tideBonus.health
+                  ? pair(stats.tideBonus.attack ?? 0, stats.tideBonus.health ?? 0, true)
+                  : NIL}
+              </dd>
               <dt>Symbiosis</dt>
-              <dd>{deltaLabel(stats.symbiosisBonus) ?? 'none active'}</dd>
+              <dd>
+                {stats.symbiosisBonus.attack || stats.symbiosisBonus.health
+                  ? pair(stats.symbiosisBonus.attack ?? 0, stats.symbiosisBonus.health ?? 0, true)
+                  : NIL}
+              </dd>
               {instance.damage > 0 && (
                 <>
                   <dt>Damage</dt>
-                  <dd className="down">−{instance.damage}</dd>
+                  {/* Damage only ever comes off health, and saying which half it
+                      takes keeps the column a sum rather than a list. */}
+                  <dd className="down">{pair(0, -instance.damage, true)}</dd>
                 </>
               )}
-              <dt>Live</dt>
+              <dt>Total</dt>
               <dd className="detail__live">
-                {stats.attack} / {stats.health}
+                {pair(stats.attack, stats.health)}
                 {instance.damage > 0 && <small> of {stats.maxHealth}</small>}
               </dd>
             </dl>

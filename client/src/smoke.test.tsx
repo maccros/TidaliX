@@ -420,6 +420,39 @@ describe('client', () => {
     }
   });
 
+  it('reads the live stats as one column of the same shape', async () => {
+    // The block used to mix three shapes in four rows — "3 / 6", "+1/0", and
+    // the prose "no change" — so the sum it is describing was invisible.
+    const { createInstance, effectiveStats, getCard } = await import('@tidalix/engine');
+    const { CardDetail } = await import('./CardDetail.tsx');
+
+    const def = getCard('coral-grouper'); // 4/4, +1 attack at the high tide
+    const inst = { ...createInstance(def.id, 0), damage: 3 };
+    const stats = effectiveStats(inst, 'high', def);
+
+    act(() => {
+      root.render(
+        <CardDetail instance={inst} phase="high" stats={stats} zone="board" onClose={() => {}} />,
+      );
+    });
+
+    const rows = new Map(
+      [...container.querySelectorAll('.detail__grid dt')].map((dt) => [
+        dt.textContent,
+        dt.nextElementSibling?.textContent ?? '',
+      ]),
+    );
+    expect(rows.get('Base')).toBe('4 / 4');
+    expect(rows.get('Tide (high)')).toBe('+1 / +0');
+    // No neighbours on this board, and "nothing" is a glyph, not a sentence.
+    expect(rows.get('Symbiosis')).toBe('—');
+    expect(rows.get('Damage')).toBe('+0 / -3');
+    // Base + tide - damage, which only reads as a sum if every row lines up.
+    expect(rows.get('Total')).toContain('5 / 1');
+    expect(container.textContent).toContain('Live stats');
+    expect(container.textContent).not.toContain('Right now');
+  });
+
   it('prints each keyword exactly once on a card', async () => {
     // `toxic` and `toxin-immune` were rendering twice: once from the generic
     // pass over def.keywords and again from a hand-written tag beside it. Any
