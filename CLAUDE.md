@@ -83,15 +83,20 @@ of line: *what it does*, then *who it lands on*, then *why*, with the explanatio
 on its own line beneath.
 
 ```
-▸  DASH             ♥-1     [EVERY ENEMY]
+▸  SWEEP            ♥-1     [EVERY ENEMY]
 →  [FRAME-BUILDER]  +0/-3   [BOTH REEFS]
 ```
 
-**Dash, not arrival.** What used to be called an arrival is a dash everywhere —
-the card face, the full card's section heading, and the log line's verb. One
-term for all five kinds (strike, sweep, mend, forage, scout) and no exception
-carved out for the damage-dealing ones; a heal or a draw is worded and marked
-exactly like a strike.
+**Dash, not arrival.** What used to be called an arrival is now a dash — but the
+word "dash" itself only appears in two places: the full card's section heading,
+and the log line's verb ("strikes" is gone; every kind just "dashes"). The card
+face never prints it. Instead the face names the specific kind right after the
+arrow — `strike`, `sweep`, `mend`, `forage`, `scout` — the same five words the
+engine already uses for `arrival.kind`, so the label is never invented prose.
+The full card repeats that kind name in its body, spelled out with its plain
+number (`strike 6`, `mend 1`, `forage 2`) rather than the face's symbol, because
+the full card is complete and the face is a summary. No exception for the
+damage-dealing kinds: mend and forage get the same treatment as strike.
 
 **One pill.** Every small labelled thing — niche badge, keyword, armour, spines,
 reach marker, arrival target, taxon chip — shares one geometry. Colour and border

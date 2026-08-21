@@ -58,19 +58,6 @@ const TRAIT_TEXT: Record<Keyword, string> = {
   pierce: 'Its damage ignores armour completely — the answer to something that has become unkillable behind a shell.',
 };
 
-/**
- * An arrival, in the same grammar as a symbiosis gift: what it does, then who
- * it lands on. It used to be a prose sentence here and a symbol on the card
- * face, so the same effect read two different ways depending where you saw it.
- */
-const ARRIVAL_EFFECT: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `♥-${n}`,
-  sweep: (n) => `♥-${n}`,
-  mend: (n) => `♥+${n}`,
-  forage: (n) => `⬡+${n}`,
-  scout: (n) => `+${n} card${n === 1 ? '' : 's'}`,
-};
-
 /** Who it lands on. Four distinct answers, and never a redundant one. */
 const ARRIVAL_TARGET: Record<ArrivalEffect['kind'], string> = {
   strike: 'one enemy',
@@ -242,7 +229,9 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           <section className="detail__section">
             <h3 className="detail__h">Dash</h3>
             <p className="detail__arrival">
-              <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
+              <b>
+                {def.arrival.kind} {def.arrival.amount}
+              </b>
               <span className="detail__to">to</span>
               <span
                 className={`detail__target${

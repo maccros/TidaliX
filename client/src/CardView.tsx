@@ -287,7 +287,7 @@ export function CardView({
       {def.arrival && (
         <p className="card__arrival">
           <span className="card__arrival-mark">▸</span>
-          <span className="card__linelabel">dash</span>
+          <span className="card__linelabel">{def.arrival.kind}</span>
           <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
           <span
             className={`card__linetarget${
