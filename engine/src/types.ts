@@ -45,8 +45,8 @@ export type Keyword =
  * How a species lives, and where — the axis symbiosis reads.
  *
  * Every card has exactly one. It sits beside `taxon` and answers a different
- * question: a lineage is what an animal *is*, a niche is how it *lives*. A
- * conservation pile is scored on lineages; an aura is aimed at a niche.
+ * question: a taxon is what an animal *is*, a niche is how it *lives*. A
+ * conservation pile is scored on taxa; an aura is aimed at a niche.
  *
  * Four, divided by relationship to the reef itself, because that is what the
  * relationships in this game are actually about — who shelters whom, and who is
@@ -72,11 +72,11 @@ export const NICHE_NOTE: Record<Niche, string> = {
 };
 
 /**
- * The lineage a species belongs to — one per card, and every card has one.
+ * The taxon a species belongs to — one per card, and every card has one.
  *
  * This is what the conservation pile is scored on. A trait says how an animal
  * *behaves* and can be worn several at once; a taxon says what it *is*, and it
- * is singular on purpose: a pile of six reef fish is one lineage protected, no
+ * is singular on purpose: a pile of six reef fish is one taxon protected, no
  * matter how many different fish they are. Real biodiversity is measured across
  * branches of the tree, not across names on a list.
  */
@@ -90,7 +90,7 @@ export type Taxon =
   | 'cnidarian'
   | 'reptile';
 
-/** Player-facing names for each lineage. */
+/** Player-facing names for each taxon. */
 export const TAXON_LABEL: Record<Taxon, string> = {
   fish: 'Fish',
   'shark-ray': 'Sharks & rays',
@@ -224,7 +224,7 @@ export interface CardDefinition {
   /** Real binomial name. The whole set is built on actual marine species. */
   species: string;
   type: CardType;
-  /** The lineage this species belongs to. What the conservation pile scores. */
+  /** The taxon this species belongs to. What the conservation pile scores. */
   taxon: Taxon;
   cost: number;
   attack: number;
@@ -308,7 +308,7 @@ export interface PlayerState {
    * Species released back to the wild. A third destination that is neither the
    * board nor the discard: these cards are out of play for good, but they are an
    * asset rather than a loss — they pay a standing income and they are a way to
-   * win. Scored by *distinct lineages*, so protecting a whole reef beats
+   * win. Scored by *distinct taxa*, so protecting a whole reef beats
    * protecting one branch of it six times over.
    */
   conservation: CardInstance[];
@@ -370,7 +370,7 @@ export interface GameConfig {
   /** Releases allowed per turn. One keeps the pile a slow, deliberate build. */
   releasesPerTurn: number;
   /**
-   * Distinct *lineages* in the conservation pile needed for each +1 of standing
+   * Distinct *taxa* in the conservation pile needed for each +1 of standing
    * energy income. A protected reef feeds you — and it only counts as protected
    * if you have protected more than one branch of it.
    */
@@ -389,7 +389,7 @@ export interface GameConfig {
   /** Extra energy for whoever moves second, paid on their first turn only. */
   secondPlayerBonusEnergy: number;
   /**
-   * Distinct lineages conserved to win outright. The second win condition: play
+   * Distinct taxa conserved to win outright. The second win condition: play
    * for damage, or play for the reef. Zero disables it.
    */
   conservationVictory: number;
@@ -533,7 +533,7 @@ export type GameEvent =
       player: PlayerId;
       instanceId: string;
       definitionId: string;
-      /** Distinct lineages in the pile after this release. */
+      /** Distinct taxa in the pile after this release. */
       conserved: number;
     }
   | {

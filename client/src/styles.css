@@ -569,7 +569,7 @@ button { font: inherit; color: inherit; }
   display: block; font-family: var(--mono); font-size: 0.52rem; font-weight: 400;
   text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85;
 }
-/* A release that adds a lineage you do not hold is the one worth taking. */
+/* A release that adds a taxon you do not hold is the one worth taking. */
 .btn--release-new { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
 
 .conserve__hint { margin: 0; font-size: 0.7rem; color: var(--ink-faint); line-height: 1.4; }
@@ -704,7 +704,7 @@ button { font: inherit; color: inherit; }
   .tide__track { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ---- Detail: lineage and toxin ---- */
+/* ---- Detail: taxon and toxin ---- */
 .detail__taxon {
   font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--good); margin-top: 0.15rem;
@@ -714,10 +714,10 @@ button { font: inherit; color: inherit; }
   border-left: 2px solid var(--warn); padding-left: 0.55rem;
 }
 .detail__toxin b { color: var(--warn); }
-.detail__lineage {
+.detail__taxon {
   margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.5; color: var(--ink-soft);
 }
-.detail__lineage b { color: var(--good); }
+.detail__taxon b { color: var(--good); }
 
 /* ---- Arrival: aiming, and the detail dialog ---- */
 .bar__hint--aim { color: var(--accent); font-weight: 700; }

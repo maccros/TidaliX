@@ -560,7 +560,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
                   mature: stepsUntilMature(state, inspected.instance) === 0,
                   stepsRemaining: stepsUntilMature(state, inspected.instance),
                   allowedThisTurn: canReleaseThisTurn(state, YOU),
-                  lineageHeld: conservedTaxa(you).includes(
+                  taxonHeld: conservedTaxa(you).includes(
                     getCard(inspected.instance.definitionId).taxon,
                   ),
                   incomeAfter: Math.floor(
@@ -686,7 +686,7 @@ function Row({
  * living in the log — a player should never have to count a pile themselves to
  * know how close they are to winning with it.
  *
- * It is scored on *lineage*, which is a rule that only works if the player can
+ * It is scored on *taxon*, which is a rule that only works if the player can
  * see it. So the pile is drawn as the eight branches of the tree with the ones
  * you hold lit up, and the standing income it pays is stated as a number rather
  * than left to be inferred from the energy panel. A boost nobody can find is a
@@ -722,7 +722,7 @@ function ConservationPanel({
           {target > 0 && <small> / {target}</small>}
         </span>
         <span className="conserve__label">
-          lineages protected
+          taxa protected
           {species > saved && <small> · {species} species in the pile</small>}
         </span>
       </header>
@@ -736,13 +736,13 @@ function ConservationPanel({
             {toNext > 0 && (
               <span className="conserve__next">
                 {' '}
-                — {toNext} more {toNext === 1 ? 'lineage' : 'lineages'} for ⬡+{income + 1}
+                — {toNext} more {toNext === 1 ? 'taxon' : 'taxa'} for ⬡+{income + 1}
               </span>
             )}
           </>
         ) : (
           <>
-            Protect {toNext} {toNext === 1 ? 'lineage' : 'lineages'} for <b>⬡+1 every turn</b>
+            Protect {toNext} {toNext === 1 ? 'taxon' : 'taxa'} for <b>⬡+1 every turn</b>
           </>
         )}
       </p>
@@ -788,7 +788,7 @@ function ConservationPanel({
                 onClick={() => onRelease(c.instanceId)}
                 title={
                   isNew
-                    ? `A new lineage: ${TAXON_LABEL[def.taxon]}`
+                    ? `A new taxon: ${TAXON_LABEL[def.taxon]}`
                     : `${TAXON_LABEL[def.taxon]} is already protected — this adds no income`
                 }
               >
@@ -801,7 +801,7 @@ function ConservationPanel({
       ) : (
         <p className="conserve__hint">
           {target > 0
-            ? `Protect ${target} different lineages to win. A species matures after one full cycle of the tide.`
+            ? `Protect ${target} different taxa to win. A species matures after one full cycle of the tide.`
             : 'A species matures after one full cycle of the tide.'}
         </p>
       )}
@@ -884,9 +884,9 @@ function nameOf(state: GameState, instanceId: string): string {
 
 /** How each arrival effect reads in the log. */
 const ARRIVAL_LOG: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `${n} damage`,
-  sweep: (n) => `${n} to every enemy`,
-  mend: (n) => `heals the reef ${n}`,
+  strike: (n) => `♥-${n} to one enemy`,
+  sweep: (n) => `♥-${n} to every enemy`,
+  mend: (n) => `♥+${n} to the reef`,
   forage: (n) => `⬡+${n}`,
   scout: (n) => `draws ${n}`,
 };
@@ -1000,7 +1000,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
 
     case 'SPECIES_RELEASED':
       return {
-        text: `${who(event.player)} released ${getCard(event.definitionId).name}: ${event.conserved} lineage${event.conserved === 1 ? '' : 's'} protected`,
+        text: `${who(event.player)} released ${getCard(event.definitionId).name}: ${event.conserved} ${event.conserved === 1 ? 'taxon' : 'taxa'} protected`,
         kind: 'conserve',
       };
 

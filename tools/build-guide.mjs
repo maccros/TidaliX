@@ -61,21 +61,21 @@ const GROUPS = [
     title: 'Low tide — the exposed flat',
     blurb:
       'The water has drained off the reef flat. These are the animals that keep hunting on foot, in air, or in inches of water, while everything built for deep water is stranded and vulnerable.',
-    ids: ['atlantic-mudskipper', 'sally-lightfoot-crab', 'horn-eyed-ghost-crab', 'common-octopus', 'rock-boring-urchin'],
+    ids: ['atlantic-mudskipper', 'sally-lightfoot-crab', 'tasselled-wobbegong', 'common-octopus', 'long-spined-urchin'],
   },
   {
     phase: 'rising',
     title: 'Rising tide — the flood',
     blurb:
       'Water climbs back over the crest and carries plankton with it. This is the phase that pays: the flood is the richest income in the game, and the reason banking through a lean low tide is worth doing.',
-    ids: ['peacock-mantis-shrimp', 'coral-grouper', 'mangrove-jack', 'moorish-idol'],
+    ids: ['peacock-mantis-shrimp', 'coral-grouper', 'warty-frogfish', 'moorish-idol'],
   },
   {
     phase: 'high',
     title: 'High tide — over the crest',
     blurb:
       'The reef is fully submerged and the big open-water animals come in over the top. The heaviest bodies in the set live here, and most of them pay for it when the water leaves.',
-    ids: ['reef-manta-ray', 'blacktip-reef-shark', 'whitetip-reef-shark', 'green-sea-turtle', 'bumphead-parrotfish', 'giant-trevally'],
+    ids: ['reef-manta-ray', 'box-jellyfish', 'whitetip-reef-shark', 'green-sea-turtle', 'bumphead-parrotfish', 'giant-trevally'],
   },
   {
     phase: 'falling',
@@ -96,7 +96,7 @@ const GROUPS = [
     title: 'Residents — the mid phases',
     blurb:
       'Species that never leave the reef and barely notice the cycle. They swing little, which makes them the stable core of a deck rather than its peaks — and two of them are the best symbiosis enablers in the set.',
-    ids: ['clown-anemonefish', 'clown-triggerfish', 'regal-blue-tang', 'bluestreak-cleaner-wrasse'],
+    ids: ['clown-anemonefish', 'clown-triggerfish', 'mushroom-coral', 'bluestreak-cleaner-wrasse'],
   },
   {
     phase: null,
@@ -160,7 +160,7 @@ function cardRow(id) {
     : '';
   // Niche first: the category, before anything the animal does.
   const niche = `<span class="kw kw--niche-${c.niche}">${c.niche}</span>`;
-  const taxon = `<span class="kw kw--taxon" title="lineage — what the conservation pile is scored on">${esc(TAXON_LABEL[c.taxon])}</span>`;
+  const taxon = `<span class="kw kw--taxon" title="taxon — what the conservation pile is scored on">${esc(TAXON_LABEL[c.taxon])}</span>`;
 
   const auras = c.auras
     .map((a) => {
@@ -483,7 +483,7 @@ const html = `<title>TidaliX Field Guide</title>
           <li>The <b>phase pays on top</b>: <span class="num">0</span> on a drained flat, <span class="num">+${cfg.tideEnergy.rising}</span> on the flood, <span class="num">+${cfg.tideEnergy.high}</span> at high water, <span class="num">0</span> on the drain.</li>
           <li>Unspent energy <b>carries over</b>, up to <span class="num">${cfg.carryOverCap}</span>. Bank through a lean phase, dump on the flood.</li>
           <li>Cards on your board that generate energy add theirs at the start of your turn.</li>
-          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">${cfg.conservationIncomePer}</span> distinct <b>lineage</b> in it &mdash; a fish, a coral, a crab and a shark are four; four different fish are one.</li>
+          <li>Your <b>conservation pile</b> pays <span class="num">+1</span> every turn per <span class="num">${cfg.conservationIncomePer}</span> distinct <b>taxon</b> in it &mdash; a fish, a coral, a crab and a shark are four; four different fish are one.</li>
         </ul>
       </div>
 
@@ -493,8 +493,8 @@ const html = `<title>TidaliX Field Guide</title>
           <li>A species that has survived a <b>complete tide cycle</b> on your reef can be <b>released</b> back to the wild.</li>
           <li>It leaves the board for good into your <b>conservation pile</b> &mdash; neither board nor discard, and the one place a card leaves play as an asset.</li>
           <li>Only <span class="num">${cfg.releasesPerTurn}</span> goes back per turn, and releasing frees the board slot it held.</li>
-          <li>The pile scores <b>distinct lineages</b>, not names: biodiversity is measured across branches of the tree, so a pile of six reef fish is one branch protected. Protect <span class="num">${cfg.conservationVictory}</span> of the ${new Set(CARDS.map((c) => c.taxon)).size} lineages in the set and you <b>win outright</b>.</li>
-          <li class="rules__lineages">The lineages: ${[...new Set(CARDS.map((c) => c.taxon))].map((t) => `<b>${esc(TAXON_LABEL[t])}</b>`).join(', ')}.</li>
+          <li>The pile scores <b>distinct taxa</b>, not names: biodiversity is measured across branches of the tree, so a pile of six reef fish is one branch protected. Protect <span class="num">${cfg.conservationVictory}</span> of the ${new Set(CARDS.map((c) => c.taxon)).size} taxa in the set and you <b>win outright</b>.</li>
+          <li class="rules__taxa">The taxa: ${[...new Set(CARDS.map((c) => c.taxon))].map((t) => `<b>${esc(TAXON_LABEL[t])}</b>`).join(', ')}.</li>
         </ul>
       </div>
 

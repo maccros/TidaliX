@@ -45,8 +45,8 @@ export interface CardDetailProps {
     mature: boolean;
     stepsRemaining: number;
     allowedThisTurn: boolean;
-    /** Whether this card's lineage is already in the pile. */
-    lineageHeld: boolean;
+    /** Whether this card's taxon is already in the pile. */
+    taxonHeld: boolean;
     /** Standing income the pile would pay after releasing it. */
     incomeAfter: number;
   } | null;
@@ -62,10 +62,10 @@ const TRAIT_TEXT: Record<Keyword, string> = {
 };
 
 const ARRIVAL_TEXT: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `Deal ${n} damage to an enemy creature.`,
-  sweep: (n) => `Deal ${n} damage to every enemy creature.`,
-  mend: (n) => `Heal ${n} damage from every friendly creature.`,
-  forage: (n) => `Gain ${n} energy immediately.`,
+  strike: (n) => `Deals ${n} damage to one enemy creature.`,
+  sweep: (n) => `Deals ${n} damage to every enemy creature.`,
+  mend: (n) => `Heals ${n} damage from every friendly creature.`,
+  forage: (n) => `Gains ${n} energy immediately.`,
   scout: (n) => `Draw ${n} card${n === 1 ? '' : 's'}.`,
 };
 
@@ -296,9 +296,9 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
               )}
             </p>
             {/* What the release is worth, which is the part that is easy to get
-                wrong: the pile pays for lineages, so a second fish pays nothing. */}
-            <p className="detail__lineage">
-              {release.lineageHeld ? (
+                wrong: the pile pays for taxa, so a second fish pays nothing. */}
+            <p className="detail__taxon">
+              {release.taxonHeld ? (
                 <>
                   <b>{TAXON_LABEL[def.taxon]}</b> is already protected — no extra income.
                 </>
@@ -315,7 +315,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
         {zone === 'conservation' && (
           <section className="detail__section">
             <p className="detail__release good">
-              Released back to the wild, protecting the <b>{TAXON_LABEL[def.taxon]}</b> lineage.
+              Released back to the wild, protecting the <b>{TAXON_LABEL[def.taxon]}</b> taxon.
             </p>
           </section>
         )}

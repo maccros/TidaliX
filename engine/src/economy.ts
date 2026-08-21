@@ -49,10 +49,10 @@ export function conservedSpecies(player: PlayerState): number {
 }
 
 /**
- * The distinct lineages in a player's conservation pile, in the order they were
+ * The distinct taxa in a player's conservation pile, in the order they were
  * first protected.
  *
- * This is the number that pays and the number that wins. Scoring on lineage
+ * This is the number that pays and the number that wins. Scoring on taxon
  * rather than on species is what makes the pile a genuine biodiversity problem:
  * six different reef fish are still just fish, and a reef with only fish in it
  * is not a reef anyone saved. Getting paid means going out and protecting a
@@ -68,7 +68,7 @@ export function conservedTaxa(player: PlayerState): Taxon[] {
   return seen;
 }
 
-/** How many distinct lineages are protected — the score that pays and wins. */
+/** How many distinct taxa are protected — the score that pays and wins. */
 export function conservedCount(player: PlayerState): number {
   return conservedTaxa(player).length;
 }
@@ -81,7 +81,7 @@ export function conservationIncome(state: GameState, playerId: PlayerId): number
 }
 
 /**
- * Lineages still missing from the pile before the next point of income lands.
+ * Taxa still missing from the pile before the next point of income lands.
  *
  * The pile is only motivating if the player can see what it is asking them for,
  * so this is surfaced rather than left as arithmetic they have to do themselves.
@@ -176,7 +176,7 @@ function incomeAt(
     lines.push({
       source: 'conservation',
       amount: conserved,
-      detail: `${taxa} ${taxa === 1 ? 'lineage' : 'lineages'} protected`,
+      detail: `${taxa} ${taxa === 1 ? 'taxon' : 'taxa'} protected`,
     });
   }
 

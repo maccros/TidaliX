@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="TidaliX">
+  <!-- The tide, which is the whole game: three swells rising through one frame. -->
+  <rect width="32" height="32" rx="7" fill="#12323d"/>
+  <g fill="none" stroke-width="3.2" stroke-linecap="round">
+    <path d="M4 11q6-5 12 0t12 0" stroke="#cfeaf0"/>
+    <path d="M4 19q6-5 12 0t12 0" stroke="#6fb3c4"/>
+    <path d="M4 27q6-5 12 0t12 0" stroke="#2f7183"/>
+  </g>
+</svg>

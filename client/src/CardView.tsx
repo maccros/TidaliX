@@ -93,10 +93,18 @@ const LONG_PRESS_MS = 450;
  * the decision the player is making when they choose to play it now rather than
  * hold it.
  */
+/**
+ * How each arrival reads on the card face.
+ *
+ * One symbol per resource, the same one the rest of the interface uses: ♥ for
+ * health and ⬡ for energy. A bare number is what made "1 to every enemy" a
+ * riddle — one of what? — so no arrival prints a number without its symbol,
+ * and every one of them says where it lands.
+ */
 const ARRIVAL_LABEL: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `On arrival: ${n} damage to an enemy`,
-  sweep: (n) => `On arrival: ${n} to every enemy`,
-  mend: (n) => `On arrival: heal your reef ${n}`,
+  strike: (n) => `On arrival: ♥-${n} to one enemy`,
+  sweep: (n) => `On arrival: ♥-${n} to every enemy`,
+  mend: (n) => `On arrival: ♥+${n} to your reef`,
   forage: (n) => `On arrival: ⬡+${n}`,
   scout: (n) => `On arrival: draw ${n}`,
 };

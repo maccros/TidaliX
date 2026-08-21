@@ -132,9 +132,9 @@ describe('client', () => {
     render();
     const panel = container.querySelector('.conserve');
     expect(panel).not.toBeNull();
-    expect(panel!.textContent).toContain('lineages protected');
+    expect(panel!.textContent).toContain('taxa protected');
     expect(panel!.textContent).toContain(`/ ${DEFAULT_CONFIG.conservationVictory}`);
-    // The pile is scored on lineage, so every lineage in the set is listed —
+    // The pile is scored on taxon, so every taxon in the set is listed —
     // the ones you hold and, just as importantly, the ones you do not.
     expect(panel!.querySelectorAll('.conserve__taxon').length).toBe(allTaxa().length);
     expect(panel!.querySelectorAll('.conserve__taxon.is-held').length).toBe(0);
@@ -144,7 +144,7 @@ describe('client', () => {
     render();
     const boost = container.querySelector('.conserve__boost');
     expect(boost).not.toBeNull();
-    // With an empty pile it has to say what protecting a lineage would buy.
+    // With an empty pile it has to say what protecting a taxon would buy.
     expect(boost!.textContent).toContain('⬡+1 every turn');
   });
 
@@ -161,7 +161,7 @@ describe('client', () => {
         for (let turn = 0; turn < 8; turn++) {
           const enemies = [...container.querySelectorAll<HTMLElement>('.side--enemy .card')];
           const aimable = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')]
-            .find((c) => c.querySelector('.card__arrival')?.textContent?.includes('damage to an enemy'));
+            .find((c) => c.querySelector('.card__arrival')?.textContent?.includes('to one enemy'));
 
           if (aimable && enemies.length > 0) {
             const boardBefore = container.querySelectorAll('.side--you .card').length;
@@ -246,7 +246,7 @@ describe('client', () => {
         for (let i = 0; i < 20; i++) {
           const hand = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')];
           const enemies = container.querySelectorAll('.side--enemy .card').length;
-          const striker = hand.find((c) => c.textContent?.includes('damage to an enemy'));
+          const striker = hand.find((c) => c.textContent?.includes('to one enemy'));
 
           if (striker && enemies > 0) {
             act(() => striker.click());
@@ -390,7 +390,7 @@ describe('client', () => {
     const niches = new Set(CARDS.map((c) => c.niche));
     expect(niches.size).toBe(4);
     for (const n of niches) expect(NICHE_NOTE[n], `note for ${n}`).toBeTruthy();
-    // The old trait vocabulary is gone entirely, lineage duplicates included.
+    // The old trait vocabulary is gone entirely, taxon duplicates included.
     for (const dead of ['mollusc', 'echinoderm', 'cephalopod', 'crustacean', 'cleaner', 'reef-fish']) {
       expect([...niches], `"${dead}" should be gone`).not.toContain(dead);
     }

@@ -533,10 +533,10 @@ describe('combat', () => {
   });
 
   it('forces attacks through a reef-guard', () => {
-    let s = stackedGame(['sally-lightfoot-crab'], ['rock-boring-urchin']).state;
+    let s = stackedGame(['sally-lightfoot-crab'], ['long-spined-urchin']).state;
 
     s = until(s, canAct(1, 2));
-    const urchin = inHand(s, 1, 'rock-boring-urchin');
+    const urchin = inHand(s, 1, 'long-spined-urchin');
     s = must(s, { type: 'PLAY_CARD', player: 1, instanceId: urchin.instanceId }).state;
 
     s = until(s, canAct(0, 2));

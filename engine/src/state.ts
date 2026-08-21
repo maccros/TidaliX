@@ -50,29 +50,27 @@ export const DEFAULT_CONFIG: GameConfig = {
   // what makes the second win condition a real commitment rather than a pivot.
   releaseMaturityCycles: 1,
   releasesPerTurn: 1,
-  // One lineage, one energy. The pile is scored on lineage rather than species
+  // One taxon, one energy. The pile is scored on taxon rather than species
   // now, which already makes each point of this income much harder to earn — a
   // second reef fish adds nothing where a second *species* used to add one — so
   // there is no room to make the rate stingier on top of that. Every point is
   // felt the turn it lands, and every point demands a genuinely different animal.
   conservationIncomePer: 1,
-  // Four lineages out of the seven the set contains.
+  // Three taxa out of the seven the set contains.
   //
-  // This number has moved twice, and the reason is worth keeping. At 28 species
-  // the set could not supply lineages — half the cards were fish, reptiles were
-  // a single card reaching a player in 39% of games — so a target of five never
-  // fired at all and three was the honest ceiling.
+  // This number has moved three times, and the history is the point: it is a
+  // property of what the deck can deal, not a design preference, so it has to be
+  // re-measured every time the set changes. It has been wrong three times for
+  // exactly that reason.
   //
-  // Adding fifteen species fixed the supply, and that made three trivial: 46% of
-  // games ended on the pile, which is not a second path but the main one. The
-  // measured curve on the 43-card set:
+  //   28 species, 7 taxa (fish were half the set)   3 -> 0%
+  //   43 species                                    3 -> 46%   4 -> 15%
+  //   50 species, evenly spread                     3 -> 29%   4 -> 8%
   //
-  //   target 3   46% of games   target 4   15%   target 5   3%
-  //
-  // Four it is. If the set grows again, re-run the measurement rather than
-  // trusting this number — it is a property of what the deck can deal, and it
-  // has been wrong twice for exactly that reason.
-  conservationVictory: 4,
+  // Evening out the taxa is what moved it back. Four different taxa is now a
+  // long shot rather than a second path — 8% of games — and three lands at 29%,
+  // which is a real alternative without being the main one.
+  conservationVictory: 3,
 
   // Compensation for moving second, because moving first is worth about 63% of
   // games. Both players are dealt the same four cards; the difference is made
@@ -268,7 +266,7 @@ export interface BoardCardView {
   toxinImmune: boolean;
   /** Already marked by a toxin — dead on the next sweep, whatever its health. */
   poisoned: boolean;
-  /** The lineage it would add to a conservation pile. */
+  /** The taxon it would add to a conservation pile. */
   taxon: Taxon;
   canAttack: boolean;
   /** Whether this species has lived long enough to be released. */

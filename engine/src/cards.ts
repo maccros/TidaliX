@@ -49,23 +49,6 @@ export const CARDS: readonly CardDefinition[] = [
     text: 'Grazes the splash zone faster than the surge can catch it.',
   },
   {
-    id: 'horn-eyed-ghost-crab',
-    name: 'Horn-eyed Ghost Crab',
-    species: 'Ocypode ceratophthalma',
-    type: 'creature',
-    taxon: 'crustacean',
-    niche: 'bottom-dweller',
-    cost: 3,
-    attack: 3,
-    health: 2,
-    keywords: ['surge'],
-    tide: {
-      low: { attack: 1 },
-      high: { attack: -1, exposed: true },
-    },
-    text: 'Runs down the wrack line the moment the water pulls back.',
-  },
-  {
     id: 'common-octopus',
     name: 'Common Octopus',
     species: 'Octopus vulgaris',
@@ -85,23 +68,6 @@ export const CARDS: readonly CardDefinition[] = [
       falling: { attack: 1 },
     },
     text: 'Crosses open rock between pools to raid the stranded ones.',
-  },
-  {
-    id: 'rock-boring-urchin',
-    name: 'Rock-boring Urchin',
-    species: 'Echinometra mathaei',
-    type: 'creature',
-    taxon: 'echinoderm',
-    niche: 'bottom-dweller',
-    cost: 2,
-    attack: 0,
-    health: 5,
-    keywords: ['reef-guard'],
-    spines: 3,
-    tide: {
-      low: { health: 2 },
-    },
-    text: 'Grinds itself a socket in the limestone and does not leave it.',
   },
 
   /* ---------------------------------------------------------------- */
@@ -140,27 +106,20 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 4,
     health: 4,
     keywords: ['toxin-immune'],
+    // Printed as the Giant Moray's twin — same cost, same body, same keyword —
+    // until this went on it. It is also the only attack the reef itself grants.
+    auras: [
+      {
+        affects: 'reef-dweller',
+        grants: { attack: 1 },
+        note: 'headstands at a crevice until a moray goes in, and takes what bolts out',
+      },
+    ],
     tide: {
       rising: { attack: 1 },
       high: { attack: 1 },
     },
     text: 'One of the few animals that will take a lionfish, spines and all.',
-  },
-  {
-    id: 'mangrove-jack',
-    name: 'Mangrove Jack',
-    species: 'Lutjanus argentimaculatus',
-    type: 'creature',
-    taxon: 'fish',
-    niche: 'reef-dweller',
-    cost: 3,
-    attack: 3,
-    health: 3,
-    tide: {
-      rising: { attack: 2 },
-      low: { attack: -1 },
-    },
-    text: 'Rides the push into the roots and takes whatever the water brings.',
   },
   {
     id: 'moorish-idol',
@@ -206,23 +165,6 @@ export const CARDS: readonly CardDefinition[] = [
       low: { attack: -3, exposed: true },
     },
     text: 'Barrel-rolls through plankton where the flood stacks it against the reef.',
-  },
-  {
-    id: 'blacktip-reef-shark',
-    name: 'Blacktip Reef Shark',
-    species: 'Carcharhinus melanopterus',
-    type: 'creature',
-    taxon: 'shark-ray',
-    niche: 'open-water',
-    cost: 4,
-    attack: 4,
-    health: 3,
-    tide: {
-      high: { attack: 2 },
-      falling: { attack: 1 },
-      low: { attack: -2, exposed: true },
-    },
-    text: 'Works the flat in water barely deep enough to cover its fin.',
   },
   {
     id: 'whitetip-reef-shark',
@@ -383,21 +325,6 @@ export const CARDS: readonly CardDefinition[] = [
     text: 'Locks its dorsal spine in a crevice and refuses to be pulled out.',
   },
   {
-    id: 'regal-blue-tang',
-    name: 'Regal Blue Tang',
-    species: 'Paracanthurus hepatus',
-    type: 'creature',
-    taxon: 'fish',
-    niche: 'reef-dweller',
-    cost: 2,
-    attack: 2,
-    health: 3,
-    tide: {
-      rising: { attack: 1 },
-    },
-    text: 'Scalpels at the base of the tail, carried everywhere it goes.',
-  },
-  {
     id: 'bluestreak-cleaner-wrasse',
     name: 'Bluestreak Cleaner Wrasse',
     species: 'Labroides dimidiatus',
@@ -489,7 +416,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Tridacna gigas',
     type: 'structure',
     taxon: 'mollusc',
-    niche: 'bottom-dweller',
+    // A reef-builder, and the only one that is not a cnidarian. It is sessile,
+    // it farms algae in its mantle exactly as a coral does, and its shell ends
+    // up as reef substrate. It was printed as a structure from the start; only
+    // the niche disagreed, because it happens to sit on sand.
+    niche: 'reef-builder',
     cost: 3,
     attack: 0,
     health: 8,
@@ -613,12 +544,12 @@ export const CARDS: readonly CardDefinition[] = [
   },
 
   /* ---------------------------------------------------------------- */
-  /* Filling out the lineages                                          */
+  /* Filling out the taxa                                          */
   /*                                                                   */
   /* The set was half fish, which made the conservation pile a question */
   /* about the shuffle rather than about play — reptiles were a single  */
   /* card and reached a player in 39% of games. These fifteen bring     */
-  /* every other lineage to five or six. Each is here because it does   */
+  /* every other taxon to five or six. Each is here because it does   */
   /* something the set was missing, not to pad a count.                 */
   /* ---------------------------------------------------------------- */
   {
@@ -952,9 +883,9 @@ export const CARDS: readonly CardDefinition[] = [
     text: 'Sucks prey out of a crevice hard enough that you hear it from the surface.',
   },
   /* ---------------------------------------------------------------- */
-  /* Levelling the thin lineages                                       */
+  /* Levelling the thin taxa                                       */
   /*                                                                   */
-  /* Seven more, all outside the fish, taking every lineage to five or */
+  /* Seven more, all outside the fish, taking every taxon to five or */
   /* more and fish down to 28% of the set.                             */
   /* ---------------------------------------------------------------- */
   {
@@ -1053,23 +984,6 @@ export const CARDS: readonly CardDefinition[] = [
     text: 'Eats sea stars alive, arm by arm, and keeps the rest of the animal fresh.',
   },
   {
-    id: 'textile-cone-snail',
-    name: 'Textile Cone Snail',
-    species: 'Conus textile',
-    type: 'creature',
-    taxon: 'mollusc',
-    niche: 'bottom-dweller',
-    cost: 3,
-    attack: 2,
-    health: 4,
-    keywords: ['toxic'],
-    armour: 2,
-    tide: {
-      falling: { attack: 1 },
-    },
-    text: 'Fires a harpoon on a stalk of flesh. The shell is the pretty part.',
-  },
-  {
     id: 'feather-star',
     name: 'Feather Star',
     species: 'Comanthina schlegelii',
@@ -1160,6 +1074,71 @@ export const CARDS: readonly CardDefinition[] = [
     },
     text: 'No scales anywhere on it. Just a coat of foul, stinging slime under all that colour.',
   },
+  {
+    id: 'box-jellyfish',
+    name: 'Box Jellyfish',
+    species: 'Chironex fleckeri',
+    type: 'creature',
+    // The set had cnidarians, and every one of them was a coral bolted to the
+    // reef. This is the other half of the cnidarians: the one that drifts.
+    taxon: 'cnidarian',
+    niche: 'open-water',
+    cost: 4,
+    attack: 3,
+    health: 4,
+    keywords: ['toxic'],
+    auras: [
+      {
+        affects: 'open-water',
+        grants: { health: 1 },
+        note: 'juvenile fish ride the open water inside the stinging curtain',
+      },
+    ],
+    tide: {
+      rising: { attack: 1 },
+      // Blooms come in on the tide and strand when it goes out.
+      low: { health: -2 },
+    },
+    text: 'Three metres of tentacle behind a bell the size of a fist, and eyes on all four sides.',
+  },
+  {
+    id: 'mushroom-coral',
+    name: 'Mushroom Coral',
+    species: 'Fungia fungites',
+    type: 'structure',
+    taxon: 'cnidarian',
+    niche: 'reef-builder',
+    // The only reef-builder with an attack, and it earns it: Fungia catches and
+    // digests jellyfish. Every other coral in the set is a wall.
+    cost: 2,
+    attack: 1,
+    health: 5,
+    keywords: ['reef-guard'],
+    tide: {
+      low: { health: 1 },
+      falling: { attack: 1 },
+    },
+    text: 'A single polyp the size of a hand, cemented to nothing. It rights itself if you turn it over.',
+  },
+  {
+    id: 'tasselled-wobbegong',
+    name: 'Tasselled Wobbegong',
+    species: 'Eucrossorhinus dasypogon',
+    type: 'creature',
+    // Sharks all lived in open water. This one is a carpet, and it belongs to
+    // the flat.
+    taxon: 'shark-ray',
+    niche: 'bottom-dweller',
+    cost: 4,
+    attack: 4,
+    health: 5,
+    armour: 2,
+    tide: {
+      low: { attack: 2 },
+      high: { attack: -1 },
+    },
+    text: 'A fringe of skin flaps and a mouth. You do not see it until the sand moves.',
+  },
 ];
 
 const CARD_INDEX: ReadonlyMap<string, CardDefinition> = new Map(CARDS.map((c) => [c.id, c]));
@@ -1186,12 +1165,12 @@ export function arrivalOf(definitionId: string): ArrivalEffect | undefined {
   return getCard(definitionId).arrival;
 }
 
-/** The lineage a card belongs to. What the conservation pile is scored on. */
+/** The taxon a card belongs to. What the conservation pile is scored on. */
 export function taxonOf(definitionId: string): Taxon {
   return getCard(definitionId).taxon;
 }
 
-/** Every lineage the set contains, so a client can show the pile's full board. */
+/** Every taxon the set contains, so a client can show the pile's full board. */
 export function allTaxa(): Taxon[] {
   const seen = new Set<Taxon>();
   for (const c of CARDS) seen.add(c.taxon);

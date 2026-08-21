@@ -70,7 +70,7 @@ describe('armour', () => {
       expect(getCard(id).spines, id).toBeUndefined();
       expect(getCard(id).attack, id).toBeGreaterThan(0);
     }
-    for (const id of ['rock-boring-urchin', 'bubble-tip-anemone']) {
+    for (const id of ['long-spined-urchin', 'bubble-tip-anemone']) {
       expect(getCard(id).spines, id).toBeGreaterThan(0);
       expect(getCard(id).armour, id).toBeUndefined();
       expect(getCard(id).attack, id).toBe(0);
@@ -133,21 +133,21 @@ describe('armour', () => {
     // attacking the reef's walls would be free. Spines is what it answers with.
     let s = bareGame();
     s = place(s, 0, ['peacock-mantis-shrimp']); // 4 attack, 2 health
-    s = place(s, 1, ['rock-boring-urchin']); // 0 attack, 7 health at low, spines 3
+    s = place(s, 1, ['long-spined-urchin']); // 0 attack, 8 health at low, spines 4
 
     const { state: after, events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
         attackerId: find(s, 0, 'peacock-mantis-shrimp').instanceId,
-        targetId: find(s, 1, 'rock-boring-urchin').instanceId,
+        targetId: find(s, 1, 'long-spined-urchin').instanceId,
       }),
     );
 
     expect(after.players[1].board[0]?.damage).toBe(4); // no armour, so all of it lands
-    // 3 spines, plus 1 because a mantis shrimp is exposed at low water.
+    // 4 spines, plus 1 because a mantis shrimp is exposed at low water.
     expect(events).toContainEqual(
-      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 4, exposedBonus: 1 }),
+      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 5, exposedBonus: 1 }),
     );
     // Into a 2-health shrimp: attacking a wall can simply lose you the card.
     expect(after.players[0].board).toHaveLength(0);
@@ -459,12 +459,12 @@ describe('the niche vocabulary', () => {
     }
   });
 
-  it('keeps niche and lineage as separate questions', () => {
-    // A lineage is what an animal is; a niche is how it lives. They must not
+  it('keeps niche and taxon as separate questions', () => {
+    // A taxon is what an animal is; a niche is how it lives. They must not
     // collapse into each other, or one of them is redundant.
     const taxa = new Set(CARDS.map((c) => c.taxon as string));
     for (const card of CARDS) {
-      expect(taxa.has(card.niche), `${card.name}'s niche duplicates a lineage`).toBe(false);
+      expect(taxa.has(card.niche), `${card.name}'s niche duplicates a taxon`).toBe(false);
     }
   });
 });

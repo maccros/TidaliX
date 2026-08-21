@@ -119,7 +119,7 @@ function boardValueNextPhase(state: GameState, player: PlayerId): number {
  * and a player would never see the mechanic used against them. Progress is worth
  * more the closer the pile gets, so a started pile gets finished.
  *
- * Scored on lineages, which the bot gets for free: `conservedCount` simply stops
+ * Scored on taxa, which the bot gets for free: `conservedCount` simply stops
  * rewarding it for releasing a second animal from a branch it already holds.
  */
 function conservationValue(state: GameState, me: PlayerId): number {

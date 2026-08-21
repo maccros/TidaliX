@@ -99,17 +99,6 @@ const ART: Record<string, ReactNode> = {
     </>
   ),
 
-  'regal-blue-tang': (
-    <>
-      <g {...ink}>
-        <path d="M90 40 110 26c-4 9-4 19 0 28z" fill="#e8c246" />
-        <ellipse cx="52" cy="40" rx="37" ry="23" fill="#2f6fb5" />
-        <path d="M40 24c14 2 26 10 34 20-12 4-26 2-36-4-4-6-3-12 2-16z" fill="#12323d" opacity=".8" />
-        <path d="M84 32c4 5 4 11 0 16" fill="#e8c246" strokeWidth={2.4} />
-      </g>
-      {ringEye(28, 34)}
-    </>
-  ),
 
   'moorish-idol': (
     <>
@@ -141,17 +130,6 @@ const ART: Record<string, ReactNode> = {
     </>
   ),
 
-  'mangrove-jack': (
-    <>
-      <g {...ink}>
-        <path d="M92 40 114 26 108 40l6 14z" fill="#9e3a2e" />
-        <path d="M46 20c10-6 22-4 28 4z" fill="#9e3a2e" />
-        <path d="M14 40c16-16 62-18 80-4-18 16-64 18-80 4z" fill="#b2483a" />
-        <path d="M40 54c-2 8 0 12 6 14 2-6 1-10-1-14z" fill="#9e3a2e" />
-      </g>
-      {ringEye(28, 34, 5)}
-    </>
-  ),
 
   'great-barracuda': (
     <>
@@ -265,26 +243,6 @@ const ART: Record<string, ReactNode> = {
   /* ------------------------------------------------------------------ */
   /* Sharks, rays and the turtle                                         */
   /* ------------------------------------------------------------------ */
-  'blacktip-reef-shark': (
-    <>
-      <g {...ink}>
-        <path d="M100 40 116 26c-2 9-2 19 0 28z" fill="#9a8f75" />
-        <path d="M52 20 60 4l10 18z" fill="#9a8f75" />
-        <path d="M40 56l-6 14 16-8z" fill="#9a8f75" />
-        <path d="M14 42c14-16 56-22 86-2-30 20-72 16-86 2z" fill="#a89c80" />
-        <path d="M18 44c14 10 52 14 82 0-30 6-62 4-82 0z" fill="#f0ece0" strokeWidth={2.4} />
-      </g>
-      {/* The black tips the animal is named for, unmissable at card size. */}
-      <g fill={O}>
-        <path d="M56 12 60 4l5 9c-3-1-6-1-9 0z" />
-        <path d="M110 30c3-2 5-3 6-4-1 4-2 8-2 11-1-3-2-5-4-7z" />
-        <path d="M110 46c2-2 3-4 4-7 0 3 1 7 2 11-1-1-3-2-6-4z" />
-        <path d="M36 64l-2 6 7-3z" />
-      </g>
-      {eye(30, 38, 3.4)}
-      <path d="M18 46c4 2 9 3 13 3" stroke={O} strokeWidth="2" fill="none" strokeLinecap="round" />
-    </>
-  ),
 
   'whitetip-reef-shark': (
     <>
@@ -350,20 +308,6 @@ const ART: Record<string, ReactNode> = {
     </>
   ),
 
-  'horn-eyed-ghost-crab': (
-    <>
-      <g {...ink}>
-        <path d="M52 26 50 6M70 26 72 6" fill="none" strokeWidth={3.4} />
-        <path d="M32 40c-8-6-14-8-22-6 6 2 10 6 12 10" fill="#d8c79a" />
-        <path d="M88 40c8-6 14-8 22-6-6 2-10 6-12 10" fill="#d8c79a" />
-        <path d="M38 58l-12 14M50 62l-6 14M72 62l6 14M84 58l12 14" fill="none" />
-        <ellipse cx="60" cy="46" rx="26" ry="17" fill="#e6d7ad" />
-        <path d="M44 40c10-4 22-4 32 0" fill="none" strokeWidth={2.2} />
-      </g>
-      {ringEye(50, 6, 5)}
-      {ringEye(72, 6, 5)}
-    </>
-  ),
 
   'peacock-mantis-shrimp': (
     <>
@@ -383,16 +327,6 @@ const ART: Record<string, ReactNode> = {
   /* ------------------------------------------------------------------ */
   /* Echinoderms                                                         */
   /* ------------------------------------------------------------------ */
-  'rock-boring-urchin': (
-    <>
-      <g {...ink}>
-        <path d="M60 40 60 4M60 40 60 76M60 40 24 40M60 40 96 40M60 40 34 14M60 40 86 66M60 40 34 66M60 40 86 14M60 40 44 6M60 40 76 74M60 40 26 56M60 40 94 24"
-              fill="none" stroke="#5a4a6e" strokeWidth={4} />
-        <circle cx="60" cy="40" r="20" fill="#6f5b86" />
-        <circle cx="60" cy="40" r="7" fill="#4a3c5c" strokeWidth={2.4} />
-      </g>
-    </>
-  ),
 
   'crown-of-thorns-starfish': (
     <>
@@ -497,7 +431,7 @@ const ART: Record<string, ReactNode> = {
   ),
 
   /* ------------------------------------------------------------------ */
-  /* Filling out the lineages                                            */
+  /* Filling out the taxa                                            */
   /* ------------------------------------------------------------------ */
   'giant-triton': (
     <>
@@ -748,7 +682,7 @@ const ART: Record<string, ReactNode> = {
   ),
 
   /* ------------------------------------------------------------------ */
-  /* Levelling the thin lineages                                         */
+  /* Levelling the thin taxa                                         */
   /* ------------------------------------------------------------------ */
   'olive-sea-snake': (
     <>
@@ -838,23 +772,6 @@ const ART: Record<string, ReactNode> = {
     </>
   ),
 
-  'textile-cone-snail': (
-    <>
-      <g {...ink}>
-        {/* The foot and the harpoon proboscis out in front. */}
-        <path d="M28 60c-12 2-20 0-26-4 8-2 14-6 18-10" fill="#e8dcc0" />
-        <path d="M20 46 2 40" fill="none" strokeWidth={2.6} />
-        <path d="M92 8c14 12 18 34 8 50-8 12-24 18-42 14-12-3-18-11-16-19 3-10 15-13 24-13 7 0 12-4 14-11 3-9 2-16-2-23 5 0 10 1 14 2z"
-              fill="#e0cb96" />
-      </g>
-      {/* The textile pattern the animal is named for. */}
-      <g fill="none" stroke="#8a6a3a" strokeWidth={2.2}>
-        <path d="M84 14c5 9 6 21 2 31M72 20c5 9 6 19 2 28M60 32c4 7 5 14 2 20" />
-        <path d="M88 26c-8 2-16 2-22 0M86 40c-10 3-20 3-28 0" />
-      </g>
-      {eye(14, 44, 2.2)}
-    </>
-  ),
 
   'feather-star': (
     <>
@@ -930,6 +847,54 @@ const ART: Record<string, ReactNode> = {
       {/* The fan-shaped pectoral it holds out like a hand. */}
       <ellipse cx="56" cy="53" rx="13" ry="9" fill="#e8873a" {...ink} strokeWidth={2.6} />
       {ringEye(36, 33, 5)}
+    </>
+  ),
+
+  'box-jellyfish': (
+    <>
+      <g {...ink}>
+        {/* A bunch of tentacles from each of the four corners of the bell. */}
+        <path d="M26 44c-4 14 2 22-3 32M34 46c-2 16 3 22-1 30M46 48c-1 14 2 20-1 28M58 48v28M70 48c1 14-2 20 1 28M82 46c2 16-3 22 1 30M90 44c4 14-2 22 3 32"
+              fill="none" stroke="#6fa9bd" strokeWidth={3} />
+        {/* A bell with corners, which is where the name comes from. */}
+        <path d="M32 12h52l8 32c-16 6-52 6-68 0z" fill="#c9e9ef" />
+        <path d="M44 15v27M72 15v27" fill="none" strokeWidth={2.2} />
+      </g>
+      {/* Two of its twenty-four eyes, set into the rim of the bell. */}
+      <g fill={O}><circle cx="50" cy="30" r="3" /><circle cx="66" cy="30" r="3" /></g>
+    </>
+  ),
+
+  'mushroom-coral': (
+    <>
+      <ellipse cx="58" cy="44" rx="38" ry="24" fill="#d98f5e" />
+      {/* Septa: the radial plates, which is most of what this animal is. */}
+      <g fill="none" stroke="#a8602f" strokeWidth={2.4} strokeLinecap="round">
+        <path d="M58 44 88 44M58 44 88 54M58 44 73 63M58 44 58 63M58 44 43 63M58 44 31 55M58 44 28 44M58 44 31 33M58 44 43 25M58 44 58 25M58 44 73 25M58 44 85 33" />
+      </g>
+      <ellipse cx="58" cy="44" rx="11" ry="5" fill="#8f4a24" stroke={O} strokeWidth={2.4} />
+      <ellipse cx="58" cy="44" rx="38" ry="24" fill="none" {...ink} />
+    </>
+  ),
+
+  'tasselled-wobbegong': (
+    <>
+      <g {...ink}>
+        <path d="M84 42c10-2 18-8 26-14-4 10-4 18 0 28-8-6-16-12-26-14z" fill="#b58f4a" />
+        {/* Seen from above, because it never leaves the sand. */}
+        <path d="M18 42c0-13 10-20 26-20 22 0 40 8 44 20-4 12-22 20-44 20-16 0-26-7-26-20z" fill="#c9a45e" />
+        {/* Pectorals spread flat, the way a carpet shark rests. */}
+        <path d="M48 61c-4 8-2 13 6 15M48 23c-4-8-2-13 6-15" fill="#b58f4a" />
+        {/* The fringe of skin tassels round the whole front of the head. */}
+        <path d="M19 34l-9-5M16 40l-10-3M16 45l-10 3M19 51l-9 5M25 29l-6-8M25 56l-6 8M32 26l-3-9M32 59l-3 9"
+              fill="none" strokeWidth={3} />
+        <path d="M20 42h18" fill="none" strokeWidth={3} />
+      </g>
+      <g fill="#8a6428" opacity=".45">
+        <ellipse cx="54" cy="32" rx="9" ry="5" /><ellipse cx="76" cy="36" rx="7" ry="4" />
+        <ellipse cx="60" cy="52" rx="10" ry="5" /><ellipse cx="80" cy="50" rx="6" ry="4" />
+      </g>
+      {eye(38, 34, 3)}
     </>
   ),
 };

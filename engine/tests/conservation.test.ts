@@ -225,10 +225,10 @@ describe('conservation scoring', () => {
     expect(conservedCount(player)).toBe(2);
   });
 
-  it('scores lineages, not names — three different fish are still one branch', () => {
+  it('scores taxa, not names — three different fish are still one branch', () => {
     const state = stackedGame([], []).state;
-    // Three genuinely different animals, three different binomials, one lineage.
-    const fishOnly = pileOf(state, ['clown-anemonefish', 'regal-blue-tang', 'great-barracuda']);
+    // Three genuinely different animals, three different binomials, one taxon.
+    const fishOnly = pileOf(state, ['clown-anemonefish', 'clown-triggerfish', 'great-barracuda']);
 
     expect(conservedSpecies(fishOnly)).toBe(3);
     expect(conservedCount(fishOnly)).toBe(1);
@@ -237,7 +237,7 @@ describe('conservation scoring', () => {
     // One crab is worth more to the pile than any number of further fish.
     const spread = pileOf(state, [
       'clown-anemonefish',
-      'regal-blue-tang',
+      'clown-triggerfish',
       'great-barracuda',
       'sally-lightfoot-crab',
     ]);
@@ -245,7 +245,7 @@ describe('conservation scoring', () => {
     expect(conservedTaxa(spread)).toEqual(['fish', 'crustacean']);
   });
 
-  it('records lineages in the order they were first protected', () => {
+  it('records taxa in the order they were first protected', () => {
     const state = stackedGame([], []).state;
     // The octopus is a mollusc too, so it adds nothing after the clam.
     const player = pileOf(state, ['giant-clam', 'staghorn-coral', 'giant-clam', 'common-octopus']);
@@ -265,13 +265,13 @@ describe('conservation scoring', () => {
     expect(conservationIncome(s, 0)).toBe(0);
 
     s = must(s, { type: 'RELEASE', player: 0, instanceId }).state;
-    // One lineage conserved against a threshold of two — still nothing yet.
+    // One taxon conserved against a threshold of two — still nothing yet.
     expect(conservedCount(s.players[0])).toBe(1);
     expect(conservationIncome(s, 0)).toBe(0);
     expect(taxaToNextIncome(s, 0)).toBe(1);
   });
 
-  it('pays on every lineage when the threshold is one', () => {
+  it('pays on every taxon when the threshold is one', () => {
     const base = stackedGame([], [], { config: { conservationIncomePer: 1 } }).state;
     let s = until(base, ready(0, 1));
     const { state: after, instanceId } = playFirst(s, 0);
@@ -279,13 +279,13 @@ describe('conservation scoring', () => {
     expect(conservationIncome(s, 0)).toBe(0);
 
     s = must(s, { type: 'RELEASE', player: 0, instanceId }).state;
-    // The first release is felt immediately — that is the point of per-lineage.
+    // The first release is felt immediately — that is the point of per-taxon.
     expect(conservedCount(s.players[0])).toBe(1);
     expect(conservationIncome(s, 0)).toBe(1);
   });
 
-  it('pays nothing extra for a second animal from a lineage already protected', () => {
-    // Two mudskippers: two releases, two species in the pile, one lineage — and
+  it('pays nothing extra for a second animal from a taxon already protected', () => {
+    // Two mudskippers: two releases, two species in the pile, one taxon — and
     // so exactly one point of income. This is the whole change in one case.
     const base = stackedGame([], [], { config: { conservationIncomePer: 1 } }).state;
     let s = until(base, ready(0, 1));
@@ -328,7 +328,7 @@ describe('conservation scoring', () => {
 
 describe('conservation victory', () => {
   it('wins outright when the pile reaches the target', () => {
-    // A one-lineage target makes the condition testable without a long game.
+    // A one-taxon target makes the condition testable without a long game.
     const base = stackedGame([], [], { config: { conservationVictory: 1 } }).state;
     let s = until(base, ready(0, 1));
     const { state: after, instanceId } = playFirst(s, 0);
