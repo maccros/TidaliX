@@ -749,7 +749,7 @@ button { font: inherit; color: inherit; }
 .log__line--tide { color: var(--accent); font-weight: 700; }
 .log__line--setup { color: var(--ink-soft); font-style: italic; }
 .log__line--turn {
-  color: var(--accent); text-transform: capitalize;
+  color: var(--accent); font-weight: 700; text-transform: capitalize;
   margin-top: 0.35rem; padding-top: 0.3rem; border-top: 1px solid var(--line-soft);
 }
 .log__line--draw { color: var(--ink-faint); }

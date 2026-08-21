@@ -540,7 +540,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
         <span className="bar__seed">seed {seed}</span>
         {aiming ? (
           <span className="bar__hint bar__hint--aim">
-            {getCard(you.hand.find((c) => c.instanceId === aiming)!.definitionId).name} dashes
+            {getCard(you.hand.find((c) => c.instanceId === aiming)!.definitionId).name} strikes
             — pick an enemy, or press Escape to cancel.
           </span>
         ) : selected ? (
@@ -920,7 +920,19 @@ const ARRIVAL_LOG: Record<ArrivalEffect['kind'], (n: number) => string> = {
   sweep: (n) => `♥-${n} to every enemy`,
   mend: (n) => `♥+${n} to the reef`,
   forage: (n) => `⬡+${n}`,
-  scout: (n) => `draws ${n}`,
+  scout: (n) => `♦+${n}`,
+};
+
+/**
+ * The verb the log uses for each kind. "Dash" is a card-detail word only — the
+ * log, like the card face, says the concrete action.
+ */
+const ARRIVAL_VERB: Record<ArrivalEffect['kind'], string> = {
+  strike: 'strikes',
+  sweep: 'sweeps',
+  mend: 'mends',
+  forage: 'forages',
+  scout: 'scouts',
 };
 
 /** How an exposed bonus or an armour absorption reads inline, when either applied. */
@@ -1028,7 +1040,10 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
     case 'ARRIVAL_RESOLVED': {
       const name = getCard(event.definitionId).name;
       const target = event.targetId ? ` to ${nameOf(state, event.targetId)}` : '';
-      return { text: `${name} dashes: ${ARRIVAL_LOG[event.kind](event.amount)}${target}`, kind: 'arrival' };
+      return {
+        text: `${name} ${ARRIVAL_VERB[event.kind]}: ${ARRIVAL_LOG[event.kind](event.amount)}${target}`,
+        kind: 'arrival',
+      };
     }
 
     case 'CARD_HEALED':

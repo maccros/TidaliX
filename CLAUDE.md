@@ -54,6 +54,13 @@ roster is reef-dwelling. Do not propose reintroducing it.
 
 **Defenders do not strike back** unless they have a printed `spines` value.
 
+**Toxin is symmetric.** Kill a `toxic` animal in combat and whatever landed the
+blow dies too, whichever side of the exchange it was on — an attacker that
+kills a toxic defender, or a toxic attacker that dies to the defender's
+retaliation, poison the same way. `toxin-immune` answers both directions.
+An arrival never triggers it: only a kill made through `strike()` (an attack
+or a retaliation) counts as the bite.
+
 ## Vocabulary
 
 Two orthogonal classifications, and they must not collapse into each other:
@@ -78,7 +85,7 @@ read by at least two positive auras.
 The card face and the full card say the same things the same way. Breaking this
 is the single most common regression.
 
-**One shape for a statement.** An arrival and a symbiosis gift are the same kind
+**One shape for a statement.** A dash and a symbiosis gift are the same kind
 of line: *what it does*, then *who it lands on*, then *why*, with the explanation
 on its own line beneath.
 
@@ -88,9 +95,8 @@ on its own line beneath.
 ```
 
 **Dash, not arrival.** What used to be called an arrival is now a dash — but the
-word "dash" itself only appears in two places: the full card's section heading,
-and the log line's verb ("strikes" is gone; every kind just "dashes"). Neither
-the card face nor the full card's body ever prints "dash": both name the
+word "dash" itself appears in exactly one place: the full card's section
+heading. Neither the card face nor the log ever prints "dash": both name the
 specific kind right after the mark — `strike`, `sweep`, `mend`, `forage`,
 `scout` — the same five words the engine already uses for `arrival.kind`, so
 the label is never invented prose. Face and full card use the exact same
@@ -113,8 +119,9 @@ form goes in aligned columns and the compact form goes inline. Figures are set i
 the mono face, sentences in the body face. "Nothing" is an em dash, not a
 sentence.
 
-**Symbols.** `♥` health, `⬡` energy, `✳` conservation. A number never appears
-without its symbol — "1 to every enemy" is a riddle.
+**Symbols.** `♥` health, `⬡` energy, `✳` conservation, `♦` cards. A number
+never appears without its symbol — "1 to every enemy" is a riddle, and so was
+`scout`'s "+1 card" before it got one.
 
 **The full card is complete; the face is a summary.** The face prints the
 mechanical line; the sentence explaining a relationship lives on the full card,
@@ -141,6 +148,21 @@ than only when there is nothing else to show.
 **Symbiosis links** are all drawn, always. Only those touching the *clicked* card
 are drawn loudly; the rest are faint. The pointer focuses nothing — hovering read
 as the whole reef being permanently highlighted.
+
+**The log is present tense.** "You draw", "The AI plays", "Bumphead Parrotfish
+dies" — never "drew"/"played"/"destroyed". It is read live, alongside the board
+it describes, not after the fact. Bold is reserved for the things worth
+scanning for across a long game — turn headers, tide changes, conservation
+points — every other line is plain weight. A death caused by toxin is worded as
+its own death ("dies of the toxin"), not as one side "eating" the other, and it
+is ordered *after* the line for whichever creature actually died from the bite
+— cause before consequence, even though the resolver marks the poison and
+sweeps both deaths in the same action. `client/src/App.tsx`'s `orderForLog` is
+what enforces that ordering; `describe()` is what turns one `GameEvent` into
+one line, and returns `null` for an event some other line already said.
+"Dash" is a full-card word only: a dash line in the log names the concrete
+kind instead — `strikes`, `sweeps`, `mends`, `forages`, `scouts` — same as the
+card face.
 
 ## Verification
 

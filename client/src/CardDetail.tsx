@@ -69,7 +69,7 @@ const ARRIVAL_EFFECT: Record<ArrivalEffect['kind'], (n: number) => string> = {
   sweep: (n) => `♥-${n}`,
   mend: (n) => `♥+${n}`,
   forage: (n) => `⬡+${n}`,
-  scout: (n) => `+${n} card${n === 1 ? '' : 's'}`,
+  scout: (n) => `♦+${n}`,
 };
 
 /** Who it lands on. Four distinct answers, and never a redundant one. */

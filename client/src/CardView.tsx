@@ -98,16 +98,16 @@ const LONG_PRESS_MS = 450;
  * How each arrival reads on the card face.
  *
  * One symbol per resource, the same one the rest of the interface uses: ♥ for
- * health and ⬡ for energy. A bare number is what made "1 to every enemy" a
- * riddle — one of what? — so no arrival prints a number without its symbol,
- * and every one of them says where it lands.
+ * health, ⬡ for energy, ♦ for cards. A bare number is what made "1 to every
+ * enemy" a riddle — one of what? — so no arrival prints a number without its
+ * symbol, and every one of them says where it lands.
  */
 const ARRIVAL_EFFECT: Record<ArrivalEffect['kind'], (n: number) => string> = {
   strike: (n) => `♥-${n}`,
   sweep: (n) => `♥-${n}`,
   mend: (n) => `♥+${n}`,
   forage: (n) => `⬡+${n}`,
-  scout: (n) => `+${n} card${n === 1 ? '' : 's'}`,
+  scout: (n) => `♦+${n}`,
 };
 
 /** Who it lands on, as a pill — the same pill the reach marker uses. */

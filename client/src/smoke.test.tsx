@@ -169,7 +169,7 @@ describe('client', () => {
 
             // First click aims: nothing is played yet, and the bar says so.
             expect(container.querySelectorAll('.side--you .card').length).toBe(boardBefore);
-            expect(container.querySelector('.bar__hint--aim')?.textContent).toContain('dashes');
+            expect(container.querySelector('.bar__hint--aim')?.textContent).toContain('strikes');
 
             // The enemies it may hit are lit up as targets.
             const marked = container.querySelectorAll('.side--enemy .card--target');
@@ -253,7 +253,7 @@ describe('client', () => {
             // The card is held mid-play and the legal enemies are lit.
             expect(container.querySelector('.hand .card--selected')).not.toBeNull();
             expect(container.querySelectorAll('.side--enemy .card--target').length).toBeGreaterThan(0);
-            expect(container.querySelector('.bar__hint--aim')?.textContent).toContain('dashes');
+            expect(container.querySelector('.bar__hint--aim')?.textContent).toContain('strikes');
 
             const before = container.querySelectorAll('.side--you .card').length;
             act(() => container.querySelector<HTMLButtonElement>('.side--enemy .card--target')!.click());
