@@ -275,15 +275,22 @@ export function CardView({
 
       {def.auras?.map((aura, i) => (
         <p key={i} className="card__aura">
-          <span className="card__aura-arrow">{aura.crossesWaterline ? '↔' : '→'}</span>
+          {/* Always the same arrow. It varied by reach until the reach got its
+              own badge; two lines that differ in their punctuation *and* their
+              label read as two different kinds of thing, which these are not. */}
+          <span className="card__aura-arrow">→</span>
           {/* The niche wears its badge here too, so a symbiosis line and the
               niche tag above it are visibly the same thing. */}
           <span className={`tag tag--niche tag--niche-${aura.affects}`}>{aura.affects}</span>
           <b>{deltaLabel(aura.grants)}</b>
-          {/* One card in the set reaches the other reef. Saying so on the face
-              matters more than the space it costs: every other aura is
-              friendly-only, so the arrow alone would read as a typo. */}
-          {aura.crossesWaterline && <span className="card__aura-cross">both reefs</span>}
+          {/* Where it reaches, on every line and not only on the exception.
+              Marking one aura and leaving the rest blank left the player to
+              guess whether blank meant "your reef" or meant nobody had said. */}
+          <span
+            className={`card__aura-reach${aura.crossesWaterline ? ' card__aura-reach--cross' : ''}`}
+          >
+            {aura.crossesWaterline ? 'both reefs' : 'your reef'}
+          </span>
         </p>
       ))}
 

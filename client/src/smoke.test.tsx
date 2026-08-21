@@ -480,10 +480,55 @@ describe('client', () => {
       // Both halves of the delta are signed, zero included.
       expect(row.querySelector('b')?.textContent).toMatch(/^[+-]\d+\/[+-]\d+$/);
       // And every line says how far it reaches, not only the one that crosses.
-      expect(row.querySelector('.detail__reach')?.textContent).toBe(
+      expect(row.querySelector('.detail__target')?.textContent).toBe(
         def.auras![0]!.crossesWaterline ? 'both reefs' : 'your reef',
       );
     }
+  });
+
+  it('reports a release in the same shape as the live stats', async () => {
+    const { createInstance, getCard } = await import('@tidalix/engine');
+    const { CardDetail } = await import('./CardDetail.tsx');
+    const { TAXON_LABEL } = await import('@tidalix/engine');
+
+    const id = 'giant-clam';
+    const rows = (release: NonNullable<Parameters<typeof CardDetail>[0]['release']>) => {
+      act(() => {
+        root.render(
+          <CardDetail
+            instance={createInstance(id, 0)}
+            phase="high"
+            stats={null}
+            zone="board"
+            release={release}
+            onClose={() => {}}
+          />,
+        );
+      });
+      return new Map(
+        [...container.querySelectorAll('.detail__grid dt')].map((dt) => [
+          dt.textContent,
+          dt.nextElementSibling,
+        ]),
+      );
+    };
+
+    // Not matured yet, and its taxon is not in the pile.
+    let grid = rows({ mature: false, stepsRemaining: 3, allowedThisTurn: true, taxonHeld: false, incomeAfter: 2 });
+    expect(grid.get('Release')?.textContent).toBe('In 3 more tide phases');
+    expect(grid.get('Pile pays')?.textContent).toBe('⬡+2 a turn');
+    // The chip is the one the conservation panel prints, in the same state:
+    // unfilled, because this taxon is not protected yet.
+    expect(grid.get('Protects')?.querySelector('.conserve__taxon')?.textContent).toBe(
+      TAXON_LABEL[getCard(id).taxon],
+    );
+    expect(grid.get('Protects')?.querySelector('.is-held')).toBeNull();
+
+    // Matured, but the taxon is already held, so releasing buys nothing.
+    grid = rows({ mature: true, stepsRemaining: 0, allowedThisTurn: true, taxonHeld: true, incomeAfter: 2 });
+    expect(grid.get('Release')?.textContent).toBe('Ready');
+    expect(grid.get('Pile pays')?.textContent).toBe('— already protected');
+    expect(grid.get('Protects')?.querySelector('.is-held')).not.toBeNull();
   });
 
   it('prints each keyword exactly once on a card', async () => {

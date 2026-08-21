@@ -205,9 +205,11 @@ button { font: inherit; color: inherit; }
   pointer-events: none; z-index: 4; overflow: visible;
 }
 /*
- * Drawn only for the card under the cursor or the one clicked. Drawing every
- * relationship at once turned a six-card board into a cat's cradle: a link is
- * worth seeing when you are asking about one animal, not as permanent furniture.
+ * Every link on the board is drawn, always. Which of them is drawn *loudly* is
+ * decided by the click — see --dim below. The pointer decides nothing: hovering
+ * used to light relationships up as the mouse crossed the board, which read as
+ * the whole reef being permanently highlighted rather than as an answer to a
+ * question the player asked.
  */
 .symbiosis__link {
   fill: none; stroke: var(--good); stroke-width: 2.5; stroke-linecap: round;
@@ -393,12 +395,14 @@ button { font: inherit; color: inherit; }
 }
 .card__aura-arrow { opacity: 0.7; }
 .card__aura-note { color: var(--ink-faint); font-style: italic; }
-/* The one aura in the set that reaches the opponent's reef. */
-.card__aura-cross {
+/* How far an aura reaches, printed on every one of them. Quiet by default,
+   because "your reef" is the rule; loud on the single card that breaks it. */
+.card__aura-reach {
   font-size: 0.55rem; letter-spacing: 0.04em; text-transform: uppercase;
-  color: var(--warn); border: 1px solid currentColor; border-radius: 2px;
+  color: var(--ink-faint); border: 1px solid currentColor; border-radius: 2px;
   padding: 0 0.22rem;
 }
+.card__aura-reach--cross { color: var(--warn); }
 
 .card__stats {
   display: flex; align-items: center; gap: 0.4rem;
@@ -650,28 +654,34 @@ button { font: inherit; color: inherit; }
 .detail__auras { margin: 0; padding-left: 1rem; font-size: 0.76rem; display: flex; flex-direction: column; gap: 0.25rem; }
 .detail__auras b { font-family: var(--mono); color: var(--good); }
 .detail__auranote { display: block; flex-basis: 100%; color: var(--ink-faint); font-style: italic; font-size: 0.7rem; }
-/* One line per gift: what it gives, who to, how far it reaches, then why. */
-.detail__auras li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+/* One line, one grammar, used by both a symbiosis gift and an arrival:
+   what it does, who to, then why. */
+.detail__auras li, .detail__arrival { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
 .detail__auras li .tag { font-size: 0.62rem; }
-.detail__aurato { color: var(--ink-faint); }
-.detail__reach {
+.detail__to { color: var(--ink-faint); }
+.detail__target {
   font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.04em;
   text-transform: uppercase; color: var(--ink-faint);
   border: 1px solid currentColor; border-radius: 2px; padding: 0 0.24rem;
 }
 /* The one aura in the set that reaches the opponent's reef. */
-.detail__reach--cross { color: var(--warn); }
+.detail__target--hostile { color: var(--warn); }
 
 .detail__grid {
   margin: 0; display: grid; grid-template-columns: auto 1fr;
-  gap: 0.15rem 0.7rem; font-size: 0.78rem;
+  align-items: center;
+  gap: 0.2rem 0.7rem; font-size: 0.78rem;
 }
 .detail__grid dt { color: var(--ink-faint); }
 .detail__grid dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .detail__live { font-weight: 700; font-size: 0.95rem; }
 .detail__grid .down { color: var(--warn); }
-.detail__release { margin: 0; font-size: 0.78rem; color: var(--ink-soft); line-height: 1.45; }
-.detail__release .good, .conserve .good { color: var(--good); }
+/* The taxon under the species name in the dialog header. */
+.detail__taxon {
+  font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--ink-faint); margin-top: 0.15rem;
+}
+.detail__grid .good, .conserve .good { color: var(--good); }
 
 /* ---- Hand ---- */
 .hand {
@@ -725,19 +735,11 @@ button { font: inherit; color: inherit; }
 }
 
 /* ---- Detail: taxon and toxin ---- */
-.detail__taxon {
-  font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--good); margin-top: 0.15rem;
-}
 .detail__toxin {
   margin: 0 0 0.4rem; font-size: 0.8rem; line-height: 1.5; color: var(--ink-soft);
   border-left: 2px solid var(--warn); padding-left: 0.55rem;
 }
 .detail__toxin b { color: var(--warn); }
-.detail__taxon {
-  margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.5; color: var(--ink-soft);
-}
-.detail__taxon b { color: var(--good); }
 
 /* ---- Arrival: aiming, and the detail dialog ---- */
 .bar__hint--aim { color: var(--accent); font-weight: 700; }

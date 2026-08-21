@@ -63,12 +63,35 @@ const TRAIT_TEXT: Record<Keyword, string> = {
   pierce: 'Its damage ignores armour completely — the answer to something that has become unkillable behind a shell.',
 };
 
-const ARRIVAL_TEXT: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `Deals ${n} damage to one enemy creature.`,
-  sweep: (n) => `Deals ${n} damage to every enemy creature.`,
-  mend: (n) => `Heals ${n} damage from every friendly creature.`,
-  forage: (n) => `Gains ${n} energy immediately.`,
-  scout: (n) => `Draw ${n} card${n === 1 ? '' : 's'}.`,
+/**
+ * An arrival, in the same grammar as a symbiosis gift: what it does, then who
+ * it lands on. It used to be a prose sentence here and a symbol on the card
+ * face, so the same effect read two different ways depending where you saw it.
+ */
+const ARRIVAL_EFFECT: Record<ArrivalEffect['kind'], (n: number) => string> = {
+  strike: (n) => `♥-${n}`,
+  sweep: (n) => `♥-${n}`,
+  mend: (n) => `♥+${n}`,
+  forage: (n) => `⬡+${n}`,
+  scout: (n) => `+${n} card${n === 1 ? '' : 's'}`,
+};
+
+/** Who it lands on. Four distinct answers, and never a redundant one. */
+const ARRIVAL_TARGET: Record<ArrivalEffect['kind'], string> = {
+  strike: 'one enemy',
+  sweep: 'every enemy',
+  mend: 'your reef',
+  forage: 'you',
+  scout: 'you',
+};
+
+/** Arrivals that land on the other side of the channel, marked as such. */
+const ARRIVAL_HOSTILE: Record<ArrivalEffect['kind'], boolean> = {
+  strike: true,
+  sweep: true,
+  mend: false,
+  forage: false,
+  scout: false,
 };
 
 
@@ -176,7 +199,15 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           <section className="detail__section">
             <h3 className="detail__h">On arrival</h3>
             <p className="detail__arrival">
-              <b>{ARRIVAL_TEXT[def.arrival.kind](def.arrival.amount)}</b>
+              <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
+              <span className="detail__to">to</span>
+              <span
+                className={`detail__target${
+                  ARRIVAL_HOSTILE[def.arrival.kind] ? ' detail__target--hostile' : ''
+                }`}
+              >
+                {ARRIVAL_TARGET[def.arrival.kind]}
+              </span>
               <span className="detail__arrivalnote">{def.arrival.note}</span>
             </p>
           </section>
@@ -241,9 +272,9 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
               {def.auras.map((aura, i) => (
                 <li key={i}>
                   <b>{deltaLabel(aura.grants)}</b>
-                  <span className="detail__aurato">to</span>
+                  <span className="detail__to">to</span>
                   <span className={`tag tag--niche tag--niche-${aura.affects}`}>{aura.affects}</span>
-                  <span className={`detail__reach${aura.crossesWaterline ? ' detail__reach--cross' : ''}`}>
+                  <span className={`detail__target${aura.crossesWaterline ? ' detail__target--hostile' : ''}`}>
                     {aura.crossesWaterline ? 'both reefs' : 'your reef'}
                   </span>
                   <span className="detail__auranote">{aura.note}</span>
@@ -291,42 +322,50 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
         {zone === 'board' && release && (
           <section className="detail__section">
             <h3 className="detail__h">Conservation</h3>
-            <p className="detail__release">
-              {release.mature ? (
-                release.allowedThisTurn ? (
-                  <span className="good">Ready to release.</span>
-                ) : (
-                  <span>Ready, but you have already released a species this turn.</span>
-                )
-              ) : (
-                <>
-                  Needs {release.stepsRemaining} more tide{' '}
-                  {release.stepsRemaining === 1 ? 'phase' : 'phases'} on the reef first.
-                </>
-              )}
-            </p>
-            {/* What the release is worth, which is the part that is easy to get
-                wrong: the pile pays for taxa, so a second fish pays nothing. */}
-            <p className="detail__taxon">
-              {release.taxonHeld ? (
-                <>
-                  <b>{TAXON_LABEL[def.taxon]}</b> is already protected — no extra income.
-                </>
-              ) : (
-                <>
-                  Protects <b>{TAXON_LABEL[def.taxon]}</b> — takes the pile to{' '}
-                  <b>⬡+{release.incomeAfter} a turn</b>.
-                </>
-              )}
-            </p>
+            {/* Three facts, one per row, in the same shape as the live stats:
+                when it can go, what it protects, and what that is worth. The
+                last is the one that is easy to get wrong — the pile pays for
+                taxa, so a second fish pays nothing at all. */}
+            <dl className="detail__grid">
+              <dt>Release</dt>
+              <dd className={release.mature && release.allowedThisTurn ? 'good' : undefined}>
+                {release.mature
+                  ? release.allowedThisTurn
+                    ? 'Ready'
+                    : 'Ready — but one release per turn, and you have used it'
+                  : `In ${release.stepsRemaining} more tide ${
+                      release.stepsRemaining === 1 ? 'phase' : 'phases'
+                    }`}
+              </dd>
+              <dt>Protects</dt>
+              <dd>
+                {/* The same chip the conservation panel prints, in the same
+                    state, so a card and the pile agree on sight. */}
+                <span className={`conserve__taxon${release.taxonHeld ? ' is-held' : ''}`}>
+                  {TAXON_LABEL[def.taxon]}
+                </span>
+              </dd>
+              <dt>Pile pays</dt>
+              <dd className={release.taxonHeld ? undefined : 'good'}>
+                {release.taxonHeld
+                  ? `${NIL} already protected`
+                  : `⬡+${release.incomeAfter} a turn`}
+              </dd>
+            </dl>
           </section>
         )}
 
         {zone === 'conservation' && (
           <section className="detail__section">
-            <p className="detail__release good">
-              Released back to the wild, protecting the <b>{TAXON_LABEL[def.taxon]}</b> taxon.
-            </p>
+            <h3 className="detail__h">Conservation</h3>
+            <dl className="detail__grid">
+              <dt>Release</dt>
+              <dd className="good">Released back to the wild</dd>
+              <dt>Protects</dt>
+              <dd>
+                <span className="conserve__taxon is-held">{TAXON_LABEL[def.taxon]}</span>
+              </dd>
+            </dl>
           </section>
         )}
       </div>
