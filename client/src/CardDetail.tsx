@@ -13,6 +13,7 @@
 
 import { useEffect, useRef } from 'react';
 import {
+  DEFAULT_CONFIG,
   TAXON_LABEL,
   TIDE_CYCLE,
   NICHE_NOTE,
@@ -169,7 +170,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                     </td>
                     <td>{effect.energy ? `⬡+${effect.energy}` : '—'}</td>
                     <td className="tidetable__note">
-                      {effect.exposed ? 'exposed — takes bonus damage' : ''}
+                      {effect.exposed ? `exposed — every hit on it deals +${DEFAULT_CONFIG.exposedBonusDamage}` : ''}
                     </td>
                   </tr>
                 );
@@ -243,7 +244,9 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
             <ul className="detail__auras">
               {def.auras.map((aura, i) => (
                 <li key={i}>
-                  <b>{deltaLabel(aura.grants)}</b> to friendly <em>{aura.affects}</em>
+                  <b>{deltaLabel(aura.grants)}</b> to{' '}
+                  {aura.crossesWaterline ? 'every' : 'friendly'} <em>{aura.affects}</em>
+                  {aura.crossesWaterline && ', on your reef and theirs'}
                   <span className="detail__auranote">{aura.note}</span>
                 </li>
               ))}

@@ -12,6 +12,7 @@
 
 import { useEffect, useRef, type CSSProperties } from 'react';
 import {
+  DEFAULT_CONFIG,
   getCard,
   type ArrivalEffect,
   type CardDefinition,
@@ -288,8 +289,12 @@ export function CardView({
 
       {def.auras?.map((aura, i) => (
         <p key={i} className="card__aura">
-          <span className="card__aura-arrow">→</span> {aura.affects}{' '}
-          <b>{deltaLabel(aura.grants)}</b>
+          <span className="card__aura-arrow">{aura.crossesWaterline ? '↔' : '→'}</span>{' '}
+          {aura.affects} <b>{deltaLabel(aura.grants)}</b>
+          {/* One card in the set reaches the other reef. Saying so on the face
+              matters more than the space it costs: every other aura is
+              friendly-only, so the arrow alone would read as a typo. */}
+          {aura.crossesWaterline && <span className="card__aura-cross">both reefs</span>}
         </p>
       ))}
 
@@ -312,7 +317,10 @@ export function CardView({
             </span>
           )}
           {stats.exposed && (
-            <span className="chip chip--exposed" title="takes +1 damage from attacks">
+            <span
+              className="chip chip--exposed"
+              title={`every hit on it deals +${DEFAULT_CONFIG.exposedBonusDamage}`}
+            >
               exposed
             </span>
           )}

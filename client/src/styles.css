@@ -390,6 +390,12 @@ button { font: inherit; color: inherit; }
 }
 .card__aura-arrow { opacity: 0.7; }
 .card__aura-note { color: var(--ink-faint); font-style: italic; }
+/* The one aura in the set that reaches the opponent's reef. */
+.card__aura-cross {
+  font-size: 0.55rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--warn); border: 1px solid currentColor; border-radius: 2px;
+  padding: 0 0.22rem;
+}
 
 .card__stats {
   display: flex; align-items: center; gap: 0.4rem;
