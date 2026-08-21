@@ -42,13 +42,10 @@ export interface CardDetailProps {
   stats: EffectiveStats | null;
   /** Where the card is, which decides what is worth explaining. */
   zone: 'hand' | 'board' | 'conservation';
-  /** Release readiness, for a card on either board. */
+  /** Release readiness. Read the same way for a card on either board. */
   release?: {
     mature: boolean;
     stepsRemaining: number;
-    allowedThisTurn: boolean;
-    /** Whose reef it is standing on, which decides who the row is about. */
-    mine: boolean;
   } | null;
   onClose: () => void;
 }
@@ -326,30 +323,16 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
         {zone === 'board' && release && (
           <section className="detail__section">
             <h3 className="detail__h">Conservation</h3>
-            {/* Only the one fact the player cannot get anywhere else: when this
-                card can leave the reef. What it protects is already printed
-                under its name, and what the pile would pay is the conservation
-                panel's job — repeating either here was three rows saying what
-                one row says. */}
+            {/* One fact, worded the same on either reef: when this card can
+                leave. Everything else that was here said something already on
+                screen — the taxon under its name, the pile's income in the
+                conservation panel — or explained the rule instead of
+                reporting the state. */}
             <dl className="detail__grid">
               <dt>Release</dt>
-              <dd
-                className={
-                  release.mature && release.allowedThisTurn
-                    ? release.mine
-                      ? 'good'
-                      : 'warn'
-                    : undefined
-                }
-              >
+              <dd>
                 {release.mature
-                  ? release.allowedThisTurn
-                    ? release.mine
-                      ? 'Ready'
-                      : 'Ready — they can take it this turn'
-                    : release.mine
-                      ? 'Ready — but one release per turn, and you have used it'
-                      : 'Ready — but they have already released this turn'
+                  ? 'Ready'
                   : `In ${release.stepsRemaining} more tide ${
                       release.stepsRemaining === 1 ? 'phase' : 'phases'
                     }`}

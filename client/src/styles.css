@@ -701,8 +701,6 @@ button { font: inherit; color: inherit; }
   letter-spacing: 0.08em; color: var(--ink-faint); margin-top: 0.15rem;
 }
 .detail__grid .good, .conserve .good { color: var(--good); }
-/* The same fact on the other reef is a threat, not an asset. */
-.detail__grid .warn { color: var(--warn); font-weight: 700; }
 
 /* ---- Hand ---- */
 .hand {

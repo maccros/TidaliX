@@ -14,7 +14,6 @@ import {
   TIDE_CYCLE,
   allTaxa,
   applyAction,
-  canReleaseThisTurn,
   conservationIncome,
   conservedCount,
   conservedSpecies,
@@ -573,16 +572,14 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
                 : null
           }
           zone={inspected.zone}
-          // Reported for either side. A species maturing on the opponent's reef
-          // is the clearest reason there is to attack it now rather than later,
-          // and that was information only they could see.
+          // Reported for either side, and worded the same for both. A species
+          // maturing on the opponent's reef is the clearest reason there is to
+          // attack it now, and that was information only they could see.
           release={
             inspected.zone === 'board'
               ? {
                   mature: stepsUntilMature(state, inspected.instance) === 0,
                   stepsRemaining: stepsUntilMature(state, inspected.instance),
-                  allowedThisTurn: canReleaseThisTurn(state, inspected.owner),
-                  mine: inspected.owner === YOU,
                 }
               : null
           }

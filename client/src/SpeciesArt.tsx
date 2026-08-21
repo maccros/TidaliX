@@ -134,22 +134,26 @@ const ART: Record<string, ReactNode> = {
   'great-barracuda': (
     <>
       <g {...ink}>
-        <path d="M100 40 118 28c-3 8-3 16 0 24z" fill="#9fb0bb" />
-        <path d="M58 28c10-2 18 0 22 4z" fill="#9fb0bb" />
-        <path d="M52 50c-2 8 0 12 6 13 1-5 0-9-2-13z" fill="#9fb0bb" />
+        {/* Every fin's base edge is drawn inside the outline, so the body's own
+            fill closes over it. A fin that meets the body at a single point
+            reads as a fin floating beside the fish. */}
+        <path d="M94 31 118 20c-3 10-3 20 0 30L94 40c3-4 3-6 0-9z" fill="#8fa2b0" />
+        <path d="M54 26 62 12 72 27z" fill="#8fa2b0" />
+        <path d="M78 27 84 17 90 28z" fill="#8fa2b0" />
+        <path d="M52 44 58 58 68 46z" fill="#8fa2b0" />
         {/* A long cylinder that tapers to a jaw, not an oval. */}
-        <path d="M2 40 24 32c26-6 60-4 78 4-18 8-52 12-78 6z" fill="#c2ced6" />
-        <path d="M22 34c22 8 56 10 78 2" fill="none" strokeWidth={2} opacity=".5" />
+        <path d="M2 40 22 28c28-8 62-6 82 8-20 10-54 14-82 6z" fill="#a9bac6" />
+        <path d="M22 32c22 8 56 10 78 2" fill="none" strokeWidth={2} opacity=".5" />
       </g>
       <g stroke={O} strokeWidth={1.6} fill="none">
-        <path d="M4 40 22 36M6 41l16 2" />
-        <path d="M10 39v3M14 39.5v3M18 40v3" />
+        <path d="M4 40 22 35M5 41l17 3" />
+        <path d="M10 38v3.5M14 38.5v3.5M18 39v3.5" />
       </g>
-      <g fill={O} opacity=".55">
-        <circle cx="56" cy="46" r="2.4" /><circle cx="70" cy="44" r="2.2" />
-        <circle cx="44" cy="48" r="2" />
+      <g fill={O} opacity=".45">
+        <circle cx="58" cy="41" r="2.6" /><circle cx="72" cy="40" r="2.4" />
+        <circle cx="86" cy="39" r="2.2" />
       </g>
-      {eye(24, 38, 3.2)}
+      {eye(24, 36, 3.2)}
     </>
   ),
 
@@ -187,7 +191,7 @@ const ART: Record<string, ReactNode> = {
   'bluestreak-cleaner-wrasse': (
     <>
       <g {...ink}>
-        <path d="M100 40 116 30c-2 7-2 13 0 20z" fill="#3d6f9e" />
+        <path d="M90 33 116 24c-2 8-2 16 0 24L90 40c2-3 2-4 0-7z" fill="#3d6f9e" />
         <path d="M10 40c22-12 66-12 90-4-24 12-68 14-90 4z" fill="#5b8fc0" />
         <path d="M16 40c22 6 62 6 82-2" fill="none" stroke={O} strokeWidth={4} />
       </g>
@@ -247,18 +251,19 @@ const ART: Record<string, ReactNode> = {
   'whitetip-reef-shark': (
     <>
       <g {...ink}>
-        <path d="M102 40 116 30c-2 6-2 14 0 20z" fill="#7e8b93" />
-        <path d="M50 22 58 6l12 18z" fill="#7e8b93" />
-        <path d="M44 58l-6 12 14-6z" fill="#7e8b93" />
-        {/* Blunter head and a deeper body than the blacktip — a cave shark, not a
-            flats racer — so the two are told apart by shape as well as by tips. */}
-        <path d="M12 42c6-16 22-24 44-24 22 0 38 8 46 22-14 16-34 22-50 22-18 0-34-8-40-20z"
+        <path d="M94 34 118 22c-3 10-3 20 0 30L94 45c3-5 3-7 0-11z" fill="#7e8b93" />
+        <path d="M48 27 58 8 70 28z" fill="#7e8b93" />
+        <path d="M34 53 24 68 46 60z" fill="#7e8b93" />
+        {/* Slimmer than the nurse shark it shares a colour with, so the two are
+            told apart by silhouette before anyone reads a name. */}
+        <path d="M10 42c8-14 26-19 46-19 20 0 36 7 44 17-13 13-30 18-46 18-18 0-35-7-44-16z"
               fill="#8e9ba3" />
-        <path d="M16 46c14 10 54 14 84 0-30 6-64 4-84 0z" fill="#eef2f3" strokeWidth={2.4} />
+        <path d="M16 45c14 9 52 12 80 0-28 5-60 4-80 0z" fill="#eef2f3" strokeWidth={2.4} />
       </g>
+      {/* The white tips themselves: on the first dorsal and the upper tail lobe. */}
       <g fill="#fdfdfa" stroke={O} strokeWidth={2}>
-        <path d="M54 14 58 6l5 8c-3-1-6-1-9 0z" />
-        <path d="M110 32c2-1 4-2 6-2-1 3-1 7 0 10-2-1-4-2-6-3z" />
+        <path d="M54 16 58 8l5 9c-3-1-6-1-9-1z" />
+        <path d="M111 26 118 22c-2 4-2 8-1 12-3-3-5-7-6-8z" />
       </g>
       {eye(28, 38, 3.2)}
     </>
@@ -680,10 +685,12 @@ const ART: Record<string, ReactNode> = {
   'tawny-nurse-shark': (
     <>
       <g {...ink}>
-        <path d="M104 40 118 30c-2 6-2 14 0 20z" fill="#a8895c" />
-        <path d="M52 24 58 10l10 16z" fill="#a8895c" />
-        <path d="M74 26 80 14l8 14z" fill="#a8895c" />
-        <path d="M46 58l-6 12 14-6z" fill="#a8895c" />
+        {/* One long upper lobe and almost no lower one — a nurse shark's tail,
+            and the quickest way to tell it from the two reef sharks. */}
+        <path d="M100 35 118 18c1 10-1 19-6 26L100 48c3-4 3-9 0-13z" fill="#a8895c" />
+        <path d="M48 25 58 8 70 27z" fill="#a8895c" />
+        <path d="M74 26 82 12 90 30z" fill="#a8895c" />
+        <path d="M44 56 34 70 54 62z" fill="#a8895c" />
         {/* Blunt, heavy and slow — nothing like the two reef sharks. */}
         <path d="M10 44c4-14 20-22 44-22 24 0 44 8 54 20-14 16-36 22-56 22-22 0-40-8-42-20z"
               fill="#bb9a68" />
@@ -730,14 +737,14 @@ const ART: Record<string, ReactNode> = {
   'grey-reef-shark': (
     <>
       <g {...ink}>
-        <path d="M102 40 118 26c-2 9-2 19 0 28z" fill="#5e6a72" />
-        <path d="M50 20 58 2l12 20z" fill="#5e6a72" />
-        <path d="M40 56l-6 14 16-8z" fill="#5e6a72" />
+        <path d="M94 35 118 22c-3 10-3 20 0 30L94 45c3-4 3-7 0-10z" fill="#5e6a72" />
+        <path d="M46 30 58 4 72 31z" fill="#5e6a72" />
+        <path d="M36 50 26 68 48 57z" fill="#5e6a72" />
         <path d="M12 42c14-16 58-22 88-2-30 20-74 16-88 2z" fill="#6f7c85" />
         <path d="M16 44c14 10 54 14 84 0-30 6-64 4-84 0z" fill="#e2e8ea" strokeWidth={2.4} />
       </g>
-      {/* The dark trailing edge along the tail, and a heavier build. */}
-      <path d="M104 54c4 2 8 4 12 4-2-4-3-8-3-11z" fill={O} />
+      {/* The black rear margin on the tail, which is what names the animal. */}
+      <path d="M118 22c-3 10-3 20 0 30" fill="none" stroke={O} strokeWidth={6} strokeLinecap="round" />
       {eye(28, 38, 3.4)}
     </>
   ),

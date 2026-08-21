@@ -486,11 +486,11 @@ describe('client', () => {
     }
   });
 
-  it('reports the release readiness of a card on either reef', async () => {
+  it('reports release readiness the same way on either reef', async () => {
     const { createInstance } = await import('@tidalix/engine');
     const { CardDetail } = await import('./CardDetail.tsx');
 
-    const rows = (release: NonNullable<Parameters<typeof CardDetail>[0]['release']>) => {
+    const row = (release: NonNullable<Parameters<typeof CardDetail>[0]['release']>) => {
       act(() => {
         root.render(
           <CardDetail
@@ -509,25 +509,21 @@ describe('client', () => {
       return dt?.nextElementSibling ?? null;
     };
 
-    // Readiness is the only thing this section reports now. What the card
-    // protects is already printed under its name, and what the pile would pay
-    // is the conservation panel's job.
-    expect(
-      rows({ mature: false, stepsRemaining: 3, allowedThisTurn: true, mine: true })?.textContent,
-    ).toBe('In 3 more tide phases');
+    // Two states, two words each, and nothing about whose turn it is or how the
+    // rule works. The section used to explain the one-release-per-turn limit
+    // and to word itself differently depending on who owned the card.
+    expect(row({ mature: true, stepsRemaining: 0 })?.textContent).toBe('Ready');
+    expect(row({ mature: false, stepsRemaining: 3 })?.textContent).toBe(
+      'In 3 more tide phases',
+    );
+    expect(row({ mature: false, stepsRemaining: 1 })?.textContent).toBe(
+      'In 1 more tide phase',
+    );
+
+    // Readiness is the only thing the section reports: what the card protects is
+    // already under its name, and the pile's income is the panel's job.
     expect(container.textContent).not.toContain('Pile pays');
     expect(container.textContent).not.toContain('Protects');
-
-    // Ready on your own reef reads as an opportunity...
-    let dd = rows({ mature: true, stepsRemaining: 0, allowedThisTurn: true, mine: true });
-    expect(dd?.textContent).toBe('Ready');
-    expect(dd?.className).toBe('good');
-
-    // ...and the same card on theirs reads as a threat, because it is one: it is
-    // about to leave the board and score, and you can still stop it.
-    dd = rows({ mature: true, stepsRemaining: 0, allowedThisTurn: true, mine: false });
-    expect(dd?.textContent).toBe('Ready — they can take it this turn');
-    expect(dd?.className).toBe('warn');
   });
   it('prints each keyword exactly once on a card', async () => {
     // `toxic` and `toxin-immune` were rendering twice: once from the generic

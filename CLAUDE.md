@@ -110,10 +110,15 @@ arrival, Symbiosis gift, Live stats, Conservation.
 a card protects is already under its name, and what the pile would pay is the
 conservation panel's job.
 
-**Both reefs.** Anything a player would act on has to be legible on the
-opponent's side too. A species maturing over there is the clearest reason to
-attack it now, so the matured badge and the release row are drawn for either
-owner — the row just changes from an opportunity to a threat.
+**Both reefs, worded identically.** Anything a player would act on has to be
+legible on the opponent's side too — a species maturing over there is the
+clearest reason to attack it now. The matured badge and the release row are
+drawn for either owner and say exactly the same thing on both, with no colour
+or wording that depends on whose card it is.
+
+**Report the state, do not teach the rule.** "Ready", not "Ready — but one
+release per turn, and you have used it". The card reports; the rules live in
+the field guide.
 
 **Symbiosis links** are all drawn, always. Only those touching the *clicked* card
 are drawn loudly; the rest are faint. The pointer focuses nothing — hovering read
