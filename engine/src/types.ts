@@ -60,15 +60,23 @@ export type Niche =
   | 'open-water'
   /** Is the structure: the corals, the sea fan, the anemone. */
   | 'reef-builder'
-  /** The flat, the sand and the rubble beneath it all. */
-  | 'bottom-dweller';
+  /**
+   * The flat, the sand and the rubble beneath it all.
+   *
+   * "Crawler", not "dweller": two of the four niches ended in the same word,
+   * which made them read as two flavours of one idea rather than as two places.
+   * It is also the truer verb — crabs, urchins, sea stars, snails, the sea
+   * cucumber, the frogfish walking on its fins and the wobbegong lying in the
+   * sand all move across the bottom rather than living above it.
+   */
+  | 'bottom-crawler';
 
 /** What each niche means, in the player's language. */
 export const NICHE_NOTE: Record<Niche, string> = {
   'reef-dweller': 'Lives in and among the coral itself. What the reef shelters.',
   'open-water': 'Comes in from outside — sharks, rays, turtles and the big fish.',
   'reef-builder': 'Is the structure the rest of the reef is built on.',
-  'bottom-dweller': 'The drained flat, the sand, and the rubble beneath it all.',
+  'bottom-crawler': 'Works the sand and the rubble of the drained flat.',
 };
 
 /**

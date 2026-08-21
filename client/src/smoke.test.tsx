@@ -397,7 +397,7 @@ describe('client', () => {
   });
 
   it('explains the niche and every keyword on the full card', async () => {
-    // A bare tag reading "bottom-dweller" tells a player nothing on its own.
+    // A bare tag reading "bottom-crawler" tells a player nothing on its own.
     const { CARDS, NICHE_NOTE, createInstance } = await import('@tidalix/engine');
     const { CardDetail } = await import('./CardDetail.tsx');
 

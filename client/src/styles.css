@@ -345,7 +345,7 @@ button { font: inherit; color: inherit; }
 .tag--niche-reef-dweller { --b: var(--b-reef-fish); }
 .tag--niche-open-water { --b: var(--b-megafauna); }
 .tag--niche-reef-builder { --b: var(--b-coral); }
-.tag--niche-bottom-dweller { --b: var(--b-armour); }
+.tag--niche-bottom-crawler { --b: var(--b-armour); }
 
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 

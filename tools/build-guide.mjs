@@ -360,7 +360,7 @@ const html = `<title>TidaliX Field Guide</title>
   .kw--niche-reef-dweller { --b: #0972ae; }
   .kw--niche-open-water { --b: #7459c0; }
   .kw--niche-reef-builder { --b: #883f07; }
-  .kw--niche-bottom-dweller { --b: #505922; }
+  .kw--niche-bottom-crawler { --b: #505922; }
   .kw--spines { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-weight: 700; }
   .arrival { display: flex; gap: 0.4rem; margin: 0.3rem 0 0; font-size: 0.82rem; color: var(--accent); }
   .arrival__mark { opacity: 0.75; }
