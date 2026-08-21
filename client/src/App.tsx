@@ -227,7 +227,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       ),
     [actions],
   );
-  /** Your species that have matured and may go back to the wild this turn. */
+  /** Your species that may go back to the wild *this turn* — drives the control. */
   const releasable = useMemo(
     () =>
       new Set(
@@ -237,6 +237,23 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       ),
     [actions],
   );
+
+  /**
+   * Every matured species on the table, whoever owns it — what the badge shows.
+   *
+   * Maturity is a property of the card, not of the turn, so the badge means one
+   * thing on both reefs. It used to be drawn only on your own side, off the list
+   * of legal releases, which hid the single clearest reason to attack something:
+   * a species maturing on the opponent's reef is about to leave the board and
+   * score, and you can still stop it.
+   */
+  const matured = useMemo(() => {
+    const out = new Set<string>();
+    for (const player of [YOU, BOT] as const)
+      for (const card of state.players[player].board)
+        if (stepsUntilMature(state, card) === 0) out.add(card.instanceId);
+    return out;
+  }, [state]);
 
   /**
    * For each card in hand whose arrival needs a target, the enemies it may hit.
@@ -422,7 +439,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             onClick={clickBoardCard}
             onInspect={setInspecting}
             linked={linked}
-            releasable={EMPTY_SET}
+            releasable={matured}
             registerRef={registerRef}
           />
         </section>
@@ -438,7 +455,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             onClick={clickBoardCard}
             onInspect={setInspecting}
             linked={linked}
-            releasable={releasable}
+            releasable={matured}
             registerRef={registerRef}
           />
           <PlayerBar
@@ -556,18 +573,16 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
                 : null
           }
           zone={inspected.zone}
+          // Reported for either side. A species maturing on the opponent's reef
+          // is the clearest reason there is to attack it now rather than later,
+          // and that was information only they could see.
           release={
-            inspected.zone === 'board' && inspected.owner === YOU
+            inspected.zone === 'board'
               ? {
                   mature: stepsUntilMature(state, inspected.instance) === 0,
                   stepsRemaining: stepsUntilMature(state, inspected.instance),
-                  allowedThisTurn: canReleaseThisTurn(state, YOU),
-                  taxonHeld: conservedTaxa(you).includes(
-                    getCard(inspected.instance.definitionId).taxon,
-                  ),
-                  incomeAfter: Math.floor(
-                    (conservedCount(you) + 1) / Math.max(1, state.config.conservationIncomePer),
-                  ),
+                  allowedThisTurn: canReleaseThisTurn(state, inspected.owner),
+                  mine: inspected.owner === YOU,
                 }
               : null
           }

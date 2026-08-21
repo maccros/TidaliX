@@ -486,17 +486,15 @@ describe('client', () => {
     }
   });
 
-  it('reports a release in the same shape as the live stats', async () => {
-    const { createInstance, getCard } = await import('@tidalix/engine');
+  it('reports the release readiness of a card on either reef', async () => {
+    const { createInstance } = await import('@tidalix/engine');
     const { CardDetail } = await import('./CardDetail.tsx');
-    const { TAXON_LABEL } = await import('@tidalix/engine');
 
-    const id = 'giant-clam';
     const rows = (release: NonNullable<Parameters<typeof CardDetail>[0]['release']>) => {
       act(() => {
         root.render(
           <CardDetail
-            instance={createInstance(id, 0)}
+            instance={createInstance('giant-clam', 0)}
             phase="high"
             stats={null}
             zone="board"
@@ -505,32 +503,32 @@ describe('client', () => {
           />,
         );
       });
-      return new Map(
-        [...container.querySelectorAll('.detail__grid dt')].map((dt) => [
-          dt.textContent,
-          dt.nextElementSibling,
-        ]),
+      const dt = [...container.querySelectorAll('.detail__grid dt')].find(
+        (e) => e.textContent === 'Release',
       );
+      return dt?.nextElementSibling ?? null;
     };
 
-    // Not matured yet, and its taxon is not in the pile.
-    let grid = rows({ mature: false, stepsRemaining: 3, allowedThisTurn: true, taxonHeld: false, incomeAfter: 2 });
-    expect(grid.get('Release')?.textContent).toBe('In 3 more tide phases');
-    expect(grid.get('Pile pays')?.textContent).toBe('⬡+2 a turn');
-    // The chip is the one the conservation panel prints, in the same state:
-    // unfilled, because this taxon is not protected yet.
-    expect(grid.get('Protects')?.querySelector('.conserve__taxon')?.textContent).toBe(
-      TAXON_LABEL[getCard(id).taxon],
-    );
-    expect(grid.get('Protects')?.querySelector('.is-held')).toBeNull();
+    // Readiness is the only thing this section reports now. What the card
+    // protects is already printed under its name, and what the pile would pay
+    // is the conservation panel's job.
+    expect(
+      rows({ mature: false, stepsRemaining: 3, allowedThisTurn: true, mine: true })?.textContent,
+    ).toBe('In 3 more tide phases');
+    expect(container.textContent).not.toContain('Pile pays');
+    expect(container.textContent).not.toContain('Protects');
 
-    // Matured, but the taxon is already held, so releasing buys nothing.
-    grid = rows({ mature: true, stepsRemaining: 0, allowedThisTurn: true, taxonHeld: true, incomeAfter: 2 });
-    expect(grid.get('Release')?.textContent).toBe('Ready');
-    expect(grid.get('Pile pays')?.textContent).toBe('— already protected');
-    expect(grid.get('Protects')?.querySelector('.is-held')).not.toBeNull();
+    // Ready on your own reef reads as an opportunity...
+    let dd = rows({ mature: true, stepsRemaining: 0, allowedThisTurn: true, mine: true });
+    expect(dd?.textContent).toBe('Ready');
+    expect(dd?.className).toBe('good');
+
+    // ...and the same card on theirs reads as a threat, because it is one: it is
+    // about to leave the board and score, and you can still stop it.
+    dd = rows({ mature: true, stepsRemaining: 0, allowedThisTurn: true, mine: false });
+    expect(dd?.textContent).toBe('Ready — they can take it this turn');
+    expect(dd?.className).toBe('warn');
   });
-
   it('prints each keyword exactly once on a card', async () => {
     // `toxic` and `toxin-immune` were rendering twice: once from the generic
     // pass over def.keywords and again from a hand-written tag beside it. Any

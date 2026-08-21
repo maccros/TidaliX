@@ -42,15 +42,13 @@ export interface CardDetailProps {
   stats: EffectiveStats | null;
   /** Where the card is, which decides what is worth explaining. */
   zone: 'hand' | 'board' | 'conservation';
-  /** Release readiness, for a card on your own board. */
+  /** Release readiness, for a card on either board. */
   release?: {
     mature: boolean;
     stepsRemaining: number;
     allowedThisTurn: boolean;
-    /** Whether this card's taxon is already in the pile. */
-    taxonHeld: boolean;
-    /** Standing income the pile would pay after releasing it. */
-    incomeAfter: number;
+    /** Whose reef it is standing on, which decides who the row is about. */
+    mine: boolean;
   } | null;
   onClose: () => void;
 }
@@ -328,34 +326,33 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
         {zone === 'board' && release && (
           <section className="detail__section">
             <h3 className="detail__h">Conservation</h3>
-            {/* Three facts, one per row, in the same shape as the live stats:
-                when it can go, what it protects, and what that is worth. The
-                last is the one that is easy to get wrong — the pile pays for
-                taxa, so a second fish pays nothing at all. */}
+            {/* Only the one fact the player cannot get anywhere else: when this
+                card can leave the reef. What it protects is already printed
+                under its name, and what the pile would pay is the conservation
+                panel's job — repeating either here was three rows saying what
+                one row says. */}
             <dl className="detail__grid">
               <dt>Release</dt>
-              <dd className={release.mature && release.allowedThisTurn ? 'good' : undefined}>
+              <dd
+                className={
+                  release.mature && release.allowedThisTurn
+                    ? release.mine
+                      ? 'good'
+                      : 'warn'
+                    : undefined
+                }
+              >
                 {release.mature
                   ? release.allowedThisTurn
-                    ? 'Ready'
-                    : 'Ready — but one release per turn, and you have used it'
+                    ? release.mine
+                      ? 'Ready'
+                      : 'Ready — they can take it this turn'
+                    : release.mine
+                      ? 'Ready — but one release per turn, and you have used it'
+                      : 'Ready — but they have already released this turn'
                   : `In ${release.stepsRemaining} more tide ${
                       release.stepsRemaining === 1 ? 'phase' : 'phases'
                     }`}
-              </dd>
-              <dt>Protects</dt>
-              <dd>
-                {/* The same chip the conservation panel prints, in the same
-                    state, so a card and the pile agree on sight. */}
-                <span className={`conserve__taxon${release.taxonHeld ? ' is-held' : ''}`}>
-                  {TAXON_LABEL[def.taxon]}
-                </span>
-              </dd>
-              <dt>Pile pays</dt>
-              <dd className={`num${release.taxonHeld ? '' : ' good'}`}>
-                {release.taxonHeld
-                  ? `${NIL} already protected`
-                  : `⬡+${release.incomeAfter} a turn`}
               </dd>
             </dl>
           </section>
@@ -367,10 +364,6 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
             <dl className="detail__grid">
               <dt>Release</dt>
               <dd className="good">Released back to the wild</dd>
-              <dt>Protects</dt>
-              <dd>
-                <span className="conserve__taxon is-held">{TAXON_LABEL[def.taxon]}</span>
-              </dd>
             </dl>
           </section>
         )}
