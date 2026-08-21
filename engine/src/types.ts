@@ -90,14 +90,27 @@ export type Taxon =
   | 'cnidarian'
   | 'reptile';
 
-/** Player-facing names for each taxon. */
+/**
+ * Player-facing names for each taxon.
+ *
+ * One register for all seven: the plural name of the group, and nothing else.
+ * They used to be mixed — five technical plurals beside 'Fish' and
+ * 'Sharks & rays' — which read as three different naming schemes on one row of
+ * chips, and two of them were wrong on their own terms. 'Corals & anemones'
+ * stopped covering its taxon the moment a jellyfish joined it, and 'Fish'
+ * beside 'Sharks & rays' implied a shark is not a fish, which it is.
+ *
+ * So the split is named for what actually separates the two groups — bone
+ * against cartilage — and every label now survives the next species added to
+ * it, which is the property the old ones lacked.
+ */
 export const TAXON_LABEL: Record<Taxon, string> = {
-  fish: 'Fish',
-  'shark-ray': 'Sharks & rays',
+  fish: 'Bony fishes',
+  'shark-ray': 'Cartilaginous fishes',
   crustacean: 'Crustaceans',
   echinoderm: 'Echinoderms',
   mollusc: 'Molluscs',
-  cnidarian: 'Corals & anemones',
+  cnidarian: 'Cnidarians',
   reptile: 'Reptiles',
 };
 
