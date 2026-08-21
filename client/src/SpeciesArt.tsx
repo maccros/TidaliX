@@ -869,6 +869,69 @@ const ART: Record<string, ReactNode> = {
       <circle cx="60" cy="54" r="6" fill="#e8b06a" stroke={O} strokeWidth={2.4} />
     </>
   ),
+
+  'spanish-dancer': (
+    <>
+      <g {...ink}>
+        {/* The mantle unrolled into a swimming skirt, wavy along the trailing edge. */}
+        <path d="M20 42c6-15 24-23 42-23s34 8 40 23c-8 3-12 10-19 10-6 0-8-6-14-6s-9 8-16 8-9-8-15-8-9 6-14 6c-4 0-4-6-4-10z"
+              fill="#c8382e" />
+        {/* Rhinophores: the pair of horns it steers with. */}
+        <path d="M38 24l-5-12M52 21V9" fill="none" strokeWidth={4.5} />
+        {/* Six gills in a rosette at the back end. */}
+        <path d="M94 28c8-4 15-2 17 5-6-1-11 1-14 5" fill="#e07d6c" />
+      </g>
+      <path d="M26 41c8 8 21 12 36 12s26-4 34-12" fill="none" stroke="#fdfdfa"
+            strokeWidth={3.4} strokeLinecap="round" />
+      <g fill="#8f231d" opacity=".5">
+        <ellipse cx="58" cy="29" rx="9" ry="5" /><ellipse cx="78" cy="34" rx="7" ry="4" />
+      </g>
+      {eye(42, 29, 3.2)}
+    </>
+  ),
+
+  'warty-frogfish': (
+    <>
+      <g {...ink}>
+        <path d="M98 42 114 32v22z" fill="#d98a3c" />
+        {/* A lumpy round body that walks rather than swims. */}
+        <path d="M22 44c0-17 15-28 35-28s41 10 41 27c0 16-17 26-39 26S22 60 22 44z" fill="#e8a04e" />
+        {/* Illicium and esca: the rod on its head, and the lure on the end of it. */}
+        <path d="M34 20 29 9" fill="none" strokeWidth={3.4} />
+        <circle cx="28" cy="7" r="4.6" fill="#fdfdfa" />
+        {/* The mouth, enormous and turned up. */}
+        <path d="M23 47c8 8 20 10 30 6" fill="none" strokeWidth={3.4} />
+        {/* The pectoral fin it walks on. */}
+        <path d="M54 68c-2 8 3 11 9 10" fill="none" strokeWidth={4} />
+      </g>
+      <g fill="#b4652a" opacity=".55">
+        <circle cx="64" cy="32" r="4" /><circle cx="82" cy="44" r="3.4" />
+        <circle cx="54" cy="54" r="3" /><circle cx="74" cy="60" r="3" />
+      </g>
+      {ringEye(38, 32, 5)}
+    </>
+  ),
+
+  'mandarinfish': (
+    <>
+      <g {...ink}>
+        <path d="M92 40 110 29v22z" fill="#2f6fa8" />
+        <path d="M40 20c10-9 24-9 32 0" fill="#e8873a" />
+        <ellipse cx="56" cy="40" rx="34" ry="22" fill="#2f6fa8" />
+      </g>
+      {/* The swirls, which are the entire reason anyone knows this fish. */}
+      <g fill="none" stroke="#e8873a" strokeWidth={4.6} strokeLinecap="round">
+        <path d="M34 33c7-6 16-4 20 2M38 49c6 4 14 3 19-3M64 29c6 3 11 9 12 15M68 51c5-2 9-6 11-11" />
+      </g>
+      <g fill="none" stroke="#1f8f6a" strokeWidth={2.6} strokeLinecap="round">
+        <path d="M36 41c7 2 14 1 19-2M60 43c6 2 11 1 15-2" />
+      </g>
+      <ellipse cx="56" cy="40" rx="34" ry="22" fill="none" {...ink} />
+      {/* The fan-shaped pectoral it holds out like a hand. */}
+      <ellipse cx="56" cy="53" rx="13" ry="9" fill="#e8873a" {...ink} strokeWidth={2.6} />
+      {ringEye(36, 33, 5)}
+    </>
+  ),
 };
 
 export interface SpeciesArtProps {

@@ -444,6 +444,21 @@ describe('the niche vocabulary', () => {
     }
   });
 
+  it('supports every niche with more than a single relationship', () => {
+    // One aura is not a niche having relationships; it is a niche having an
+    // exception. The flat spent a while at exactly one, which is how it ended
+    // up the biggest group on the board and the least interesting to build in.
+    const positive = new Map<string, number>();
+    for (const card of CARDS)
+      for (const aura of card.auras ?? []) {
+        const total = (aura.grants.attack ?? 0) + (aura.grants.health ?? 0);
+        if (total > 0) positive.set(aura.affects, (positive.get(aura.affects) ?? 0) + 1);
+      }
+    for (const niche of new Set(CARDS.map((c) => c.niche))) {
+      expect(positive.get(niche) ?? 0, `only one card grants to "${niche}"`).toBeGreaterThan(1);
+    }
+  });
+
   it('keeps niche and lineage as separate questions', () => {
     // A lineage is what an animal is; a niche is how it lives. They must not
     // collapse into each other, or one of them is redundant.

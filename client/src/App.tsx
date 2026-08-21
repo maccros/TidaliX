@@ -471,6 +471,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
               stats={effectiveStats(card, state.phase, def)}
               phase={state.phase}
               state={handState(card.instanceId, def.cost)}
+              inHand
               onHover={setHovered}
               onInspect={() => setInspecting(card.instanceId)}
               onClick={() => clickHandCard(card.instanceId)}

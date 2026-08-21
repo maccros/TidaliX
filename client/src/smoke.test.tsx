@@ -61,7 +61,9 @@ describe('client', () => {
   });
 
   it('offers playable cards on turn one, and playing one moves it to the reef', () => {
-    render();
+    // Seed 9, not the default: the opener has two energy and four cards, so
+    // roughly a quarter of openings are honestly unplayable. This one is not.
+    render(9);
     const playable = container.querySelectorAll<HTMLButtonElement>('.card--playable');
     expect(playable.length).toBeGreaterThan(0);
 
@@ -498,7 +500,9 @@ describe('card detail', () => {
     // Its own niche, and its aura pointed back at the host.
     expect(text).toContain('reef-dweller');
     expect(text).toContain('reef-builder');
-    expect(text).toContain('drives off polyp-eaters');
+    // The relationship's *numbers* belong on the card face; the sentence
+    // explaining it belongs on the full card, where there is room to read it.
+    expect(text).not.toContain('drives off polyp-eaters');
     expect(stats.maxHealth).toBe(6);
   });
 
@@ -538,7 +542,7 @@ describe('card detail', () => {
   });
 
   it('does not play a card when it is right-clicked', () => {
-    render();
+    render(9);
     const before = container.querySelectorAll('.side--you .card').length;
     const card = container.querySelector<HTMLElement>('.hand .card--playable')!;
     act(() => {

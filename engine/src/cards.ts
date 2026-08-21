@@ -691,11 +691,19 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-dweller',
-    cost: 3,
+    // Cost 4, not 3: a wall, spines, and the flat's largest aura on one card.
+    cost: 4,
     attack: 0,
     health: 6,
     keywords: ['reef-guard'],
     spines: 4,
+    auras: [
+      {
+        affects: 'bottom-dweller',
+        grants: { health: 2 },
+        note: 'a forest of spines, and half the flat spends the day inside it',
+      },
+    ],
     tide: {
       low: { health: 2 },
     },
@@ -1068,9 +1076,18 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-dweller',
+    // Still cost 2. It paid for the aura by giving up its second energy tick:
+    // it is the perch things hunt from now, not the flat's battery.
     cost: 2,
     attack: 0,
     health: 5,
+    auras: [
+      {
+        affects: 'bottom-dweller',
+        grants: { attack: 1 },
+        note: 'shrimp, squat lobsters and clingfish live in its arms and hunt from them',
+      },
+    ],
     arrival: {
       kind: 'forage',
       amount: 1,
@@ -1078,9 +1095,70 @@ export const CARDS: readonly CardDefinition[] = [
     },
     tide: {
       rising: { energy: 1 },
-      falling: { energy: 1 },
     },
     text: 'Climbs to the top of a sea fan at dusk and opens its arms into the current.',
+  },
+  {
+    id: 'spanish-dancer',
+    name: 'Spanish Dancer',
+    species: 'Hexabranchus sanguineus',
+    type: 'creature',
+    taxon: 'mollusc',
+    niche: 'bottom-dweller',
+    cost: 2,
+    attack: 1,
+    health: 3,
+    keywords: ['toxic'],
+    auras: [
+      {
+        affects: 'bottom-dweller',
+        grants: { health: 1 },
+        note: 'emperor shrimp ride in its mantle folds, and spread from there across the flat',
+      },
+    ],
+    tide: {
+      high: { attack: 1 },
+      low: { health: 1 },
+    },
+    text: 'Eats sponges and keeps their poison. Unrolls its mantle and swims, red as a skirt.',
+  },
+  {
+    id: 'warty-frogfish',
+    name: 'Warty Frogfish',
+    species: 'Antennarius maculatus',
+    type: 'creature',
+    taxon: 'fish',
+    niche: 'bottom-dweller',
+    cost: 4,
+    attack: 3,
+    health: 4,
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'waves the lure once, and the mouth is open and shut in six milliseconds',
+    },
+    tide: {
+      low: { attack: 1 },
+      high: { attack: -1 },
+    },
+    text: 'Walks on its fins, wears a fishing rod on its head, and looks nothing like a fish.',
+  },
+  {
+    id: 'mandarinfish',
+    name: 'Mandarinfish',
+    species: 'Synchiropus splendidus',
+    type: 'creature',
+    taxon: 'fish',
+    niche: 'bottom-dweller',
+    cost: 1,
+    attack: 1,
+    health: 2,
+    keywords: ['toxic'],
+    tide: {
+      rising: { health: 1 },
+      falling: { attack: 1 },
+    },
+    text: 'No scales anywhere on it. Just a coat of foul, stinging slime under all that colour.',
   },
 ];
 
