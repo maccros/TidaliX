@@ -161,7 +161,7 @@ describe('client', () => {
         for (let turn = 0; turn < 8; turn++) {
           const enemies = [...container.querySelectorAll<HTMLElement>('.side--enemy .card')];
           const aimable = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')]
-            .find((c) => c.querySelector('.card__arrival')?.textContent?.includes('to one enemy'));
+            .find((c) => c.querySelector('.card__arrival')?.textContent?.includes('one enemy'));
 
           if (aimable && enemies.length > 0) {
             const boardBefore = container.querySelectorAll('.side--you .card').length;
@@ -246,7 +246,7 @@ describe('client', () => {
         for (let i = 0; i < 20; i++) {
           const hand = [...container.querySelectorAll<HTMLButtonElement>('.hand .card--playable')];
           const enemies = container.querySelectorAll('.side--enemy .card').length;
-          const striker = hand.find((c) => c.textContent?.includes('to one enemy'));
+          const striker = hand.find((c) => c.textContent?.includes('one enemy'));
 
           if (striker && enemies > 0) {
             act(() => striker.click());

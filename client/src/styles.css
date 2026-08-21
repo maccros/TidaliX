@@ -279,7 +279,6 @@ button { font: inherit; color: inherit; }
  */
 .card--support { opacity: 1; }
 /* The arrival is what happens when you play the card, so it leads the effects. */
-.card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 
 .card.is-linked {
@@ -318,7 +317,7 @@ button { font: inherit; color: inherit; }
  * all mean "a small labelled thing", so they are all one geometry now, and
  * only colour and border tell them apart.
  */
-.tag, .detail__target, .card__aura-reach, .conserve__taxon {
+.tag, .detail__target, .card__linetarget, .conserve__taxon {
   font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase;
   padding: 0.1em 0.35em; border-radius: 2px;
 }
@@ -348,7 +347,6 @@ button { font: inherit; color: inherit; }
 .tag--niche-reef-builder { --b: var(--b-coral); }
 .tag--niche-bottom-dweller { --b: var(--b-armour); }
 
-.card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 
 .card.is-linked {
@@ -379,7 +377,6 @@ button { font: inherit; color: inherit; }
 
 .card__tags { display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: auto; }
 /* The arrival is what happens when you play the card, so it leads the effects. */
-.card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 
 /* Same size as the symbiosis line under it: they are two statements of the
@@ -387,23 +384,33 @@ button { font: inherit; color: inherit; }
    identically before this, in three places in the file.) */
 .card__arrival {
   margin: 0; font-size: 0.62rem; color: var(--b-arrival);
-  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
+  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;
   padding: 0.15rem 0.3rem; border-radius: 2px;
   background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
 }
+/* Tinted like the arrival block beside it: two statements of the same kind,
+   so both sit on their own ground rather than one floating in the card body. */
 .card__aura {
   margin: 0; font-size: 0.62rem; color: var(--good);
-  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
+  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;
+  padding: 0.15rem 0.3rem; border-radius: 2px;
+  background: color-mix(in srgb, var(--good) 11%, transparent);
 }
-.card__aura-arrow { opacity: 0.7; }
+/* The trigger or the direction, in the block's own colour, so the eye can tell
+   an arrival from a gift without reading either. */
+.card__linelabel {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.05em;
+  text-transform: uppercase; opacity: 0.8;
+}
+.card__arrival-mark, .card__aura-arrow { opacity: 0.8; }
 /* A delta is a number: mono here as everywhere else. It was the one sans
    number in the game. */
 .card__aura b { font-family: var(--mono); }
 .card__aura-note { color: var(--ink-faint); font-style: italic; }
-/* How far an aura reaches, printed on every one of them. Quiet by default,
-   because "your reef" is the rule; loud on the single card that breaks it. */
-.card__aura-reach { color: var(--ink-faint); border: 1px solid currentColor; }
-.card__aura-reach--cross { color: var(--warn); }
+/* Who a line lands on — the reach of an aura, the target of an arrival. Quiet
+   by default, because "your reef" is the rule; loud when it crosses over. */
+.card__linetarget { color: var(--ink-faint); border: 1px solid currentColor; }
+.card__linetarget--hostile { color: var(--warn); }
 
 .card__stats {
   display: flex; align-items: center; gap: 0.4rem;
@@ -653,9 +660,12 @@ button { font: inherit; color: inherit; }
 .detail__auras { margin: 0; padding-left: 1rem; font-size: 0.78rem; display: flex; flex-direction: column; gap: 0.35rem; }
 .detail__auras b { font-family: var(--mono); color: var(--good); }
 .detail__arrival b { font-family: var(--mono); color: var(--b-arrival); }
-/* Both notes are the same kind of sentence, so they are the same size. */
-.detail__auranote, .detail__arrivalnote { color: var(--ink-faint); font-style: italic; font-size: 0.72rem; }
-.detail__auranote { display: block; flex-basis: 100%; }
+/* Both notes are the same kind of sentence in the same place, so they are the
+   same size and both break to their own line under the effect they explain. */
+.detail__auranote, .detail__arrivalnote {
+  display: block; flex-basis: 100%;
+  color: var(--ink-faint); font-style: italic; font-size: 0.72rem;
+}
 /* One line, one grammar, used by both a symbiosis gift and an arrival:
    what it does, who to, then why. */
 .detail__auras li, .detail__arrival { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
@@ -670,7 +680,11 @@ button { font: inherit; color: inherit; }
   gap: 0.2rem 0.7rem; font-size: 0.78rem;
 }
 .detail__grid dt { color: var(--ink-faint); }
-.detail__grid dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+/* Figures in the mono face, sentences in the body face. Every value in here
+   was mono, so the conservation rows read "In 4 more tide phases" in the
+   number font. */
+.detail__grid dd { margin: 0; }
+.detail__grid dd.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .detail__live { font-weight: 700; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
 .detail__live small { font-weight: 400; font-size: 0.7rem; color: var(--ink-faint); }
 .detail__slash { color: var(--ink-faint); font-weight: 400; }

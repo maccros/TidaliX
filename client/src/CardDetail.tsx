@@ -195,24 +195,6 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </table>
         </section>
 
-        {def.arrival && (
-          <section className="detail__section">
-            <h3 className="detail__h">On arrival</h3>
-            <p className="detail__arrival">
-              <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
-              <span className="detail__to">to</span>
-              <span
-                className={`detail__target${
-                  ARRIVAL_HOSTILE[def.arrival.kind] ? ' detail__target--hostile' : ''
-                }`}
-              >
-                {ARRIVAL_TARGET[def.arrival.kind]}
-              </span>
-              <span className="detail__arrivalnote">{def.arrival.note}</span>
-            </p>
-          </section>
-        )}
-
         {(def.keywords?.length || def.armour || def.spines || def.niche) && (
           <section className="detail__section">
             <h3 className="detail__h">Niche and traits</h3>
@@ -262,6 +244,24 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           </section>
         )}
 
+        {def.arrival && (
+          <section className="detail__section">
+            <h3 className="detail__h">On arrival</h3>
+            <p className="detail__arrival">
+              <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
+              <span className="detail__to">to</span>
+              <span
+                className={`detail__target${
+                  ARRIVAL_HOSTILE[def.arrival.kind] ? ' detail__target--hostile' : ''
+                }`}
+              >
+                {ARRIVAL_TARGET[def.arrival.kind]}
+              </span>
+              <span className="detail__arrivalnote">{def.arrival.note}</span>
+            </p>
+          </section>
+        )}
+
         {def.auras && def.auras.length > 0 && (
           <section className="detail__section">
             <h3 className="detail__h">Symbiosis gift</h3>
@@ -289,15 +289,15 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
             <h3 className="detail__h">Live stats</h3>
             <dl className="detail__grid">
               <dt>Base</dt>
-              <dd>{pair(def.attack, def.health)}</dd>
+              <dd className="num">{pair(def.attack, def.health)}</dd>
               <dt>Tide ({phase})</dt>
-              <dd>
+              <dd className="num">
                 {stats.tideBonus.attack || stats.tideBonus.health
                   ? deltaPair(stats.tideBonus.attack ?? 0, stats.tideBonus.health ?? 0)
                   : NIL}
               </dd>
               <dt>Symbiosis</dt>
-              <dd>
+              <dd className="num">
                 {stats.symbiosisBonus.attack || stats.symbiosisBonus.health
                   ? deltaPair(stats.symbiosisBonus.attack ?? 0, stats.symbiosisBonus.health ?? 0)
                   : NIL}
@@ -307,7 +307,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                   <dt>Damage</dt>
                   {/* Damage only ever comes off health, and saying which half it
                       takes keeps the column a sum rather than a list. */}
-                  <dd className="down">{deltaPair(0, -instance.damage)}</dd>
+                  <dd className="num down">{deltaPair(0, -instance.damage)}</dd>
                 </>
               )}
               <dt>Total</dt>
@@ -315,7 +315,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                   ochre for attack, deep blue for health. This row is the same
                   number the player reads off the bottom of the card, so it has
                   to be the same colour there too. */}
-              <dd className="detail__live">
+              <dd className="num detail__live">
                 <span className="stat--attack">{stats.attack}</span>
                 <span className="detail__slash"> / </span>
                 <span className="stat--health">{stats.health}</span>
@@ -352,7 +352,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                 </span>
               </dd>
               <dt>Pile pays</dt>
-              <dd className={release.taxonHeld ? undefined : 'good'}>
+              <dd className={`num${release.taxonHeld ? '' : ' good'}`}>
                 {release.taxonHeld
                   ? `${NIL} already protected`
                   : `⬡+${release.incomeAfter} a turn`}

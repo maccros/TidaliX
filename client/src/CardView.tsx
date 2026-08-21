@@ -102,12 +102,30 @@ const LONG_PRESS_MS = 450;
  * riddle — one of what? — so no arrival prints a number without its symbol,
  * and every one of them says where it lands.
  */
-const ARRIVAL_LABEL: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `On arrival: ♥-${n} to one enemy`,
-  sweep: (n) => `On arrival: ♥-${n} to every enemy`,
-  mend: (n) => `On arrival: ♥+${n} to your reef`,
-  forage: (n) => `On arrival: ⬡+${n}`,
-  scout: (n) => `On arrival: draw ${n}`,
+const ARRIVAL_EFFECT: Record<ArrivalEffect['kind'], (n: number) => string> = {
+  strike: (n) => `♥-${n}`,
+  sweep: (n) => `♥-${n}`,
+  mend: (n) => `♥+${n}`,
+  forage: (n) => `⬡+${n}`,
+  scout: (n) => `+${n} card${n === 1 ? '' : 's'}`,
+};
+
+/** Who it lands on, as a pill — the same pill the reach marker uses. */
+const ARRIVAL_TARGET: Record<ArrivalEffect['kind'], string> = {
+  strike: 'one enemy',
+  sweep: 'every enemy',
+  mend: 'your reef',
+  forage: 'you',
+  scout: 'you',
+};
+
+/** Arrivals that land across the channel, marked like an aura that crosses. */
+const ARRIVAL_HOSTILE: Record<ArrivalEffect['kind'], boolean> = {
+  strike: true,
+  sweep: true,
+  mend: false,
+  forage: false,
+  scout: false,
 };
 
 const TRAIT_TITLE: Record<Keyword, string> = {
@@ -269,7 +287,15 @@ export function CardView({
       {def.arrival && (
         <p className="card__arrival">
           <span className="card__arrival-mark">▸</span>
-          <b>{ARRIVAL_LABEL[def.arrival.kind](def.arrival.amount)}</b>
+          <span className="card__linelabel">on arrival</span>
+          <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
+          <span
+            className={`card__linetarget${
+              ARRIVAL_HOSTILE[def.arrival.kind] ? ' card__linetarget--hostile' : ''
+            }`}
+          >
+            {ARRIVAL_TARGET[def.arrival.kind]}
+          </span>
         </p>
       )}
 
@@ -287,7 +313,7 @@ export function CardView({
               Marking one aura and leaving the rest blank left the player to
               guess whether blank meant "your reef" or meant nobody had said. */}
           <span
-            className={`card__aura-reach${aura.crossesWaterline ? ' card__aura-reach--cross' : ''}`}
+            className={`card__linetarget${aura.crossesWaterline ? ' card__linetarget--hostile' : ''}`}
           >
             {aura.crossesWaterline ? 'both reefs' : 'your reef'}
           </span>
