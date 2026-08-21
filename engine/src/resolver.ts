@@ -577,6 +577,10 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
  * of them — which is exactly the bug the old two-branch combat code invited.
  * Returns what actually landed, because callers need to know whether the blow
  * was lethal, and armour means that is no longer the number they asked for.
+ *
+ * An arrival is the one exception: it is not a hit the target's shell can turn
+ * aside, it is something read straight off its life, so it always skips armour
+ * regardless of what dealt it.
  */
 function strike(
   draft: GameState,
@@ -589,7 +593,8 @@ function strike(
   /** The card dealing it, when one is identifiable — `pierce` is read off it. */
   source?: CardInstance,
 ): number {
-  const armour = source && piercesArmour(source.definitionId) ? 0 : statsFor(draft, target).armour;
+  const armour =
+    cause === 'arrival' || (source && piercesArmour(source.definitionId)) ? 0 : statsFor(draft, target).armour;
   const dealt = Math.max(0, raw - armour);
   const absorbed = raw - dealt;
   target.damage += dealt;

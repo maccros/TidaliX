@@ -89,7 +89,6 @@ const ARRIVAL_HOSTILE: Record<ArrivalEffect['kind'], boolean> = {
   scout: false,
 };
 
-
 export function CardDetail({ instance, phase, stats, zone, release, onClose }: CardDetailProps) {
   const def = getCard(instance.definitionId);
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -241,7 +240,7 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
 
         {def.arrival && (
           <section className="detail__section">
-            <h3 className="detail__h">On arrival</h3>
+            <h3 className="detail__h">Dash</h3>
             <p className="detail__arrival">
               <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
               <span className="detail__to">to</span>

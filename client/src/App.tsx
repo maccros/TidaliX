@@ -538,8 +538,8 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
         <span className="bar__seed">seed {seed}</span>
         {aiming ? (
           <span className="bar__hint bar__hint--aim">
-            {getCard(you.hand.find((c) => c.instanceId === aiming)!.definitionId).name} arrives
-            striking — pick an enemy, or press Escape to cancel.
+            {getCard(you.hand.find((c) => c.instanceId === aiming)!.definitionId).name} dashes
+            — pick an enemy, or press Escape to cancel.
           </span>
         ) : selected ? (
           <span className="bar__hint">Pick a target, or click the card again to cancel.</span>
@@ -914,12 +914,20 @@ function nameOf(state: GameState, instanceId: string): string {
 
 /** How each arrival effect reads in the log. */
 const ARRIVAL_LOG: Record<ArrivalEffect['kind'], (n: number) => string> = {
-  strike: (n) => `♥-${n} to one enemy`,
+  strike: (n) => `♥-${n}`,
   sweep: (n) => `♥-${n} to every enemy`,
   mend: (n) => `♥+${n} to the reef`,
   forage: (n) => `⬡+${n}`,
   scout: (n) => `draws ${n}`,
 };
+
+/** How an exposed bonus or an armour absorption reads inline, when either applied. */
+function formatBonus(exposedBonus: number, absorbed: number): string {
+  const parts: string[] = [];
+  if (exposedBonus > 0) parts.push(`+${exposedBonus} exposed`);
+  if (absorbed > 0) parts.push(`-${absorbed} armour`);
+  return parts.length ? ` (${parts.join(', ')})` : '';
+}
 
 /**
  * One line per thing that happened, and no line for a thing already said.
@@ -984,7 +992,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
     case 'ARRIVAL_RESOLVED': {
       const name = getCard(event.definitionId).name;
       const target = event.targetId ? ` to ${nameOf(state, event.targetId)}` : '';
-      return { text: `${name} arrives: ${ARRIVAL_LOG[event.kind](event.amount)}${target}`, kind: 'arrival' };
+      return { text: `${name} dashes: ${ARRIVAL_LOG[event.kind](event.amount)}${target}`, kind: 'arrival' };
     }
 
     case 'CARD_HEALED':
@@ -993,7 +1001,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
     case 'DAMAGE_DEALT': {
       if (event.cause === 'arrival') return null; // the arrival line said it
       const source = nameOf(state, event.sourceId);
-      const bonus = event.exposedBonus > 0 ? ` (+${event.exposedBonus} exposed)` : '';
+      const bonus = formatBonus(event.exposedBonus, event.absorbed);
       if (event.targetId === 'face') {
         // Which species is hitting you was missing entirely: the face damage
         // line was dropped and PLAYER_DAMAGED never named an attacker.

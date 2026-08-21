@@ -83,16 +83,15 @@ of line: *what it does*, then *who it lands on*, then *why*, with the explanatio
 on its own line beneath.
 
 ```
-✕  STRIKE          ♥-1     [EVERY ENEMY]
+▸  DASH             ♥-1     [EVERY ENEMY]
 →  [FRAME-BUILDER]  +0/-3   [BOTH REEFS]
 ```
 
-**Strike or arrival.** Only the damage-dealing arrivals — `strike`, `sweep` — say
-*strike* and draw a cross (`✕`); everything else that happens on arrival (a heal,
-an energy gain, a draw) says *arrival* and keeps the plain triangle (`▸`). The
-same split applies to the log line's verb and the full card's section heading.
-Never label a heal or a draw as a strike — the cross reads as a hit landing, and
-only a hit should wear it.
+**Dash, not arrival.** What used to be called an arrival is a dash everywhere —
+the card face, the full card's section heading, and the log line's verb. One
+term for all five kinds (strike, sweep, mend, forage, scout) and no exception
+carved out for the damage-dealing ones; a heal or a draw is worded and marked
+exactly like a strike.
 
 **One pill.** Every small labelled thing — niche badge, keyword, armour, spines,
 reach marker, arrival target, taxon chip — shares one geometry. Colour and border
@@ -111,7 +110,7 @@ without its symbol — "1 to every enemy" is a riddle.
 **The full card is complete; the face is a summary.** The face prints the
 mechanical line; the sentence explaining a relationship lives on the full card,
 where there is room. Section order: Through the tide, Niche and traits,
-Arrival, Symbiosis gift, Live stats, Conservation.
+Dash, Symbiosis gift, Live stats, Conservation.
 
 **Say it once.** Conservation reports release readiness and nothing else — what
 a card protects is already under its name, and what the pile would pay is the

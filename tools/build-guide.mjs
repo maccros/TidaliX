@@ -155,7 +155,7 @@ function cardRow(id) {
     scout: (n) => `draw ${n}`,
   };
   const arrival = c.arrival
-    ? `<p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>On arrival:</b> ${ARRIVAL_TEXT[c.arrival.kind](c.arrival.amount)}
+    ? `<p class="arrival"><span class="arrival__mark">&#9656;</span><span><b>Dash:</b> ${ARRIVAL_TEXT[c.arrival.kind](c.arrival.amount)}
         <span class="arrival__note">${esc(c.arrival.note)}</span></span></p>`
     : '';
   // Niche first: the category, before anything the animal does.
@@ -550,7 +550,7 @@ const html = `<title>TidaliX Field Guide</title>
       </div>
 
       <div class="rule">
-        <h4>Arrival</h4>
+        <h4>Dash</h4>
         <p>
           Some species do something the moment they land &mdash; a strike, a sweep,
           a heal, energy, a card. It resolves immediately, before anything else
@@ -558,9 +558,9 @@ const html = `<title>TidaliX Field Guide</title>
           merely join one and wait a turn to be killed.
         </p>
         <p>
-          An arrival is not a free attack: the card still cannot attack the turn it
+          A dash is not a free attack: the card still cannot attack the turn it
           is played unless it has <b>surge</b>. Not every card has one, by design
-          &mdash; a card without an arrival is paying for it in stats, in its tide
+          &mdash; a card without a dash is paying for it in stats, in its tide
           line, or in an aura.
         </p>
       </div>
