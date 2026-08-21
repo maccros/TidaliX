@@ -275,7 +275,7 @@ button { font: inherit; color: inherit; }
  *
  * Full contrast is the whole fix, and it is deliberately all of it: no tint, no
  * coloured edge. Colour on a card means "you can do something with this right
- * now", and a reef-builder standing there is not an action.
+ * now", and a frame-builder standing there is not an action.
  */
 .card--support { opacity: 1; }
 /* The arrival is what happens when you play the card, so it leads the effects. */
@@ -344,7 +344,7 @@ button { font: inherit; color: inherit; }
 /* Outlined: a trait, which only means something through somebody else's aura. */
 .tag--niche-reef-dweller { --b: var(--b-reef-fish); }
 .tag--niche-open-water { --b: var(--b-megafauna); }
-.tag--niche-reef-builder { --b: var(--b-coral); }
+.tag--niche-frame-builder { --b: var(--b-coral); }
 .tag--niche-bottom-crawler { --b: var(--b-armour); }
 
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }

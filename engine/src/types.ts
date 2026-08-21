@@ -58,8 +58,16 @@ export type Niche =
   | 'reef-dweller'
   /** Comes in from outside — sharks, rays, turtles, the big fish. */
   | 'open-water'
-  /** Is the structure: the corals, the sea fan, the anemone. */
-  | 'reef-builder'
+  /**
+   * Is the structure: the corals, the sea fan, the anemone, the giant clam.
+   *
+   * "Frame", not "reef": every niche is two words, and no word is used twice
+   * across the four of them. REEF-BUILDER and REEF-DWELLER shared their first
+   * word and their length, so on a badge they read as one idea with two
+   * endings. The framework is what these animals actually lay down, and it is
+   * already the word the aura notes use for it.
+   */
+  | 'frame-builder'
   /**
    * The flat, the sand and the rubble beneath it all.
    *
@@ -75,7 +83,7 @@ export type Niche =
 export const NICHE_NOTE: Record<Niche, string> = {
   'reef-dweller': 'Lives in and among the coral itself. What the reef shelters.',
   'open-water': 'Comes in from outside — sharks, rays, turtles and the big fish.',
-  'reef-builder': 'Is the structure the rest of the reef is built on.',
+  'frame-builder': 'Lays down the framework the rest of the reef is built on.',
   'bottom-crawler': 'Works the sand and the rubble of the drained flat.',
 };
 

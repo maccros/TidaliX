@@ -197,7 +197,7 @@ describe('client', () => {
     }
   });
 
-  it('does not grey out a reef-builder just because it cannot attack', () => {
+  it('does not grey out a frame-builder just because it cannot attack', () => {
     // Corals, anemones and the clam have no attack at all. They were rendering
     // in the same spent state as an attacker that had already swung, which faded
     // out every card that grants a symbiosis. They get their own state now.
@@ -612,7 +612,7 @@ describe('card detail', () => {
     expect(text).toContain('symbiosis +0/+2');
     // Its own niche, and its aura pointed back at the host.
     expect(text).toContain('reef-dweller');
-    expect(text).toContain('reef-builder');
+    expect(text).toContain('frame-builder');
     // The relationship's *numbers* belong on the card face; the sentence
     // explaining it belongs on the full card, where there is room to read it.
     expect(text).not.toContain('drives off polyp-eaters');

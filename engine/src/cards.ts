@@ -297,7 +297,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 3,
     auras: [
       {
-        affects: 'reef-builder',
+        affects: 'frame-builder',
         grants: { attack: 1 },
         note: 'drives off polyp-eaters that would strip its host',
       },
@@ -362,7 +362,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Acropora cervicornis',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 2,
     attack: 0,
     health: 5,
@@ -373,7 +373,7 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'a nursery of branches nothing large can reach into',
       },
       {
-        affects: 'reef-builder',
+        affects: 'frame-builder',
         grants: { health: 1 },
         note: 'cements onto the framework beside it',
       },
@@ -391,7 +391,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Entacmaea quadricolor',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 2,
     attack: 0,
     health: 4,
@@ -416,11 +416,11 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Tridacna gigas',
     type: 'structure',
     taxon: 'mollusc',
-    // A reef-builder, and the only one that is not a cnidarian. It is sessile,
+    // A frame-builder, and the only one that is not a cnidarian. It is sessile,
     // it farms algae in its mantle exactly as a coral does, and its shell ends
     // up as reef substrate. It was printed as a structure from the start; only
     // the niche disagreed, because it happens to sit on sand.
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 3,
     attack: 0,
     health: 8,
@@ -495,7 +495,7 @@ export const CARDS: readonly CardDefinition[] = [
     armour: 3,
     auras: [
       {
-        affects: 'reef-builder',
+        affects: 'frame-builder',
         grants: { health: -3 },
         note: 'digests living coral from the outside in, on either side of the channel',
         // The one aura in the game that crosses the waterline. An outbreak is a
@@ -519,7 +519,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Acropora hyacinthus',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 4,
     attack: 0,
     health: 7,
@@ -530,7 +530,7 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'a whole storey of shade to hunt out of',
       },
       {
-        affects: 'reef-builder',
+        affects: 'frame-builder',
         grants: { health: 1 },
         note: 'thickens the framework around it',
       },
@@ -777,7 +777,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Millepora dichotoma',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 3,
     attack: 0,
     health: 5,
@@ -785,7 +785,7 @@ export const CARDS: readonly CardDefinition[] = [
     spines: 2,
     auras: [
       {
-        affects: 'reef-builder',
+        affects: 'frame-builder',
         grants: { health: 1 },
         note: 'grows into the framework beside it',
       },
@@ -802,14 +802,14 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Diploria labyrinthiformis',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 4,
     attack: 0,
     health: 9,
     keywords: ['reef-guard'],
     auras: [
       {
-        affects: 'reef-builder',
+        affects: 'frame-builder',
         grants: { health: 2 },
         note: 'the boulder the rest of the reef builds against',
       },
@@ -826,7 +826,7 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Gorgonia ventalina',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
+    niche: 'frame-builder',
     cost: 2,
     attack: 0,
     health: 4,
@@ -1107,8 +1107,8 @@ export const CARDS: readonly CardDefinition[] = [
     species: 'Fungia fungites',
     type: 'structure',
     taxon: 'cnidarian',
-    niche: 'reef-builder',
-    // The only reef-builder with an attack, and it earns it: Fungia catches and
+    niche: 'frame-builder',
+    // The only frame-builder with an attack, and it earns it: Fungia catches and
     // digests jellyfish. Every other coral in the set is a wall.
     cost: 2,
     attack: 1,
