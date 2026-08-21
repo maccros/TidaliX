@@ -657,7 +657,13 @@ button { font: inherit; color: inherit; }
 .tidetable small.up { color: var(--good); }
 .tidetable small.down { color: var(--warn); }
 
-.detail__auras { margin: 0; padding-left: 1rem; font-size: 0.78rem; display: flex; flex-direction: column; gap: 0.35rem; }
+/* No indent and no bullet. It is a list in the markup, but on the page it is
+   a section body like every other one, and it has to start on the same left
+   edge as the section above and below it. */
+.detail__auras {
+  margin: 0; padding: 0; list-style: none; font-size: 0.78rem;
+  display: flex; flex-direction: column; gap: 0.35rem;
+}
 .detail__auras b { font-family: var(--mono); color: var(--good); }
 .detail__arrival b { font-family: var(--mono); color: var(--b-arrival); }
 /* Both notes are the same kind of sentence in the same place, so they are the
