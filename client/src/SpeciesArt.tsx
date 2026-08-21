@@ -319,15 +319,23 @@ const ART: Record<string, ReactNode> = {
   'peacock-mantis-shrimp': (
     <>
       <g {...ink}>
-        <path d="M104 40 118 32c-2 5-2 11 0 16z" fill="#3f8f6a" />
-        <path d="M28 34c-8-8-14-10-20-8 4 4 6 8 6 12" fill="#e0a23c" />
-        <path d="M28 48c-8 8-14 10-20 8 4-4 6-8 6-12" fill="#e0a23c" />
-        <path d="M26 40c14-10 62-12 78-4-16 12-64 14-78 4z" fill="#4aa87d" />
-        <path d="M46 32v18M58 30v20M70 31v19M82 33v15" fill="none" stroke="#2f7357" strokeWidth={3} />
-        <path d="M92 30c6 2 10 6 12 10" fill="none" strokeWidth={2.4} />
+        {/* The tail fan it flares when it backs into a burrow. */}
+        <path d="M92 32 113 23c3 8 3 14 0 20L92 48c3-5 3-11 0-16z" fill="#d05a3c" />
+        <path d="M97 34 109 29M97 40h12M97 46 109 41" fill="none" strokeWidth={2} opacity=".5" />
+        {/* Armour plates, squared off one behind the next. Nothing about this
+            animal is streamlined, and drawing it as a torpedo lost that. */}
+        <path d="M86 30h8c3 4 3 12 0 16h-8z" fill="#3f8f6a" />
+        <path d="M74 27h13c3 5 3 21 0 26H74z" fill="#4aa87d" />
+        <path d="M61 25h14c3 5 3 25 0 30H61z" fill="#3f8f6a" />
+        <path d="M48 25h14c3 5 3 26 0 31H48z" fill="#4aa87d" />
+        <path d="M28 28c8-5 16-5 22-1 3 5 3 21 0 26-6 4-14 4-22-1-4-7-4-17 0-24z" fill="#3f8f6a" />
+        {/* The club it punches with, folded under the head. */}
+        <path d="M28 46c-7 2-13 7-16 14l9 5c3-7 8-11 14-13z" fill="#d05a3c" />
+        {/* Eye stalks: attached to the head, carrying the eyes out in front. */}
+        <path d="M28 32 18 22M28 40 15 33" fill="none" strokeWidth={4.5} />
       </g>
-      {ringEye(30, 30, 5)}
-      {ringEye(30, 50, 5)}
+      {ringEye(16, 20, 6)}
+      {ringEye(13, 33, 6)}
     </>
   ),
 
@@ -555,31 +563,46 @@ const ART: Record<string, ReactNode> = {
   'banded-coral-shrimp': (
     <>
       <g {...ink}>
-        {/* The white antennae it advertises with. */}
-        <path d="M36 30 8 8M36 36 6 22" fill="none" stroke="#f2f2ec" strokeWidth={3} />
-        <path d="M40 30c-8-8-14-10-20-8 6 2 10 6 12 12" fill="#d84a4a" />
-        <path d="M40 52c-8 8-14 10-20 8 6-2 10-6 12-12" fill="#d84a4a" />
-        <path d="M40 42c14-10 48-12 66-4-16 12-52 14-66 4z" fill="#f2f2ec" />
-        <path d="M56 34v18M70 33v20M84 35v16" fill="none" stroke="#d84a4a" strokeWidth={6} strokeLinecap="butt" />
-        <path d="M100 38 116 32c-2 5-2 11 0 16z" fill="#d84a4a" />
+        {/* Tail fan, laid down first so the last segment closes over its base. */}
+        <path d="M92 48c10-1 18 3 22 11-8 5-18 4-24-2z" fill="#d84a4a" />
+        {/* A shrimp is a chain of segments, not a torpedo: overlapping plates
+            down an arching abdomen, banded red on white as the animal is. */}
+        <ellipse cx="90" cy="48" rx="8" ry="9" fill="#f2f2ec" />
+        <ellipse cx="78" cy="44" rx="9" ry="10" fill="#d84a4a" />
+        <ellipse cx="66" cy="41" rx="10" ry="11" fill="#f2f2ec" />
+        <ellipse cx="53" cy="39" rx="11" ry="12" fill="#d84a4a" />
+        <ellipse cx="38" cy="38" rx="12" ry="11" fill="#f2f2ec" />
+        <path d="M44 48l-4 14M56 51l-1 13M68 52l3 12M80 52l6 11" fill="none" strokeWidth={2.4} />
+        {/* The two long claws it boxes with. */}
+        <path d="M34 32 20 22 24 18 36 28z" fill="#d84a4a" />
+        <path d="M34 46 20 58 24 62 36 50z" fill="#d84a4a" />
+        <path d="M20 26C12 24 6 20 4 14c4 1 7 3 10 6-2-5-2-9 0-13 3 5 5 10 8 15z" fill="#d84a4a" />
+        <path d="M20 54C12 56 6 60 4 66c4-1 7-3 10-6-2 5-2 9 0 13 3-5 5-10 8-15z" fill="#d84a4a" />
       </g>
-      {eye(42, 38, 2.8)}
+      {/* Antennae longer than the animal — drawn last, over the claws, or the
+          claws hide the one feature that names it. */}
+      <path d="M36 30 12 6M38 34 6 20" fill="none" stroke="#f2f2ec" strokeWidth={3.4}
+            strokeLinecap="round" />
+      {eye(35, 34, 3.2)}
     </>
   ),
 
   'coconut-crab': (
     <>
       <g {...ink}>
-        <path d="M32 40C22 38 12 40 6 48c8-1 14 1 18 5" fill="#6b3f8c" />
-        <path d="M24 53c-8-2-14-6-18-5 6 8 16 10 24 8z" fill="#5a3577" />
-        <path d="M88 40c10-2 20 0 26 8-8-1-14 1-18 5" fill="#6b3f8c" />
-        <path d="M96 53c8-2 14-6 18-5-6 8-16 10-24 8z" fill="#5a3577" />
-        <path d="M32 56 18 72M46 62l-8 16M74 62l8 16M88 56l14 16" fill="none" strokeWidth={3.4} />
-        <ellipse cx="60" cy="46" rx="30" ry="19" fill="#7d4aa0" />
-        <path d="M38 38c14-7 30-7 44 0" fill="none" strokeWidth={2.4} />
+        {/* Jointed legs, not straight sticks. */}
+        <path d="M40 58 30 68 18 70M54 62 48 73 38 77M66 62 72 73 82 77M80 58 90 68 102 70"
+              fill="none" strokeWidth={3.4} />
+        {/* Arms drawn out from the shell, so the claws hang off the animal
+            rather than floating beside it. */}
+        <path d="M34 44 21 46M86 44 99 46" fill="none" strokeWidth={7} />
+        {/* The claws: the whole point of the animal, and each needs both prongs. */}
+        <path d="M25 50C17 51 9 48 4 41c6-2 10-1 15 2-5-4-8-9-8-15 6 4 11 10 15 16z" fill="#5a3577" />
+        <path d="M95 50c8 1 16-2 21-9-6-2-10-1-15 2 5-4 8-9 8-15-6 4-11 10-15 16z" fill="#5a3577" />
+        <ellipse cx="60" cy="45" rx="30" ry="20" fill="#7d4aa0" />
       </g>
-      {ringEye(50, 36, 4.6)}
-      {ringEye(70, 36, 4.6)}
+      {ringEye(50, 39, 4.4)}
+      {ringEye(70, 39, 4.4)}
     </>
   ),
 
@@ -777,21 +800,27 @@ const ART: Record<string, ReactNode> = {
   'harlequin-shrimp': (
     <>
       <g {...ink}>
-        {/* Side on: arched segmented body, tail fan behind, legs beneath. */}
-        <path d="M96 56 116 48c-4 6-4 12 0 18-8-2-14-4-20-10z" fill="#f0e4ef" />
-        <path d="M40 40c14-16 46-14 58 6-10 12-30 16-46 10-8-3-14-9-12-16z" fill="#f4ecf2" />
-        <path d="M52 60l-4 14M64 62l-2 14M76 62l2 14M88 60l6 12" fill="none" strokeWidth={2.6} />
-        {/* The absurd flattened claws it holds out in front. */}
-        <path d="M36 32c-10-8-20-8-26 0 6 6 18 8 26 4z" fill="#f0e4ef" />
-        <path d="M34 46c-10 2-20 8-24 16 8 2 20-2 26-8z" fill="#f0e4ef" />
-        <path d="M30 26 14 10M28 30 10 20" fill="none" stroke="#e8d8e8" strokeWidth={2.6} />
+        <path d="M92 50c9 0 16 4 20 12-8 4-18 3-24-3z" fill="#f4ecf2" />
+        {/* Same segmented build as the banded coral shrimp, but squatter and
+            cream, so the two crustaceans read as relatives, not as twins. */}
+        <ellipse cx="90" cy="49" rx="9" ry="10" fill="#f4ecf2" />
+        <ellipse cx="77" cy="45" rx="10" ry="11" fill="#f0e4ef" />
+        <ellipse cx="64" cy="42" rx="11" ry="12" fill="#f4ecf2" />
+        <ellipse cx="50" cy="40" rx="12" ry="13" fill="#f0e4ef" />
+        <path d="M46 52l-4 14M60 54l-1 13M74 55l3 12M86 54l6 11" fill="none" strokeWidth={2.4} />
+        {/* The absurd flattened claws it holds out in front, bigger than its
+            head, on arms short enough that they hang off the animal. */}
+        <path d="M42 34 32 29M42 46 32 51" fill="none" strokeWidth={5} />
+        <ellipse cx="24" cy="25" rx="14" ry="9" fill="#f4ecf2" transform="rotate(-20 24 25)" />
+        <ellipse cx="24" cy="56" rx="14" ry="9" fill="#f4ecf2" transform="rotate(20 24 56)" />
       </g>
-      <g fill="#a8497e" opacity=".92">
-        <circle cx="58" cy="38" r="5" /><circle cx="76" cy="40" r="5" />
-        <circle cx="66" cy="52" r="4.4" /><circle cx="88" cy="50" r="4" />
-        <circle cx="20" cy="30" r="4" /><circle cx="20" cy="56" r="4" />
+      <g fill="#a8497e" opacity=".9">
+        <circle cx="56" cy="36" r="5.5" /><circle cx="68" cy="46" r="5" />
+        <circle cx="81" cy="41" r="4.4" /><circle cx="90" cy="53" r="3.6" />
+        <circle cx="18" cy="22" r="3.6" /><circle cx="30" cy="28" r="3" />
+        <circle cx="18" cy="59" r="3.6" /><circle cx="30" cy="53" r="3" />
       </g>
-      {eye(42, 36, 2.8)}
+      {eye(41, 32, 2.8)}
     </>
   ),
 

@@ -116,9 +116,12 @@ clearest reason to attack it now. The matured badge and the release row are
 drawn for either owner and say exactly the same thing on both, with no colour
 or wording that depends on whose card it is.
 
-**Report the state, do not teach the rule.** "Ready", not "Ready — but one
-release per turn, and you have used it". The card reports; the rules live in
-the field guide.
+**A card reports; a panel explains.** On a card, state the state and nothing
+else — "Ready", not "Ready — but one release per turn, and you have used it".
+A rule belongs where it is true of everything on screen: the conservation
+panel carries "you may release one species per turn" and the fact that the
+pile only pays for a *different* taxon, and it carries them permanently rather
+than only when there is nothing else to show.
 
 **Symbiosis links** are all drawn, always. Only those touching the *clicked* card
 are drawn loudly; the rest are faint. The pointer focuses nothing — hovering read
