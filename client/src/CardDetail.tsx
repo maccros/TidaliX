@@ -311,8 +311,14 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
                 </>
               )}
               <dt>Total</dt>
+              {/* The two halves carry the colours they carry on the card face:
+                  ochre for attack, deep blue for health. This row is the same
+                  number the player reads off the bottom of the card, so it has
+                  to be the same colour there too. */}
               <dd className="detail__live">
-                {pair(stats.attack, stats.health)}
+                <span className="stat--attack">{stats.attack}</span>
+                <span className="detail__slash"> / </span>
+                <span className="stat--health">{stats.health}</span>
                 {instance.damage > 0 && <small> of {stats.maxHealth}</small>}
               </dd>
             </dl>
