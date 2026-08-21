@@ -436,16 +436,30 @@ const ART: Record<string, ReactNode> = {
   'giant-triton': (
     <>
       <g {...ink}>
-        <path d="M30 56c-10 4-18 6-26 4 8-4 14-10 18-16" fill="#e8dcc0" />
-        {/* A tall spired shell, whorl by whorl, with the foot out in front. */}
-        <path d="M96 10c8 10 10 26 4 40-6 14-20 24-38 24-14 0-24-8-24-18 0-12 12-18 24-18 8 0 14-4 16-12 2-8 0-14-4-20 8 0 16 1 22 4z"
-              fill="#e0c98f" />
-        <path d="M84 18c4 8 4 18 0 26M70 26c4 8 4 18 0 26M56 40c4 6 4 14 0 20" fill="none" strokeWidth={2.2} />
+        {/* The foot and the siphon, out of the aperture at the wide end. */}
+        <path d="M30 60c-11 5-19 6-25 3 7-3 12-8 15-14" fill="#e8dcc0" />
+        {/*
+          A spired shell, built whorl by whorl instead of freehand: five turns
+          on one diagonal, each smaller than the last, each drawn over the one
+          before so the overlaps read as the steps of a spiral. The old outline
+          was a single curve and came out as a croissant — and the spiral is
+          the only thing this animal is recognised by.
+        */}
+        <g transform="rotate(-32 60 40)">
+          <ellipse cx="38" cy="40" rx="24" ry="20" fill="#e0c98f" />
+          <ellipse cx="59" cy="40" rx="18" ry="15" fill="#eddcae" />
+          <ellipse cx="75" cy="40" rx="13" ry="11" fill="#e0c98f" />
+          <ellipse cx="87" cy="40" rx="9" ry="7.5" fill="#eddcae" />
+          <ellipse cx="96" cy="40" rx="5.5" ry="4.5" fill="#e0c98f" />
+        </g>
+        {/* The aperture: the opening the animal comes out of. */}
+        <ellipse cx="33" cy="57" rx="11" ry="8" transform="rotate(-32 33 57)" fill="#f7efd8" />
       </g>
-      <g fill="#a8763f" opacity=".8">
-        <path d="M90 16c4 6 5 14 3 22M76 24c3 6 3 14 1 20" stroke="#a8763f" strokeWidth={3} fill="none" />
+      {/* Charonia is banded in chestnut across every whorl. */}
+      <g fill="none" stroke="#a8763f" strokeWidth={2.6} strokeLinecap="round" opacity=".85">
+        <path d="M46 36c6 4 9 10 9 16M64 26c5 3 8 8 8 13M79 18c4 2 6 6 6 10" />
       </g>
-      {eye(26, 52, 2.6)}
+      {eye(20, 56, 2.6)}
     </>
   ),
 
