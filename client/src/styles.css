@@ -279,12 +279,6 @@ button { font: inherit; color: inherit; }
  */
 .card--support { opacity: 1; }
 /* The arrival is what happens when you play the card, so it leads the effects. */
-.card__arrival {
-  margin: 0; font-size: 0.63rem; color: var(--b-arrival);
-  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
-  padding: 0.15rem 0.3rem; border-radius: 2px;
-  background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
-}
 .card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 
@@ -315,9 +309,20 @@ button { font: inherit; color: inherit; }
 .card__text { margin: 0; font-size: 0.68rem; color: var(--ink-soft); line-height: 1.35; }
 
 .card__tags { display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: auto; }
-.tag {
+/*
+ * Every pill in the game is one shape.
+ *
+ * There were four of these and they had drifted to four sizes and two font
+ * families: a niche badge on a card face, the same badge inside a symbiosis
+ * line, the reach marker, and the taxon chip in the conservation pile. They
+ * all mean "a small labelled thing", so they are all one geometry now, and
+ * only colour and border tell them apart.
+ */
+.tag, .detail__target, .card__aura-reach, .conserve__taxon {
   font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase;
   padding: 0.1em 0.35em; border-radius: 2px;
+}
+.tag {
   border: 1px solid color-mix(in srgb, var(--b, var(--line)) 55%, transparent);
   color: var(--b, var(--ink-faint));
 }
@@ -343,12 +348,6 @@ button { font: inherit; color: inherit; }
 .tag--niche-reef-builder { --b: var(--b-coral); }
 .tag--niche-bottom-dweller { --b: var(--b-armour); }
 
-.card__arrival {
-  margin: 0; font-size: 0.63rem; color: var(--b-arrival);
-  display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
-  padding: 0.15rem 0.3rem; border-radius: 2px;
-  background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
-}
 .card__arrival-mark { opacity: 0.8; }
 .card__arrival-note { color: var(--ink-faint); font-style: italic; }
 
@@ -380,28 +379,30 @@ button { font: inherit; color: inherit; }
 
 .card__tags { display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: auto; }
 /* The arrival is what happens when you play the card, so it leads the effects. */
+.card__arrival-mark { opacity: 0.8; }
+.card__arrival-note { color: var(--ink-faint); font-style: italic; }
+
+/* Same size as the symbiosis line under it: they are two statements of the
+   same kind and were a sixteenth of a rem apart. (Declared three times
+   identically before this, in three places in the file.) */
 .card__arrival {
-  margin: 0; font-size: 0.63rem; color: var(--b-arrival);
+  margin: 0; font-size: 0.62rem; color: var(--b-arrival);
   display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
   padding: 0.15rem 0.3rem; border-radius: 2px;
   background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
 }
-.card__arrival-mark { opacity: 0.8; }
-.card__arrival-note { color: var(--ink-faint); font-style: italic; }
-
 .card__aura {
   margin: 0; font-size: 0.62rem; color: var(--good);
   display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: baseline;
 }
 .card__aura-arrow { opacity: 0.7; }
+/* A delta is a number: mono here as everywhere else. It was the one sans
+   number in the game. */
+.card__aura b { font-family: var(--mono); }
 .card__aura-note { color: var(--ink-faint); font-style: italic; }
 /* How far an aura reaches, printed on every one of them. Quiet by default,
    because "your reef" is the rule; loud on the single card that breaks it. */
-.card__aura-reach {
-  font-size: 0.55rem; letter-spacing: 0.04em; text-transform: uppercase;
-  color: var(--ink-faint); border: 1px solid currentColor; border-radius: 2px;
-  padding: 0 0.22rem;
-}
+.card__aura-reach { color: var(--ink-faint); border: 1px solid currentColor; }
 .card__aura-reach--cross { color: var(--warn); }
 
 .card__stats {
@@ -420,8 +421,10 @@ button { font: inherit; color: inherit; }
   font-family: var(--mono); font-size: 0.55rem; color: var(--ink-faint);
   font-variant-numeric: tabular-nums; width: 100%; text-align: center;
 }
+/* Filled, no border, no uppercase — a different family from the pills, but on
+   the same size, because 0.55 against 0.56 is not a distinction, it is a slip. */
 .chip {
-  font-family: var(--mono); font-size: 0.55rem; padding: 0.05em 0.3em; border-radius: 2px;
+  font-family: var(--mono); font-size: 0.56rem; padding: 0.1em 0.35em; border-radius: 2px;
 }
 .chip--tide { background: color-mix(in srgb, var(--phase) 22%, transparent); color: var(--ink); }
 .chip--symbiosis { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--ink); }
@@ -552,11 +555,7 @@ button { font: inherit; color: inherit; }
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-wrap: wrap; gap: 3px;
 }
-.conserve__taxon {
-  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.04em; text-transform: uppercase;
-  padding: 0.18em 0.4em; border-radius: 2px;
-  border: 1px dashed var(--line); color: var(--ink-faint);
-}
+.conserve__taxon { border: 1px dashed var(--line); color: var(--ink-faint); }
 .conserve__taxon.is-held {
   border-style: solid; border-color: var(--good); color: var(--surface);
   background: var(--good); font-weight: 700;
@@ -651,19 +650,17 @@ button { font: inherit; color: inherit; }
 .tidetable small.up { color: var(--good); }
 .tidetable small.down { color: var(--warn); }
 
-.detail__auras { margin: 0; padding-left: 1rem; font-size: 0.76rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.detail__auras { margin: 0; padding-left: 1rem; font-size: 0.78rem; display: flex; flex-direction: column; gap: 0.35rem; }
 .detail__auras b { font-family: var(--mono); color: var(--good); }
-.detail__auranote { display: block; flex-basis: 100%; color: var(--ink-faint); font-style: italic; font-size: 0.7rem; }
+.detail__arrival b { font-family: var(--mono); color: var(--b-arrival); }
+/* Both notes are the same kind of sentence, so they are the same size. */
+.detail__auranote, .detail__arrivalnote { color: var(--ink-faint); font-style: italic; font-size: 0.72rem; }
+.detail__auranote { display: block; flex-basis: 100%; }
 /* One line, one grammar, used by both a symbiosis gift and an arrival:
    what it does, who to, then why. */
 .detail__auras li, .detail__arrival { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
-.detail__auras li .tag { font-size: 0.62rem; }
 .detail__to { color: var(--ink-faint); }
-.detail__target {
-  font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.04em;
-  text-transform: uppercase; color: var(--ink-faint);
-  border: 1px solid currentColor; border-radius: 2px; padding: 0 0.24rem;
-}
+.detail__target { color: var(--ink-faint); border: 1px solid currentColor; }
 /* The one aura in the set that reaches the opponent's reef. */
 .detail__target--hostile { color: var(--warn); }
 
@@ -748,9 +745,7 @@ button { font: inherit; color: inherit; }
 /* Layout comes from the shared `.detail__auras li, .detail__arrival` rule
    above — a wrapping row. This block used to re-declare it as a column, which
    won on cascade order and stacked one arrival into four lines. */
-.detail__arrival { margin: 0; font-size: 0.85rem; line-height: 1.5; }
-.detail__arrival b { color: var(--accent); }
-.detail__arrivalnote { color: var(--ink-faint); font-style: italic; font-size: 0.78rem; }
+.detail__arrival { margin: 0; font-size: 0.78rem; line-height: 1.5; }
 .detail__arrivalrule {
   margin: 0.4rem 0 0; font-size: 0.72rem; color: var(--ink-faint); line-height: 1.45;
 }
