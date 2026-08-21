@@ -88,7 +88,7 @@ const GROUPS = [
     phase: null,
     title: 'Armed — animals that punish being attacked',
     blurb:
-      'Every defender in TidaliX strikes back, so these animals are not the ones that punish an attacker — they are the ones that are hard to hurt at all. A printed armour value comes off the top of every hit they take, from attacks and from retaliation alike. All three are also toxic: kill one and whatever ate it dies of the toxin, unless it is one of the few predators printed as toxin-immune.',
+      'Every defender in TidaliX strikes back, so these animals are not the ones that punish an attacker — they are the ones that are hard to hurt at all. A printed armour value comes off the top of every hit they take, from attacks and from retaliation alike. All three are also toxic: kill one and whatever landed the blow dies of the toxin, unless it is one of the few predators printed as toxin-immune.',
     ids: ['blackspotted-puffer', 'red-lionfish', 'crown-of-thorns-starfish'],
   },
   {
@@ -570,7 +570,7 @@ const html = `<title>TidaliX Field Guide</title>
         <ul>
           <li>Some cards are <b>exposed</b> in some phases &mdash; stranded, bleaching, out of their element.</li>
           <li>An exposed card takes <b>+${cfg.exposedBonusDamage} damage</b> from every attack against it, <b>and from retaliation</b>.</li>
-          <li>Destroy a <b>toxic</b> animal by attacking it and your attacker dies too &mdash; eating it is what kills you. Wounding one costs nothing extra, a toxic animal that attacks poisons nobody, and a predator printed <b>toxin-immune</b> eats it and swims away.</li>
+          <li>Kill a <b>toxic</b> animal in combat, from either side of the bite, and whatever landed the blow dies too. Wounding one costs nothing extra, and a predator printed <b>toxin-immune</b> kills it and survives.</li>
           <li>So attacking with a stranded card into anything that can answer is punished twice.</li>
           <li>Exposure is a window, not a state: it opens and closes with the tide.</li>
         </ul>

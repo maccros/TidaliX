@@ -53,9 +53,23 @@ export interface CardDetailProps {
 const TRAIT_TEXT: Record<Keyword, string> = {
   surge: 'May attack the turn it is played, instead of waiting a turn.',
   'reef-guard': 'Enemies must deal with this before they can attack anything behind it, your face included.',
-  toxic: 'Destroy it by attacking and your attacker dies too — eating it is what kills you. Wounding it costs nothing extra.',
+  toxic: 'Kill it in combat, whichever side of the bite you were on, and whatever landed the blow dies too. Wounding it costs nothing extra.',
   'toxin-immune': 'Can destroy a toxic animal and survive it. Immunity is to the venom, not to the wound.',
   pierce: 'Its damage ignores armour completely — the answer to something that has become unkillable behind a shell.',
+};
+
+/**
+ * Same syntax as the card face: the kind name, then the icon and its number.
+ * The full card used to spell the amount out in words instead of a symbol,
+ * which meant the same effect read two different ways depending where you saw
+ * it — the one thing the interface grammar rules out.
+ */
+const ARRIVAL_EFFECT: Record<ArrivalEffect['kind'], (n: number) => string> = {
+  strike: (n) => `♥-${n}`,
+  sweep: (n) => `♥-${n}`,
+  mend: (n) => `♥+${n}`,
+  forage: (n) => `⬡+${n}`,
+  scout: (n) => `+${n} card${n === 1 ? '' : 's'}`,
 };
 
 /** Who it lands on. Four distinct answers, and never a redundant one. */
@@ -229,9 +243,9 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
           <section className="detail__section">
             <h3 className="detail__h">Dash</h3>
             <p className="detail__arrival">
-              <b>
-                {def.arrival.kind} {def.arrival.amount}
-              </b>
+              <span className="detail__arrival-mark">▸</span>
+              <span className="detail__linelabel">{def.arrival.kind}</span>
+              <b>{ARRIVAL_EFFECT[def.arrival.kind](def.arrival.amount)}</b>
               <span className="detail__to">to</span>
               <span
                 className={`detail__target${

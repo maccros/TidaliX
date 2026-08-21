@@ -89,14 +89,18 @@ on its own line beneath.
 
 **Dash, not arrival.** What used to be called an arrival is now a dash — but the
 word "dash" itself only appears in two places: the full card's section heading,
-and the log line's verb ("strikes" is gone; every kind just "dashes"). The card
-face never prints it. Instead the face names the specific kind right after the
-arrow — `strike`, `sweep`, `mend`, `forage`, `scout` — the same five words the
-engine already uses for `arrival.kind`, so the label is never invented prose.
-The full card repeats that kind name in its body, spelled out with its plain
-number (`strike 6`, `mend 1`, `forage 2`) rather than the face's symbol, because
-the full card is complete and the face is a summary. No exception for the
-damage-dealing kinds: mend and forage get the same treatment as strike.
+and the log line's verb ("strikes" is gone; every kind just "dashes"). Neither
+the card face nor the full card's body ever prints "dash": both name the
+specific kind right after the mark — `strike`, `sweep`, `mend`, `forage`,
+`scout` — the same five words the engine already uses for `arrival.kind`, so
+the label is never invented prose. Face and full card use the exact same
+syntax for the line itself — mark, uppercase kind label, icon and number, then
+who it lands on — the full card just adds the heading above it and the note
+below. No exception for the damage-dealing kinds: mend and forage get the same
+treatment as strike. Its tinted background is `--b-dash`, not `--good` — the
+two used to sit close enough (both blue-green) to blend into one colour at 11%
+alpha; `--b-dash` holds a deliberate 50+ deltaE gap from `--good` and from the
+old arrival teal alike, same standard as the badge palette below.
 
 **One pill.** Every small labelled thing — niche badge, keyword, armour, spines,
 reach marker, arrival target, taxon chip — shares one geometry. Colour and border

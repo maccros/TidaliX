@@ -131,8 +131,8 @@ const ARRIVAL_HOSTILE: Record<ArrivalEffect['kind'], boolean> = {
 const TRAIT_TITLE: Record<Keyword, string> = {
   surge: 'may attack the turn it is played',
   'reef-guard': 'enemies must attack this before anything behind it',
-  toxic: 'kills whatever destroys it in combat, unless that animal is immune',
-  'toxin-immune': 'can destroy a toxic animal and survive it',
+  toxic: 'kills whatever finishes it off in combat, unless that animal is immune',
+  'toxin-immune': 'can kill a toxic animal and survive it',
   pierce: 'its damage ignores armour completely',
 };
 

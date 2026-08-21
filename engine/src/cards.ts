@@ -7,6 +7,28 @@
  * crest; corals and clams sit still and pay rent, but bake when the water leaves.
  *
  * Design rule: if a card's tide line contradicts the animal, fix the card.
+ *
+ * Every printed `armour` value was lowered by 1 (loggerhead turtle 1 -> 0, with
+ * its health raised 5 -> 6 to compensate for losing the trait outright), and
+ * toxin was made symmetric (see resolver.ts) in the same pass — the two were
+ * measured together since three armoured cards are also toxic. Self-play, 400
+ * games per difficulty, bot vs bot:
+ *
+ *                                                       before this pass          after
+ *   hits into an armoured creature dealt zero damage    normal 26.5% hard 28.9%  normal 13.4% hard 14.0%
+ *   armoured creatures that died to combat or toxin      normal 19.0% hard 22.4%  normal 36.9% hard 43.7%
+ *   toxin-caused kills, per game                        normal 0.003 hard 0.013  normal 0.485 hard 0.850
+ *
+ * The aggregate share of all combat damage armour cancelled was only 7-9%
+ * before the pass (now 4-5%), so this was never about total damage output —
+ * it was that whichever creature wore armour became close to unkillable by
+ * ordinary attacks, most sharply on the three cards that stack armour with
+ * `toxic` (blackspotted puffer, red lionfish, crown-of-thorns starfish), which
+ * paid for two independent defensive answers on one body. Both numbers moved
+ * together as intended: armour is no longer close to a full block, and toxin
+ * — previously almost inert, ~1 kill per 100-300 games — now settles roughly
+ * one game in two. Re-measure rather than trusting these numbers if the set
+ * changes again.
  */
 
 import type { ArrivalEffect, Aura, CardDefinition, Niche, Taxon, TidePhase } from './types.js';
@@ -194,7 +216,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 7,
     keywords: ['reef-guard', 'toxin-immune'],
     // A shell is armour. It was carrying reef-guard and nothing to back it up.
-    armour: 2,
+    armour: 1,
     tide: {
       high: { health: 2 },
     },
@@ -426,7 +448,7 @@ export const CARDS: readonly CardDefinition[] = [
     health: 8,
     keywords: ['reef-guard'],
     // Two shells that weigh as much as a person, and they close.
-    armour: 2,
+    armour: 1,
     arrival: {
       kind: 'forage',
       amount: 2,
@@ -452,7 +474,7 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 2,
     health: 5,
     keywords: ['toxic'],
-    armour: 3,
+    armour: 2,
     tide: {
       rising: { health: 1 },
     },
@@ -469,7 +491,7 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 4,
     health: 3,
     keywords: ['toxic'],
-    armour: 2,
+    armour: 1,
     arrival: {
       kind: 'strike',
       amount: 1,
@@ -492,7 +514,7 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 6,
     keywords: ['toxic'],
-    armour: 3,
+    armour: 2,
     auras: [
       {
         affects: 'frame-builder',
@@ -765,7 +787,7 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 2,
     health: 6,
     keywords: ['reef-guard', 'toxin-immune'],
-    armour: 2,
+    armour: 1,
     tide: {
       high: { health: 1 },
     },
@@ -914,10 +936,11 @@ export const CARDS: readonly CardDefinition[] = [
     niche: 'open-water',
     cost: 5,
     attack: 5,
-    health: 5,
-    // The turtle that goes through a shell rather than around it.
+    health: 6,
+    // The turtle that goes through a shell rather than around it. It lost its
+    // own shell in the board-wide armour pass — armour 1 rounded down to
+    // nothing rather than to a fraction, so the point went to health instead.
     keywords: ['pierce'],
-    armour: 1,
     tide: {
       high: { attack: 1 },
       falling: { attack: 1 },
@@ -1132,7 +1155,7 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 4,
     attack: 4,
     health: 5,
-    armour: 2,
+    armour: 1,
     tide: {
       low: { attack: 2 },
       high: { attack: -1 },

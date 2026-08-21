@@ -67,6 +67,12 @@
   --b-anemone:      #ae429c;
   --b-spines:       #aa0949;
 
+  /* The dash line's own colour — not the badge palette above, and not `--good`
+     either. Both were teal-and-green neighbours close enough at low alpha that
+     a dash and a symbiosis gift read as the same tinted block on the card
+     face; this sits a clear 50+ deltaE from both. */
+  --b-dash:         #2f5fa8;
+
   --serif: Georgia, 'Iowan Old Style', Palatino, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -106,6 +112,7 @@
     --b-pierce:       #c79bd9;
     --b-anemone:      #f42fd3;
     --b-spines:       #ca7295;
+    --b-dash:         #7fa8e8;
   }
 }
 
@@ -383,10 +390,10 @@ button { font: inherit; color: inherit; }
    same kind and were a sixteenth of a rem apart. (Declared three times
    identically before this, in three places in the file.) */
 .card__arrival {
-  margin: 0; font-size: 0.62rem; color: var(--b-arrival);
+  margin: 0; font-size: 0.62rem; color: var(--b-dash);
   display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;
   padding: 0.15rem 0.3rem; border-radius: 2px;
-  background: color-mix(in srgb, var(--b-arrival) 11%, transparent);
+  background: color-mix(in srgb, var(--b-dash) 11%, transparent);
 }
 /* Tinted like the arrival block beside it: two statements of the same kind,
    so both sit on their own ground rather than one floating in the card body. */
@@ -665,7 +672,14 @@ button { font: inherit; color: inherit; }
   display: flex; flex-direction: column; gap: 0.35rem;
 }
 .detail__auras b { font-family: var(--mono); color: var(--good); }
-.detail__arrival b { font-family: var(--mono); color: var(--b-arrival); }
+.detail__arrival b { font-family: var(--mono); color: var(--b-dash); }
+/* Same label and mark as the card face, so a dash reads identically wherever
+   it is seen — the full card spelling it out is not licence to reword it. */
+.detail__linelabel {
+  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.05em;
+  text-transform: uppercase; opacity: 0.8; color: var(--b-dash);
+}
+.detail__arrival-mark { opacity: 0.8; color: var(--b-dash); }
 /* Both notes are the same kind of sentence in the same place, so they are the
    same size and both break to their own line under the effect they explain. */
 .detail__auranote, .detail__arrivalnote {
@@ -735,7 +749,7 @@ button { font: inherit; color: inherit; }
 .log__line--tide { color: var(--accent); font-weight: 700; }
 .log__line--setup { color: var(--ink-soft); font-style: italic; }
 .log__line--turn {
-  color: var(--accent); font-weight: 700; text-transform: capitalize;
+  color: var(--accent); text-transform: capitalize;
   margin-top: 0.35rem; padding-top: 0.3rem; border-top: 1px solid var(--line-soft);
 }
 .log__line--draw { color: var(--ink-faint); }
@@ -743,9 +757,9 @@ button { font: inherit; color: inherit; }
 .log__line--conserve { color: var(--good); font-weight: 700; }
 .log__line--death { color: var(--warn); }
 .log__line--retaliation { color: var(--warn); }
-.log__line--arrival { color: var(--accent); font-weight: 700; }
-.log__line--toxin { color: var(--warn); font-weight: 700; }
-.log__line--over { color: var(--ink); font-weight: 700; }
+.log__line--arrival { color: var(--accent); }
+.log__line--toxin { color: var(--warn); }
+.log__line--over { color: var(--ink); }
 .log__line--error { color: var(--warn); font-style: italic; }
 
 @media (max-width: 720px) {

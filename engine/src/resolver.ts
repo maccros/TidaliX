@@ -386,9 +386,10 @@ function attack(state: GameState, action: AttackAction): ActionResult {
     // fact about *this* attack, and by the time the board is swept a falling
     // tide or a lost aura could have killed it instead — which is not eating it.
     //
-    // Defensive only. A toxic card that attacks and kills poisons nothing,
-    // because nothing swallowed it. And no amount of healing saves the eater:
-    // the toxin is marked on the instance, not dealt as damage.
+    // Whichever side dies to a bite gets poisoned by it — this is the defender's
+    // half, the attacker's half is symmetric below, after retaliation. No amount
+    // of healing saves the eater either way: the toxin is marked on the
+    // instance, not dealt as damage.
     if (
       isToxic(draftTarget.definitionId) &&
       !isToxinImmune(draftAttacker.definitionId) &&
@@ -412,7 +413,7 @@ function attack(state: GameState, action: AttackAction): ActionResult {
     // them, universal retaliation left the reef's walls answering with nothing.
     const returned = (draft.config.defenderStrikesBack ? targetStats.attack : 0) + targetStats.spines;
     if (returned > 0) {
-      strike(
+      const dealtBack = strike(
         draft,
         draftAttacker,
         returned + bonusToAttacker,
@@ -422,6 +423,22 @@ function attack(state: GameState, action: AttackAction): ActionResult {
         events,
         draftTarget,
       );
+
+      // Symmetric with the eating case above: a toxic attacker that dies to
+      // retaliation poisons whatever finished it off. Biting something toxic
+      // kills you whichever side of the bite you were on.
+      if (
+        isToxic(draftAttacker.definitionId) &&
+        !isToxinImmune(draftTarget.definitionId) &&
+        attackerStats.health - dealtBack <= 0
+      ) {
+        draftTarget.poisoned = true;
+        events.push({
+          type: 'SPECIES_POISONED',
+          sourceId: draftAttacker.instanceId,
+          victimId: draftTarget.instanceId,
+        });
+      }
     }
   }
 

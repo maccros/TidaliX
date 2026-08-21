@@ -124,7 +124,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [inspecting, setInspecting] = useState<string | null>(null);
   const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [
     openingLine(seed, DEFAULT_DIFFICULTY, opening.state.activePlayer),
-    ...opening.events
+    ...orderForLog(opening.events)
       .map((e) => describe(e, opening.state))
       .filter((l): l is { text: string; kind: string } => l !== null),
   ]);
@@ -141,7 +141,9 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   }, []);
 
   const pushEvents = useCallback((events: GameEvent[], s: GameState) => {
-    const lines = events.map((e) => describe(e, s)).filter((l): l is { text: string; kind: string } => l !== null);
+    const lines = orderForLog(events)
+      .map((e) => describe(e, s))
+      .filter((l): l is { text: string; kind: string } => l !== null);
     // Kept long, because the log is now a record to review a game from rather
     // than a ticker of the last few blows.
     if (lines.length) setLog((prev) => [...prev.slice(-400), ...lines]);
@@ -158,7 +160,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
       setInspecting(null);
       setLog([
         openingLine(nextSeed, difficulty, fresh.state.activePlayer),
-        ...fresh.events
+        ...orderForLog(fresh.events)
           .map((e) => describe(e, fresh.state))
           .filter((l): l is { text: string; kind: string } => l !== null),
       ]);
@@ -930,6 +932,38 @@ function formatBonus(exposedBonus: number, absorbed: number): string {
 }
 
 /**
+ * Moves a SPECIES_POISONED event to just after the toxic creature's own
+ * CARD_DESTROYED, so the log reads in the order the rule actually happens in:
+ * the toxic animal dies first, and the poison is a consequence of that, not
+ * the other way round. The resolver marks the poison the moment the killing
+ * blow lands — before either death is swept — so without this the log said
+ * the poisoned side died before the toxic animal it died from.
+ */
+function orderForLog(events: GameEvent[]): GameEvent[] {
+  const ordered: GameEvent[] = [];
+  const pending = new Map<string, Extract<GameEvent, { type: 'SPECIES_POISONED' }>>();
+
+  for (const event of events) {
+    if (event.type === 'SPECIES_POISONED') {
+      pending.set(event.sourceId, event);
+      continue;
+    }
+    ordered.push(event);
+    if (event.type === 'CARD_DESTROYED') {
+      const poisoning = pending.get(event.instanceId);
+      if (poisoning) {
+        ordered.push(poisoning);
+        pending.delete(event.instanceId);
+      }
+    }
+  }
+  // Anything left never saw its toxic source destroyed in this batch — keep it
+  // rather than drop a poisoning silently.
+  ordered.push(...pending.values());
+  return ordered;
+}
+
+/**
  * One line per thing that happened, and no line for a thing already said.
  *
  * The log is read to follow a game, not to be taught the rules, so every entry
@@ -944,6 +978,8 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
   const them = (p: PlayerId) => (p === YOU ? 'you' : 'the AI');
   /** "You have" but "The AI has" — the subject changes the verb. */
   const has = (p: PlayerId) => (p === YOU ? 'have' : 'has');
+  /** "You open" but "The AI opens" — the log is present tense throughout. */
+  const act = (p: PlayerId, base: string) => (p === YOU ? base : `${base}s`);
 
   switch (event.type) {
     case 'TURN_STARTED':
@@ -955,23 +991,23 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
     case 'TURN_SKIPPED_DRAW':
       // "No card" was ambiguous — it reads as having no cards at all. The thing
       // that did not happen is the draw, so the line says exactly that.
-      return { text: `${who(event.player)} opened: no draw this turn`, kind: 'setup' };
+      return { text: `${who(event.player)} ${act(event.player, 'open')}: no draw this turn`, kind: 'setup' };
 
     // Only the second-turn payment is worth a line; the rest of the income is
     // itemised in the energy panel and would bury the log four deep every turn.
     case 'ENERGY_GAINED':
       return event.source === 'compensation'
-        ? { text: `${who(event.player)} took the second turn: ⬡+${event.amount}`, kind: 'setup' }
+        ? { text: `${who(event.player)} ${act(event.player, 'take')} the second turn: ⬡+${event.amount}`, kind: 'setup' }
         : null;
 
     case 'CARD_DRAWN':
       return event.player === YOU
-        ? { text: `You drew ${nameOf(state, event.instanceId)}`, kind: 'draw' }
-        : { text: 'The AI drew a card', kind: 'draw' };
+        ? { text: `You draw ${nameOf(state, event.instanceId)}`, kind: 'draw' }
+        : { text: 'The AI draws a card', kind: 'draw' };
 
     case 'HAND_OVERFLOW':
       return {
-        text: `${who(event.player)} discarded ${nameOf(state, event.instanceId)}: hand full`,
+        text: `${who(event.player)} ${act(event.player, 'discard')} ${nameOf(state, event.instanceId)}: hand full`,
         kind: 'draw',
       };
 
@@ -983,7 +1019,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
 
     case 'CARD_PLAYED':
       return {
-        text: `${who(event.player)} played ${getCard(event.definitionId).name}`,
+        text: `${who(event.player)} ${act(event.player, 'play')} ${getCard(event.definitionId).name}`,
         kind: 'play',
       };
 
@@ -1022,23 +1058,22 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
       return null;
 
     // The single line for a toxin kill. The CARD_DESTROYED that follows it is
-    // suppressed, or the same death is announced twice.
+    // suppressed, or the same death is announced twice. Said as its own
+    // death, not as an "eats" — the kill that triggered it already has its
+    // own line above, whichever side of the bite it landed on.
     case 'SPECIES_POISONED':
-      return {
-        text: `${nameOf(state, event.victimId)} ate ${nameOf(state, event.sourceId)}: killed by the toxin`,
-        kind: 'toxin',
-      };
+      return { text: `${nameOf(state, event.victimId)} dies of the toxin`, kind: 'toxin' };
 
     case 'CARD_DESTROYED':
       if (event.cause === 'toxin') return null;
-      return { text: `${getCard(event.definitionId).name} destroyed`, kind: 'death' };
+      return { text: `${getCard(event.definitionId).name} dies`, kind: 'death' };
 
     case 'TIDE_CHANGED':
       return { text: `The tide turns: ${event.from} → ${event.to}`, kind: 'tide' };
 
     case 'SPECIES_RELEASED':
       return {
-        text: `${who(event.player)} released ${getCard(event.definitionId).name}: ${event.conserved} ${event.conserved === 1 ? 'taxon' : 'taxa'} protected`,
+        text: `${who(event.player)} ${act(event.player, 'release')} ${getCard(event.definitionId).name}: ${event.conserved} ${event.conserved === 1 ? 'taxon' : 'taxa'} protected`,
         kind: 'conserve',
       };
 

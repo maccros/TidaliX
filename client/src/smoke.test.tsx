@@ -369,7 +369,7 @@ describe('client', () => {
     expect(lines().some((l) => l.startsWith('— Turn 1'))).toBe(true);
     // Seed 7 opens with the player, and the opener forgoes their first draw —
     // so the log must say that rather than silently showing no draw at all.
-    expect(lines().some((l) => l.includes('opened: no draw this turn'))).toBe(true);
+    expect(lines().some((l) => l.includes('no draw this turn'))).toBe(true);
 
     // Play whatever is affordable, and check something got recorded for it.
     const before = lines().length;
@@ -377,12 +377,12 @@ describe('client', () => {
     if (playable) {
       act(() => playable.click());
       expect(lines().length).toBeGreaterThan(before);
-      expect(lines().some((l) => l.includes('You played'))).toBe(true);
+      expect(lines().some((l) => l.includes('You play'))).toBe(true);
     }
 
     // Nothing in the log may name a card in the opponent's hand.
-    const aiDraws = lines().filter((l) => l.includes('The AI drew'));
-    for (const line of aiDraws) expect(line).toBe('The AI drew a card');
+    const aiDraws = lines().filter((l) => l.includes('The AI draws'));
+    for (const line of aiDraws) expect(line).toBe('The AI draws a card');
   });
 
   it('gives every species one niche, and every niche a colour', async () => {
@@ -667,7 +667,7 @@ describe('card detail', () => {
     act(() => {
       root.render(<CardView instance={puffer} stats={stats} phase="low" state="idle" />);
     });
-    expect(container.textContent).toContain('armour 3');
+    expect(container.textContent).toContain('armour 2');
     expect(container.textContent).toContain('Arothron nigropunctatus');
   });
 });

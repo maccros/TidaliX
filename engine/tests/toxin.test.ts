@@ -2,9 +2,10 @@
  * Poison: eating something toxic kills the eater.
  *
  * The rule is deliberately narrow, and most of these cases exist to pin down the
- * edges of that narrowness. A toxin is *defensive* — it punishes the animal that
- * swallowed it and nothing else — it fires only on a kill, it cannot be healed
- * off, and there are animals that eat toxic prey for a living and are unbothered.
+ * edges of that narrowness. It is symmetric — whichever side of the bite dies
+ * gets poisoned, attacker or defender — but only on a kill made in combat, it
+ * cannot be healed off, and there are animals that eat toxic prey for a living
+ * and are unbothered.
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -138,8 +139,8 @@ describe('eating something toxic', () => {
     // lionfish's counter-blow like anything else would, and simply does not
     // care about the venom.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
-    s = place(s, 0, ['green-sea-turtle']); // 3 attack, 9 health at high, toxin-immune
-    s = place(s, 1, ['red-lionfish']); // 4 attack, 3 health, armour 2
+    s = place(s, 0, ['green-sea-turtle']); // 3 attack, 9 health at high, toxin-immune, armour 1
+    s = place(s, 1, ['red-lionfish']); // 4 attack, 3 health, armour 1
 
     const marked = structuredClone(s);
     marked.players[1].board[0]!.damage = 2; // 1 health left, so the turtle can finish it
@@ -157,14 +158,15 @@ describe('eating something toxic', () => {
     expect(after.players[1].board).toHaveLength(0);
     // Alive, and marked only by the retaliation — immunity is to the venom, not
     // to the animal fighting back. The lionfish returns 4, of which the turtle's
-    // shell eats 2.
+    // shell eats 1.
     expect(after.players[0].board).toHaveLength(1);
-    expect(after.players[0].board[0]?.damage).toBe(2);
+    expect(after.players[0].board[0]?.damage).toBe(3);
     expect(after.players[0].board[0]?.poisoned).toBe(false);
   });
 
-  it('does not fire when the toxic card is the attacker', () => {
-    // A toxin is defensive. A lionfish that kills something has not been eaten.
+  it('does not fire when the toxic attacker survives the counter-blow', () => {
+    // Killing something is not the same as being eaten. The lionfish is still
+    // toxic, but nothing died from biting it, so nothing is poisoned.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'falling' } });
     s = place(s, 0, ['red-lionfish']); // 5 attack at falling tide
     s = place(s, 1, ['moorish-idol']); // 2 health
@@ -176,13 +178,45 @@ describe('eating something toxic', () => {
     expect(after.players[1].board).toHaveLength(0);
   });
 
-  it('does not fire when the toxic card dies to something other than being eaten', () => {
-    // The starfish attacks a trevally and dies to the counter-blow. It was
-    // killed, but it was not *eaten* — the trevally never attacked it — so
-    // nothing is poisoned. Being toxic is not the same as being a bomb.
+  it('fires the other way too — a toxic attacker that dies to the counter-blow poisons the defender', () => {
+    // The starfish attacks a trevally and dies to the counter-blow. That is
+    // still a kill made by biting it, just from the other side of the trade,
+    // so the trevally is poisoned and goes down with it in the same sweep.
     let s = bareGame();
-    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, 6 health, armour 3
+    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, 6 health, armour 2
     s = place(s, 1, ['giant-trevally']); // 5 attack, 4 health
+
+    const marked = structuredClone(s);
+    marked.players[0].board[0]!.damage = 3; // 3 health left; the counter-blow finishes it
+
+    const attackerId = find(marked, 0, 'crown-of-thorns-starfish').instanceId;
+    const targetId = find(marked, 1, 'giant-trevally').instanceId;
+
+    const { state: after, events } = expectOk(
+      applyAction(marked, {
+        type: 'ATTACK',
+        player: 0,
+        attackerId,
+        targetId,
+      }),
+    );
+
+    expect(events).toContainEqual({
+      type: 'SPECIES_POISONED',
+      sourceId: attackerId,
+      victimId: targetId,
+    });
+    expect(destroyedIn(events)).toContainEqual({ id: 'crown-of-thorns-starfish', cause: 'damage' });
+    expect(destroyedIn(events)).toContainEqual({ id: 'giant-trevally', cause: 'toxin' });
+    expect(after.players[0].board).toHaveLength(0);
+    expect(after.players[1].board).toHaveLength(0);
+  });
+
+  it('spares a predator that survives eating a toxic attacker, same as it would on defence', () => {
+    // Immunity does not care which side of the bite it is on.
+    let s = bareGame();
+    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, 6 health, armour 2
+    s = place(s, 1, ['coral-grouper']); // 4 attack, 4 health, toxin-immune
 
     const marked = structuredClone(s);
     marked.players[0].board[0]!.damage = 3; // 3 health left; the counter-blow finishes it
@@ -192,7 +226,7 @@ describe('eating something toxic', () => {
         type: 'ATTACK',
         player: 0,
         attackerId: find(marked, 0, 'crown-of-thorns-starfish').instanceId,
-        targetId: find(marked, 1, 'giant-trevally').instanceId,
+        targetId: find(marked, 1, 'coral-grouper').instanceId,
       }),
     );
 
