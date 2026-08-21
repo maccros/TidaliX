@@ -34,11 +34,13 @@ export interface SymbiosisLinksProps {
   /** Card element lookup, keyed by instance id. */
   nodes: Map<string, HTMLElement>;
   /**
-   * The card the player is looking at. Links are drawn *only* for this card.
+   * The card the player has clicked, or null.
    *
-   * Everything used to be drawn at once, which turned a six-card board into a
-   * cat's cradle nobody could read. A relationship is worth seeing when you are
-   * asking about one animal, not as permanent furniture.
+   * Every link on the board is always drawn; this decides which ones are drawn
+   * *loudly*. Anything touching the clicked card is at full strength, everything
+   * else is faint. So the wiring is always there to be read — a link you cannot
+   * see is a rule you cannot learn — but asking about one animal answers with
+   * that animal's relationships rather than with the whole cat's cradle.
    */
   focusId: string | null;
   /** Bumped by the caller whenever layout may have changed. */
@@ -60,12 +62,6 @@ export function SymbiosisLinks({
       return;
     }
 
-    // Nothing focused, nothing drawn. The board stays legible by default.
-    if (!focusId) {
-      setLinks([]);
-      return;
-    }
-
     const measure = () => {
       const origin = container.getBoundingClientRect();
       const next: Link[] = [];
@@ -79,7 +75,9 @@ export function SymbiosisLinks({
           const a = from.getBoundingClientRect();
           const b = to.getBoundingClientRect();
           const harmful = (link.aura.grants.attack ?? 0) + (link.aura.grants.health ?? 0) < 0;
-          if (link.sourceId !== focusId && link.targetId !== focusId) continue;
+          // Faint unless it touches the clicked card. With nothing clicked,
+          // that is every link on the board — present, but quiet.
+          const dimmed = link.sourceId !== focusId && link.targetId !== focusId;
 
           next.push({
             key: `${link.sourceId}->${link.targetId}-${link.aura.affects}`,
@@ -89,7 +87,7 @@ export function SymbiosisLinks({
             y2: b.top + b.height / 2 - origin.top,
             aura: link.aura,
             harmful,
-            dimmed: false,
+            dimmed,
           });
         }
       }

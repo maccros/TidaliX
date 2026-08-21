@@ -122,7 +122,6 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
    * commit, and what to answer with it.
    */
   const [aiming, setAiming] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
   const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [
     openingLine(seed, DEFAULT_DIFFICULTY, opening.state.activePlayer),
@@ -265,25 +264,31 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     );
   }, [actions, selected]);
 
-  /** Cards symbiotically linked to whatever is hovered, for highlighting. */
+  /**
+   * Cards symbiotically linked to the *selected* card, for highlighting.
+   *
+   * Driven by the click, not the pointer. Hovering lit relationships up as the
+   * mouse crossed the board, which read as the whole reef being permanently
+   * highlighted rather than as an answer to a question the player asked.
+   */
   const linked = useMemo(() => {
-    if (!hovered) return new Set<string>();
+    if (!selected) return new Set<string>();
     const out = new Set<string>();
     for (const player of [YOU, BOT] as const) {
       const board = state.players[player].board;
-      if (!board.some((c) => c.instanceId === hovered)) continue;
-      const hoveredCard = board.find((c) => c.instanceId === hovered)!;
-      const hoveredDef = getCard(hoveredCard.definitionId);
+      if (!board.some((c) => c.instanceId === selected)) continue;
+      const pickedCard = board.find((c) => c.instanceId === selected)!;
+      const pickedDef = getCard(pickedCard.definitionId);
       for (const other of board) {
-        if (other.instanceId === hovered) continue;
+        if (other.instanceId === selected) continue;
         const otherDef = getCard(other.definitionId);
-        const givesToOther = hoveredDef.auras?.some((a) => a.affects === otherDef.niche);
-        const getsFromOther = otherDef.auras?.some((a) => a.affects === hoveredDef.niche);
+        const givesToOther = pickedDef.auras?.some((a) => a.affects === otherDef.niche);
+        const getsFromOther = otherDef.auras?.some((a) => a.affects === pickedDef.niche);
         if (givesToOther || getsFromOther) out.add(other.instanceId);
       }
     }
     return out;
-  }, [hovered, state]);
+  }, [selected, state]);
 
   const you = state.players[YOU];
   const bot = state.players[BOT];
@@ -389,7 +394,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
           boards={[bot.board, you.board]}
           container={boardEl}
           nodes={nodes.current}
-          focusId={hovered ?? selected}
+          focusId={selected}
           revision={revision}
         />
 
@@ -416,7 +421,6 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             cardState={boardState}
             onClick={clickBoardCard}
             onInspect={setInspecting}
-            onHover={setHovered}
             linked={linked}
             releasable={EMPTY_SET}
             registerRef={registerRef}
@@ -433,7 +437,6 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             cardState={boardState}
             onClick={clickBoardCard}
             onInspect={setInspecting}
-            onHover={setHovered}
             linked={linked}
             releasable={releasable}
             registerRef={registerRef}
@@ -472,7 +475,6 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
               phase={state.phase}
               state={handState(card.instanceId, def.cost)}
               inHand
-              onHover={setHovered}
               onInspect={() => setInspecting(card.instanceId)}
               onClick={() => clickHandCard(card.instanceId)}
             />
@@ -638,7 +640,6 @@ function Row({
   cardState,
   onClick,
   onInspect,
-  onHover,
   linked,
   releasable,
   registerRef,
@@ -649,7 +650,6 @@ function Row({
   cardState: (id: string, mine: boolean) => CardState;
   onClick: (id: string, mine: boolean) => void;
   onInspect: (id: string) => void;
-  onHover: (id: string | null) => void;
   linked: Set<string>;
   releasable: ReadonlySet<string>;
   registerRef: (id: string, el: HTMLElement | null) => void;
@@ -671,7 +671,6 @@ function Row({
           dying={diesAtNextPhase(state, card)}
           onClick={() => onClick(card.instanceId, mine)}
           onInspect={() => onInspect(card.instanceId)}
-          onHover={onHover}
           registerRef={registerRef}
         />
       ))}

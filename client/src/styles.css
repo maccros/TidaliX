@@ -216,8 +216,11 @@ button { font: inherit; color: inherit; }
 }
 .symbiosis__link--harmful { stroke: var(--warn); }
 /* Dimmed, not erased. A link you cannot see is a rule the player cannot learn,
-   so focusing one relationship must not hide the rest of the reef's wiring. */
-.symbiosis__link--dim { opacity: 0.34; animation: none; }
+   so the reef's whole wiring is always on screen. But every link is drawn at
+   once now, not just the focused card's, so this has to sit low enough that a
+   full board still reads as a board: present at a glance, legible only if you
+   go looking, and never competing with the one relationship you clicked. */
+.symbiosis__link--dim { opacity: 0.15; stroke-width: 1.6; stroke-dasharray: none; animation: none; }
 @keyframes drift { to { stroke-dashoffset: -18; } }
 @media (prefers-reduced-motion: reduce) {
   .symbiosis__link { animation: none; }
@@ -646,7 +649,18 @@ button { font: inherit; color: inherit; }
 
 .detail__auras { margin: 0; padding-left: 1rem; font-size: 0.76rem; display: flex; flex-direction: column; gap: 0.25rem; }
 .detail__auras b { font-family: var(--mono); color: var(--good); }
-.detail__auranote { display: block; color: var(--ink-faint); font-style: italic; font-size: 0.7rem; }
+.detail__auranote { display: block; flex-basis: 100%; color: var(--ink-faint); font-style: italic; font-size: 0.7rem; }
+/* One line per gift: what it gives, who to, how far it reaches, then why. */
+.detail__auras li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+.detail__auras li .tag { font-size: 0.62rem; }
+.detail__aurato { color: var(--ink-faint); }
+.detail__reach {
+  font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-faint);
+  border: 1px solid currentColor; border-radius: 2px; padding: 0 0.24rem;
+}
+/* The one aura in the set that reaches the opponent's reef. */
+.detail__reach--cross { color: var(--warn); }
 
 .detail__grid {
   margin: 0; display: grid; grid-template-columns: auto 1fr;

@@ -453,6 +453,39 @@ describe('client', () => {
     expect(container.textContent).not.toContain('Right now');
   });
 
+  it('states every symbiosis gift in one shape, with the niche wearing its badge', async () => {
+    const { createInstance, getCard } = await import('@tidalix/engine');
+    const { CardDetail } = await import('./CardDetail.tsx');
+
+    for (const id of ['coral-grouper', 'crown-of-thorns-starfish']) {
+      const def = getCard(id);
+      act(() => {
+        root.render(
+          <CardDetail
+            instance={createInstance(id, 0)}
+            phase="high"
+            stats={null}
+            zone="hand"
+            onClose={() => {}}
+          />,
+        );
+      });
+
+      expect(container.textContent).toContain('Symbiosis gift');
+      const row = container.querySelector('.detail__auras li')!;
+      // The niche is the same badge here as it is in the traits list above, so
+      // a gift points at something the player can recognise on another card.
+      const badge = row.querySelector(`.tag--niche-${def.auras![0]!.affects}`);
+      expect(badge, `${def.name} badges its target niche`).toBeTruthy();
+      // Both halves of the delta are signed, zero included.
+      expect(row.querySelector('b')?.textContent).toMatch(/^[+-]\d+\/[+-]\d+$/);
+      // And every line says how far it reaches, not only the one that crosses.
+      expect(row.querySelector('.detail__reach')?.textContent).toBe(
+        def.auras![0]!.crossesWaterline ? 'both reefs' : 'your reef',
+      );
+    }
+  });
+
   it('prints each keyword exactly once on a card', async () => {
     // `toxic` and `toxin-immune` were rendering twice: once from the generic
     // pass over def.keywords and again from a hand-written tag beside it. Any
@@ -528,8 +561,10 @@ describe('card detail', () => {
     expect(text).toContain('Clown Anemonefish');
     expect(text).toContain('Amphiprion ocellaris');
     expect(text).toContain('base 1/3');
-    expect(text).toContain('tide 0/+1');
-    expect(text).toContain('symbiosis 0/+2');
+    // Both halves of a delta carry a sign, zero included — the same rule the
+    // live-stats column follows, so a chip and a row read alike.
+    expect(text).toContain('tide +0/+1');
+    expect(text).toContain('symbiosis +0/+2');
     // Its own niche, and its aura pointed back at the host.
     expect(text).toContain('reef-dweller');
     expect(text).toContain('reef-builder');

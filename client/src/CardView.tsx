@@ -22,6 +22,7 @@ import {
   type TidePhase,
 } from '@tidalix/engine';
 
+import { deltaLabel } from './format.ts';
 import { SpeciesArt } from './SpeciesArt.tsx';
 
 
@@ -47,7 +48,7 @@ export interface CardViewProps {
   stats: EffectiveStats;
   phase: TidePhase;
   state: CardState;
-  /** Highlighted because it is symbiotically linked to the hovered card. */
+  /** Highlighted because it is symbiotically linked to the selected card. */
   linked?: boolean;
   /**
    * Sitting in hand rather than on the reef.
@@ -69,7 +70,6 @@ export interface CardViewProps {
   onClick?: () => void;
   /** Open the full card. Bound to right-click and long-press, never to a tap. */
   onInspect?: () => void;
-  onHover?: (instanceId: string | null) => void;
   registerRef?: (instanceId: string, el: HTMLElement | null) => void;
 }
 
@@ -118,15 +118,6 @@ const TRAIT_TITLE: Record<Keyword, string> = {
   pierce: 'its damage ignores armour completely',
 };
 
-const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`);
-
-/** Attack and health deltas as one compact "+1/+2" string, or null if flat. */
-function deltaLabel(bonus: { attack?: number; health?: number }): string | null {
-  const a = bonus.attack ?? 0;
-  const h = bonus.health ?? 0;
-  if (a === 0 && h === 0) return null;
-  return `${sign(a)}/${sign(h)}`;
-}
 
 export function CardView({
   instance,
@@ -140,7 +131,6 @@ export function CardView({
   dying = false,
   onClick,
   onInspect,
-  onHover,
   registerRef,
 }: CardViewProps) {
   const def: CardDefinition = getCard(instance.definitionId);
@@ -219,10 +209,6 @@ export function CardView({
       onPointerCancel={cancelPress}
       onPointerLeave={cancelPress}
       aria-disabled={inert}
-      onMouseEnter={() => onHover?.(instance.instanceId)}
-      onMouseLeave={() => onHover?.(null)}
-      onFocus={() => onHover?.(instance.instanceId)}
-      onBlur={() => onHover?.(null)}
       ref={(el) => registerRef?.(instance.instanceId, el)}
       aria-label={[
         def.name,
@@ -289,8 +275,11 @@ export function CardView({
 
       {def.auras?.map((aura, i) => (
         <p key={i} className="card__aura">
-          <span className="card__aura-arrow">{aura.crossesWaterline ? '↔' : '→'}</span>{' '}
-          {aura.affects} <b>{deltaLabel(aura.grants)}</b>
+          <span className="card__aura-arrow">{aura.crossesWaterline ? '↔' : '→'}</span>
+          {/* The niche wears its badge here too, so a symbiosis line and the
+              niche tag above it are visibly the same thing. */}
+          <span className={`tag tag--niche tag--niche-${aura.affects}`}>{aura.affects}</span>
+          <b>{deltaLabel(aura.grants)}</b>
           {/* One card in the set reaches the other reef. Saying so on the face
               matters more than the space it costs: every other aura is
               friendly-only, so the arrow alone would read as a typo. */}
