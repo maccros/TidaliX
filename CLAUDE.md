@@ -157,9 +157,15 @@ points — every other line is plain weight. A death caused by toxin is worded a
 its own death ("dies of the toxin"), not as one side "eating" the other, and it
 is ordered *after* the line for whichever creature actually died from the bite
 — cause before consequence, even though the resolver marks the poison and
-sweeps both deaths in the same action. `client/src/App.tsx`'s `orderForLog` is
-what enforces that ordering; `describe()` is what turns one `GameEvent` into
-one line, and returns `null` for an event some other line already said.
+sweeps both deaths in the same action. A dash line is likewise ordered
+*before* whatever it caused that gets its own line — a scout's `CARD_DRAWN`,
+a mend's `CARD_HEALED` — even though the resolver runs the effect first and
+reports the dash after. Strike, sweep and forage never need this: their
+events (`DAMAGE_DEALT` with `cause: 'arrival'`, and a card-sourced
+`ENERGY_GAINED`) are suppressed outright rather than given their own line.
+`client/src/App.tsx`'s `orderForLog` is what enforces all of this; it runs on
+the raw event order before `describe()` turns one `GameEvent` into one line,
+which returns `null` for an event some other line already said.
 "Dash" is a full-card word only: a dash line in the log names the concrete
 kind instead — `strikes`, `sweeps`, `mends`, `forages`, `scouts` — same as the
 card face.

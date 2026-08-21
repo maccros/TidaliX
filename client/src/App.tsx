@@ -943,13 +943,33 @@ function formatBonus(exposedBonus: number, absorbed: number): string {
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
 
+/** What a dash's own resolved effect is reported through, per kind, when it is
+ * something the resolver pushes as its own event rather than suppressing —
+ * strike/sweep's DAMAGE_DEALT and forage's ENERGY_GAINED are both suppressed
+ * already, so only these two ever need reordering. */
+const ARRIVAL_CAUSES: Partial<Record<ArrivalEffect['kind'], GameEvent['type']>> = {
+  scout: 'CARD_DRAWN',
+  mend: 'CARD_HEALED',
+};
+
 /**
- * Moves a SPECIES_POISONED event to just after the toxic creature's own
+ * Reorders two cases where the resolver's own event order reads backwards.
+ *
+ * A SPECIES_POISONED event moves to just after the toxic creature's own
  * CARD_DESTROYED, so the log reads in the order the rule actually happens in:
  * the toxic animal dies first, and the poison is a consequence of that, not
  * the other way round. The resolver marks the poison the moment the killing
  * blow lands — before either death is swept — so without this the log said
  * the poisoned side died before the toxic animal it died from.
+ *
+ * A scout's CARD_DRAWN events, or a mend's CARD_HEALED events, move to just
+ * after their own ARRIVAL_RESOLVED, so the dash that caused them is named
+ * before what it did — the resolver runs the effect first and reports the
+ * dash after, which is backwards for a line meant to read as cause then
+ * effect. Scout draws exactly `amount` cards, so the count caps how many
+ * trailing CARD_DRAWN events belong to it; mend heals however many allies
+ * were damaged, which `amount` does not count, so every contiguous
+ * CARD_HEALED right before it is taken.
  */
 function orderForLog(events: GameEvent[]): GameEvent[] {
   const ordered: GameEvent[] = [];
@@ -960,6 +980,20 @@ function orderForLog(events: GameEvent[]): GameEvent[] {
       pending.set(event.sourceId, event);
       continue;
     }
+
+    if (event.type === 'ARRIVAL_RESOLVED') {
+      const causedType = ARRIVAL_CAUSES[event.kind];
+      if (causedType) {
+        const cap = event.kind === 'scout' ? event.amount : Infinity;
+        const caused: GameEvent[] = [];
+        while (caused.length < cap && ordered[ordered.length - 1]?.type === causedType) {
+          caused.unshift(ordered.pop()!);
+        }
+        ordered.push(event, ...caused);
+        continue;
+      }
+    }
+
     ordered.push(event);
     if (event.type === 'CARD_DESTROYED') {
       const poisoning = pending.get(event.instanceId);
