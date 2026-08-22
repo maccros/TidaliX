@@ -214,9 +214,21 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 5,
+    // Gained an aura on the symbiosis review: mantas are well documented
+    // returning to the same reef cleaning stations again and again, where
+    // cleaner fish pick parasites and dead skin off them — a reliable food
+    // source for the cleaner, the mirror image of the cleaner wrasse's own
+    // aura from the other side of the same real relationship.
+    cost: 6,
     attack: 4,
     health: 6,
+    auras: [
+      {
+        affects: 'reef-dweller',
+        grants: { health: 1 },
+        note: 'circles the same cleaning station every visit, and the cleaners never go hungry',
+      },
+    ],
     arrival: {
       kind: 'forage',
       amount: 2,
@@ -235,9 +247,21 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 3,
+    // Gained an aura on the symbiosis review: a peer-reviewed study of
+    // nocturnal shark foraging documented whitetips flushing hidden prey
+    // out of reef crevices that grey reef sharks then capture — the real
+    // mechanism behind what used to be credited to the grey reef shark's
+    // own "pack" story (see its note). Its own text already says it.
+    cost: 4,
     attack: 3,
     health: 3,
+    auras: [
+      {
+        affects: 'open-water',
+        grants: { attack: 1 },
+        note: "pours through the reef by night, and whatever bolts loose is already someone else's",
+      },
+    ],
     tide: {
       high: { attack: 1 },
       low: { health: 1 },
@@ -1033,14 +1057,24 @@ export const CARDS: readonly CardDefinition[] = [
     // physical trauma, not toxin — and hammerhead sharks are well documented
     // eating eagle rays unharmed, barbs found embedded harmlessly in their
     // jaws. Kept spines, which still says the barb is real and used.
-    cost: 5,
-    attack: 3,
-    health: 5,
     // Pierce: its own text was already saying it — a snout built to shovel
     // shellfish out of the sand and crush them in flattened plates, the same
-    // durophagous case as the loggerhead's jaws.
+    // durophagous case as the loggerhead's jaws. Gained an aura on the
+    // symbiosis review: a real, documented "nuclear-follower" foraging
+    // pattern — a ray disturbing sediment while it feeds exposes prey that
+    // other bottom-dwelling fish are observed following the plume to take.
+    cost: 6,
+    attack: 3,
+    health: 5,
     keywords: ['pierce'],
     spines: 2,
+    auras: [
+      {
+        affects: 'bottom-crawler',
+        grants: { attack: 1 },
+        note: 'the sand plume from every dig gives up more than the ray ever finishes eating',
+      },
+    ],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -1140,13 +1174,20 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 4,
     keywords: ['surge'],
-    // The only aura in the set that grants attack to the big animals: this is
-    // the shark that hunts in numbers and makes the others braver.
+    // The only aura in the set that grants attack to the big animals. Note
+    // rewritten on the symbiosis review: the old "the pack comes in behind
+    // it" implied coordinated teamwork, but research into actual predation
+    // events found competition between sharks, not cooperation — the real
+    // mechanism behind that story turned out to belong to the whitetip reef
+    // shark instead (see its own aura). What holds up for this species on
+    // its own is real too, just smaller: a genuine daytime social
+    // aggregation, and social foraging is measured to succeed more often
+    // than hunting alone.
     auras: [
       {
         affects: 'open-water',
         grants: { attack: 1 },
-        note: 'hunts in numbers, and the rest of the pack comes in behind it',
+        note: 'keeps to a daytime shoal, and a shoal comes home fed more often than any one shark alone',
       },
     ],
     tide: {

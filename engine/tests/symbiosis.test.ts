@@ -300,8 +300,12 @@ describe('symbiosis', () => {
 
     expect(statOf(alone, 0, 'reef-manta-ray').maxHealth).toBe(6);
     expect(statOf(cleaned, 0, 'reef-manta-ray').maxHealth).toBe(8);
-    // The wrasse is a reef-fish, not megafauna, so it does not clean itself.
-    expect(statOf(cleaned, 0, 'bluestreak-cleaner-wrasse').maxHealth).toBe(2);
+    // The wrasse is a reef-fish, not megafauna, so its own aura does not
+    // clean itself — but it still gains from the manta's own aura, the
+    // mirror-image relationship: a manta that keeps returning to the same
+    // cleaning station is a reliable food source for the reef-dweller
+    // working it, wrasse included.
+    expect(statOf(cleaned, 0, 'bluestreak-cleaner-wrasse').maxHealth).toBe(3);
   });
 
   it('lets a crown-of-thorns eat your own coral', () => {
