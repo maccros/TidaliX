@@ -522,10 +522,14 @@ const ART: Record<string, ReactNode> = {
   'blue-ringed-octopus': (
     <>
       <g {...ink}>
-        <path d="M40 54c-10 6-20 10-32 12 12 4 20 10 26 16 4-8 10-16 16-20z" fill="#c9a24a" />
-        <path d="M80 54c10 6 20 10 32 12-12 4-20 10-26 16-4-8-10-16-16-20z" fill="#c9a24a" />
-        <path d="M52 60c-4 10-6 16-4 22 6-4 10-10 14-16z" fill="#c9a24a" />
-        <path d="M68 60c4 10 6 16 4 22-6-4-10-10-14-16z" fill="#c9a24a" />
+        {/* Shifted up 2 so the tentacles' outer bulge stays inside the shared
+            80-tall viewBox instead of dipping 2 past it. */}
+        <g transform="translate(0,-2)">
+          <path d="M40 54c-10 6-20 10-32 12 12 4 20 10 26 16 4-8 10-16 16-20z" fill="#c9a24a" />
+          <path d="M80 54c10 6 20 10 32 12-12 4-20 10-26 16-4-8-10-16-16-20z" fill="#c9a24a" />
+          <path d="M52 60c-4 10-6 16-4 22 6-4 10-10 14-16z" fill="#c9a24a" />
+          <path d="M68 60c4 10 6 16 4 22-6-4-10-10-14-16z" fill="#c9a24a" />
+        </g>
         <path d="M60 10c-17 0-28 13-28 26 0 10 6 17 13 21h30c7-4 13-11 13-21 0-13-11-26-28-26z" fill="#d9b45c" />
       </g>
       {/* The rings, which is the entire warning the animal gives. */}

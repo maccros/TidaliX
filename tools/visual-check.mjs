@@ -106,16 +106,27 @@ async function checkArtPlate(page) {
         } catch {
           continue;
         }
-        if (
-          bbox.x < view.x - 0.5 ||
-          bbox.y < view.y - 0.5 ||
-          bbox.x + bbox.width > view.x + view.width + 0.5 ||
-          bbox.y + bbox.height > view.y + view.height + 0.5
-        ) {
+        // getBBox() is in the shape's own local coordinates and ignores any
+        // transform on the shape or its ancestors (e.g. a <g translate(...)>
+        // nudging a whole limb into bounds) — so its corners are mapped
+        // through getCTM() into the svg's own viewBox space, which is what
+        // actually ends up on screen.
+        const ctm = shape.getCTM();
+        const corners = [
+          [bbox.x, bbox.y],
+          [bbox.x + bbox.width, bbox.y],
+          [bbox.x, bbox.y + bbox.height],
+          [bbox.x + bbox.width, bbox.y + bbox.height],
+        ].map(([x, y]) => (ctm ? { x: ctm.a * x + ctm.c * y + ctm.e, y: ctm.b * x + ctm.d * y + ctm.f } : { x, y }));
+        const minX = Math.min(...corners.map((c) => c.x));
+        const minY = Math.min(...corners.map((c) => c.y));
+        const maxX = Math.max(...corners.map((c) => c.x));
+        const maxY = Math.max(...corners.map((c) => c.y));
+        if (minX < view.x - 0.5 || minY < view.y - 0.5 || maxX > view.x + view.width + 0.5 || maxY > view.y + view.height + 0.5) {
           out.push({
             id,
             issue: 'out-of-bounds',
-            detail: `bbox ${bbox.x.toFixed(1)},${bbox.y.toFixed(1)} ${bbox.width.toFixed(1)}x${bbox.height.toFixed(1)} vs viewBox 0,0 120x80`,
+            detail: `bbox ${minX.toFixed(1)},${minY.toFixed(1)} ${(maxX - minX).toFixed(1)}x${(maxY - minY).toFixed(1)} vs viewBox 0,0 120x80`,
           });
         }
         // A pale fill is fine if the shape carries its own dark edge (the
