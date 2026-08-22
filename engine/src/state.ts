@@ -77,25 +77,40 @@ export const DEFAULT_CONFIG: GameConfig = {
   // entirely on the first turn:
   //
   //   whoever opens      does not draw, and starts on the base capacity of 2
-  //   whoever is second  draws as normal, and gets two extra energy
+  //   whoever is second  draws as normal, and gets one extra energy
   //
-  // Two, not one. Measured on this set, with every seed run from both seats:
+  // Re-measured after the full-set cost repricing pass moved 25 of 50 costs at
+  // once (cards.ts's top comment), because that pass measured a large swing on
+  // its own: opener win rate at +2 energy (the setting below when that pass
+  // ran) had drifted from its original 52.7%/50.3% down to 42.8% at n=1000 —
+  // the compensation had become an overcorrection once cheaper aggression and
+  // pricier walls changed what a turn-2 swing of two energy could buy. Full
+  // table, all four options re-measured against the repriced set, normal
+  // difficulty, n=1000, opener win rate:
   //
-  //   nothing                          normal 66.3%   hard 65.0%
-  //   skip draw, +1 energy             normal 61.3%   hard 59.3%
-  //   +1 card, +1 energy               normal 60.3%   hard 54.3%
-  //   skip draw, +2 energy   <- this   normal 52.7%   hard 50.3%
+  //   nothing                          72.0%
+  //   skip draw, +1 energy   <- this   56.5%
+  //   +1 card, +1 energy               58.5%
+  //   skip draw, +2 energy             42.8%
   //
-  // The second energy is what closes the gap; the card barely moves it. Taking
-  // the opener's draw away and handing the other side a card are near
-  // equivalent, which is worth knowing before reaching for either again.
+  // Neither integer setting is actually fair on this cost curve — +1 overshoots
+  // toward the opener (56.5%) by almost exactly as much as +2 overshoots past it
+  // toward the other side (42.8%; 6.5pp vs 7.2pp off 50%). +1 was picked anyway:
+  // closer to even in absolute terms, and it errs toward the side this project's
+  // own baseline names as the natural one (moving first, not moving second) if
+  // it has to err at all. "Nothing" and "+1 card" both got sharply worse too
+  // (72.0%, 58.5%) — the whole shape of what this set needs moved with the
+  // recosting, not just the size of the old fix. Re-measure this whole table
+  // again rather than trusting it if the set changes further — it is a
+  // property of what the deck can deal, the same warning already given for
+  // conservationVictory above.
   //
   // Taking the draw away from the opener rather than handing the other side a
   // card keeps both opening hands the same size, which matters for how the game
   // reads: two players look across at four cards each.
   firstPlayerSkipsDraw: true,
   secondPlayerBonusCards: 0,
-  secondPlayerBonusEnergy: 2,
+  secondPlayerBonusEnergy: 1,
 };
 
 let instanceCounter = 0;
