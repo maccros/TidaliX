@@ -685,8 +685,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
-    // Cost 4, not 3: a wall, spines, and the flat's largest aura on one card.
-    cost: 4,
+    // Cost 5, not 3: a wall, spines, a scout, and the flat's largest aura on
+    // one card. Diadema has no eyes, but photoreceptors spread across its
+    // whole skin resolve a looming shape well enough to point spines at it
+    // before contact is made — a real sense distinct from the spines
+    // themselves, which only answer an attack that has already landed.
+    cost: 5,
     attack: 0,
     health: 6,
     keywords: ['reef-guard'],
@@ -698,6 +702,11 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'a forest of spines, and half the flat spends the day inside it',
       },
     ],
+    arrival: {
+      kind: 'scout',
+      amount: 1,
+      note: 'the skin itself reads the shadow before the spines even move',
+    },
     tide: {
       low: { health: 2 },
     },
@@ -1198,7 +1207,12 @@ export const CARDS: readonly CardDefinition[] = [
     // reef. This is the other half of the cnidarians: the one that drifts.
     taxon: 'cnidarian',
     niche: 'open-water',
-    cost: 4,
+    // Cost 5, not 4, with the sweep: unlike a true jellyfish it does not
+    // drift and wait, it actively hunts, chasing down small fish and shrimp
+    // at up to 4 knots. Millions of nematocysts along three metres of
+    // trailing tentacle mean one hunting pass through a school can sting
+    // several animals at once, not just the one it was aimed at.
+    cost: 5,
     attack: 3,
     health: 4,
     keywords: ['toxic'],
@@ -1209,6 +1223,11 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'juvenile fish ride the open water inside the stinging curtain',
       },
     ],
+    arrival: {
+      kind: 'sweep',
+      amount: 1,
+      note: 'the whole trailing curtain of tentacle passes through at once',
+    },
     tide: {
       rising: { attack: 1 },
       // Blooms come in on the tide and strand when it goes out.
