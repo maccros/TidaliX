@@ -283,10 +283,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'open-water',
-    cost: 4,
+    cost: 5,
     attack: 5,
     health: 2,
     // Open water, not the reef itself — a coral head does not shelter this.
+    // Genuinely one of the fastest-striking predatory fish, reactive enough
+    // to attack anything that flashes like prey — the dash is the strike,
+    // surge is the same speed making it ready for a full attack too.
+    keywords: ['surge'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -1114,9 +1118,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'bottom-crawler',
-    cost: 4,
+    cost: 5,
     attack: 3,
     health: 4,
+    // The dash is the reflex; surge is a separate result of the same
+    // speed — a full attack the same turn, not just the one fixed strike.
+    // Its own note already says it: six milliseconds, among the fastest
+    // strikes of any vertebrate.
+    keywords: ['surge'],
     arrival: {
       kind: 'strike',
       amount: 2,
