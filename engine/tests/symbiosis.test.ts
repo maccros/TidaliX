@@ -67,7 +67,7 @@ describe('armour', () => {
     // different physical answer to the same problem, not a stronger version
     // of the same one. A card carries whichever its own body actually has,
     // never both for the same feature.
-    for (const id of ['blackspotted-puffer', 'hawksbill-turtle', 'tasselled-wobbegong']) {
+    for (const id of ['blackspotted-puffer', 'hawksbill-turtle', 'giant-clam']) {
       expect(getCard(id).armour, id).toBeGreaterThan(0);
       expect(getCard(id).spines, id).toBeUndefined();
     }
@@ -144,10 +144,10 @@ describe('armour', () => {
     );
 
     expect(after.players[1].board[0]?.damage).toBe(4); // no armour, so all of it lands
-    // 4 spines, plus 1 because a mantis shrimp is exposed at low water, minus
-    // 1 absorbed by the mantis shrimp's own armour.
+    // 4 spines, plus 1 because a mantis shrimp is exposed at low water. It has
+    // no armour of its own (traded for surge) to absorb any of it back.
     expect(events).toContainEqual(
-      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 4, exposedBonus: 1, absorbed: 1 }),
+      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 5, exposedBonus: 1, absorbed: 0 }),
     );
     // Into a 2-health shrimp: attacking a wall can simply lose you the card.
     expect(after.players[0].board).toHaveLength(0);

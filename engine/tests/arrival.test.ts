@@ -287,7 +287,7 @@ describe('arrivals and the rest of the rules', () => {
     // An arrival is impact on the turn it lands; it is not a free attack.
     let s = bareGame();
     s = place(s, 1, ['coral-grouper']);
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'giant-triton');
     const { state: after } = expectOk(
       applyAction(withCard, {
         type: 'PLAY_CARD',

@@ -789,7 +789,11 @@ describe('log wording', () => {
     const { CARDS, createGame, startGame, takeTurn } = await import('@tidalix/engine');
     void CARDS;
     const seen = new Set<string>();
-    for (let seed = 1; seed <= 40; seed++) {
+    // 80, not 40: SPECIES_STEADIED is the rarest event this test checks for
+    // and moves around with the card set — a range with no margin above
+    // wherever it first turns up is a test that breaks on the next balance
+    // pass for no reason connected to what it actually checks.
+    for (let seed = 1; seed <= 80; seed++) {
       let s = startGame(createGame({ seed, startingPlayer: seed % 2 as 0 | 1 })).state;
       let guard = 0;
       while (s.winner === undefined && guard++ < 200) {

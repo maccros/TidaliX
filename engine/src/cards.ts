@@ -107,10 +107,13 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 4,
     attack: 4,
     health: 2,
-    keywords: ['pierce'],
-    // A stomatopod's own body armour — famous for its club, but the body
-    // behind the club is a hardened shell too.
-    armour: 1,
+    // Was armour too: a stomatopod does have a shell, but toughness isn't
+    // what this animal is actually known for — everything about it is the
+    // club. Swapped for surge instead: the same extreme speed that makes the
+    // strike-on-arrival plausible also means it's ready to throw a real
+    // attack the same turn, not just its one fixed dash. Different result
+    // from the same trait, not a restatement of it.
+    keywords: ['pierce', 'surge'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -824,10 +827,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 3,
+    // Lost toxic: the sting is genuinely painful, but several reef fish do
+    // eat fire coral without dying — a deterrent, not a guaranteed kill the
+    // way a pufferfish's tetrodotoxin is. Spines alone still says the sting
+    // is real; cost came down to match Bubble-tip Anemone's spines-plus-wall
+    // package at the same tier.
+    cost: 2,
     attack: 0,
     health: 5,
-    keywords: ['toxic'],
     spines: 2,
     auras: [
       {
@@ -1080,10 +1087,13 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'mollusc',
     niche: 'bottom-crawler',
+    // Lost toxic: it does sequester real sponge toxins, but how toxic varies
+    // a lot by individual diet — "distasteful" fits better than "kills
+    // whatever eats it." Cost held: 1/3 plus the aura already sits right
+    // alongside Bluestreak Cleaner Wrasse's 1/2-plus-aura at the same price.
     cost: 2,
     attack: 1,
     health: 3,
-    keywords: ['toxic'],
     auras: [
       {
         affects: 'bottom-crawler',
@@ -1125,10 +1135,13 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'bottom-crawler',
+    // Lost toxic: the mucus coat is real, but it reads in the sources as a
+    // bad-taste deterrent, not something that reliably kills a predator.
+    // Cost held at 1 — 1/2 with no keyword is exactly Atlantic Mudskipper's
+    // line at the same price.
     cost: 1,
     attack: 1,
     health: 2,
-    keywords: ['toxic'],
     tide: {
       rising: { health: 1 },
       falling: { attack: 1 },
@@ -1196,10 +1209,16 @@ export const CARDS: readonly CardDefinition[] = [
     // the flat.
     taxon: 'shark-ray',
     niche: 'bottom-crawler',
-    cost: 4,
+    // Lost its armour: tough skin is real, but softer a case than a puffer's,
+    // and next to camouflage this isn't the wobbegong's defining trait — a
+    // fringe of skin flaps that reads as sand, not a shell. 4/5 with no
+    // keyword sits closer to the cost-5 vanilla line (Reef Manta's 4/6) than
+    // the cost-4 one (a flat 7 combined across every card that carries no
+    // keyword there), so the cost moved with the trait rather than just
+    // dropping by one.
+    cost: 5,
     attack: 4,
     health: 5,
-    armour: 1,
     tide: {
       low: { attack: 2 },
       high: { attack: -1 },
