@@ -376,7 +376,7 @@ describe('symbiosis', () => {
 });
 
 describe('symbiosis and death', () => {
-  it('kills a dependent card when its partner dies — cascading in one sweep', () => {
+  it('marks a dependent card dying when its partner dies, rather than killing it outright', () => {
     let s = bareGame();
     // The anemonefish stands at 5 health only because of its anemone.
     s = place(s, 1, ['clown-anemonefish', 'bubble-tip-anemone']);
@@ -404,10 +404,20 @@ describe('symbiosis and death', () => {
     const destroyed = events
       .filter((e): e is Extract<GameEvent, { type: 'CARD_DESTROYED' }> => e.type === 'CARD_DESTROYED')
       .map((e) => e.definitionId);
+    const dying = events
+      .filter((e): e is Extract<GameEvent, { type: 'SPECIES_DYING' }> => e.type === 'SPECIES_DYING')
+      .map((e) => e.definitionId);
 
+    // The anemone took a direct blow — a real kill, immediate.
     expect(destroyed).toContain('bubble-tip-anemone');
-    expect(destroyed).toContain('clown-anemonefish'); // it lost its host and went with it
-    expect(after.players[1].board).toHaveLength(0);
+    expect(destroyed).not.toContain('clown-anemonefish');
+    // The fish took no blow at all this action; it lost its host's aura and
+    // is at zero for that reason alone, so it is marked, not removed — still
+    // standing until the tide actually takes it.
+    expect(dying).toContain('clown-anemonefish');
+    const fishAfter = after.players[1].board.find((c) => c.instanceId === fish.instanceId);
+    expect(fishAfter?.dying).toBe(true);
+    expect(after.players[1].board).toHaveLength(1);
   });
 
   it('kills your own coral outright if the starfish is enough to finish it', () => {

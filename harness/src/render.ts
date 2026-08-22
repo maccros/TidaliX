@@ -272,8 +272,14 @@ export function describe(event: GameEvent, state: GameState, you: PlayerId | nul
     }
     case 'PLAYER_DAMAGED':
       return `  ${who(event.player)} take${s(event.player)} ${bold(String(event.amount))} ${dim(`(♥ ${event.life})`)}`;
-    case 'CARD_DESTROYED':
-      return `  ${red('✖')} ${getCard(event.definitionId).name} ${dim(`(${whose(event.owner)})`)} is destroyed`;
+    case 'CARD_DESTROYED': {
+      const note = event.cause === 'dying' ? ', taken by the tide' : '';
+      return `  ${red('✖')} ${getCard(event.definitionId).name} ${dim(`(${whose(event.owner)})`)} is destroyed${note}`;
+    }
+    case 'SPECIES_DYING':
+      return `  ${yellow('⚠')} ${getCard(event.definitionId).name} ${dim(`(${whose(event.owner)})`)} is dying`;
+    case 'SPECIES_STEADIED':
+      return `  ${green('✓')} ${getCard(event.definitionId).name} ${dim(`(${whose(event.owner)})`)} steadies`;
     case 'SPECIES_RELEASED':
       return `  ${green('❋')} ${who(event.player)} release${s(event.player)} ${bold(getCard(event.definitionId).name)} back to the wild ${dim(`(${event.conserved} conserved)`)}`;
     case 'DECK_EMPTY':

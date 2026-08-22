@@ -62,11 +62,15 @@ export interface CardViewProps {
   /** Matured on your reef and eligible to be released this turn. */
   releasable?: boolean;
   /**
-   * The coming tide kills it on its own. Worth shouting about: it is the one
-   * loss a player can still do something about, and the one they would otherwise
-   * only discover after it happened.
+   * Healthy right now, but the coming tide would leave it at zero on its own —
+   * a neighbour's ceiling it depends on that the next phase does not keep, or
+   * its own. Worth shouting about: it is the one loss a player can still do
+   * something about, and the one they would otherwise only find out about
+   * after ending their turn. `instance.dying` (below) is the real, later
+   * stage of the same story: already at zero, still on the board, and
+   * removed for good at the *next* tide change rather than this one.
    */
-  dying?: boolean;
+  atRisk?: boolean;
   onClick?: () => void;
   /** Open the full card. Bound to right-click and long-press, never to a tap. */
   onInspect?: () => void;
@@ -146,7 +150,7 @@ export function CardView({
   inHand = false,
   facedown = false,
   releasable = false,
-  dying = false,
+  atRisk = false,
   onClick,
   onInspect,
   registerRef,
@@ -191,7 +195,8 @@ export function CardView({
     linked ? 'is-linked' : '',
     stats.exposed ? 'is-exposed' : '',
     releasable ? 'is-releasable' : '',
-    dying ? 'is-dying' : '',
+    instance.dying ? 'is-dying' : '',
+    atRisk ? 'is-at-risk' : '',
     instance.poisoned ? 'is-poisoned' : '',
   ]
     .filter(Boolean)
@@ -233,7 +238,8 @@ export function CardView({
         `${stats.attack} attack`,
         `${stats.health} health`,
         toxic ? 'toxic' : '',
-        dying ? 'dying at the next tide' : '',
+        instance.dying ? 'dying, removed at the next tide change' : '',
+        atRisk ? 'at risk — the coming tide would leave it dying' : '',
         state === 'support' ? 'no attack this phase' : '',
       ]
         .filter(Boolean)
@@ -346,9 +352,14 @@ export function CardView({
               exposed
             </span>
           )}
-          {dying && (
-            <span className="chip chip--dying" title="the coming tide kills it on its own">
+          {instance.dying && (
+            <span className="chip chip--dying" title="removed for good at the next tide change">
               dying
+            </span>
+          )}
+          {atRisk && (
+            <span className="chip chip--at-risk" title="the coming tide would leave it dying">
+              at risk
             </span>
           )}
           {instance.poisoned && (

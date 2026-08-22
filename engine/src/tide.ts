@@ -153,13 +153,20 @@ export function statsFor(state: GameState, instance: CardInstance): EffectiveSta
 }
 
 /**
- * Whether the coming tide will kill this card on its own.
+ * Whether the coming tide would leave this card at zero health on its own.
  *
  * "On its own" is the whole point: no attack, no release, nothing else played —
  * just the phase turning and this card's own tide line taking its ceiling below
- * the damage already marked on it. A manta stranded by a draining flat dies for
- * reasons that are entirely visible a phase in advance, and a player who cannot
- * see it coming experiences it as the game taking a card off them.
+ * the damage already marked on it. A manta stranded by a draining flat is at
+ * risk for reasons entirely visible a phase in advance, and a player who
+ * cannot see it coming experiences it as the game taking a card off them
+ * with no warning.
+ *
+ * It does not fire it going to zero at the *next* phase — that phase has not
+ * happened yet, so nothing is marked until it actually turns and the sweep
+ * runs. A card already at zero (already `dying`, or about to be swept for a
+ * fresh reason this same action) is past the point of a warning, so this
+ * returns false for it rather than restating what is already visible.
  *
  * Measured against the board as it stands, because that is the honest question:
  * what happens if nothing else changes.
@@ -168,7 +175,6 @@ export function diesAtNextPhase(state: GameState, instance: CardInstance): boole
   const def = getCard(instance.definitionId);
   const board = state.players[instance.owner].board;
   const across = state.players[instance.owner === 0 ? 1 : 0].board;
-  // Something already dead is not dying; it is about to be swept.
   if (effectiveStats(instance, state.phase, def, board, across).health <= 0) return false;
   return effectiveStats(instance, nextPhase(state.phase), def, board, across).health <= 0;
 }

@@ -682,7 +682,7 @@ function Row({
           state={cardState(card.instanceId, mine)}
           linked={linked.has(card.instanceId)}
           releasable={releasable.has(card.instanceId)}
-          dying={diesAtNextPhase(state, card)}
+          atRisk={diesAtNextPhase(state, card)}
           onClick={() => onClick(card.instanceId, mine)}
           onInspect={() => onInspect(card.instanceId)}
           registerRef={registerRef}
@@ -1112,7 +1112,21 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
 
     case 'CARD_DESTROYED':
       if (event.cause === 'toxin') return null;
-      return { text: `${getCard(event.definitionId).name} dies`, kind: 'death' };
+      return {
+        text:
+          event.cause === 'dying'
+            ? `${getCard(event.definitionId).name} doesn't survive the tide`
+            : `${getCard(event.definitionId).name} dies`,
+        kind: 'death',
+      };
+
+    // Still on the board — see CARD_DESTROYED's 'dying' cause for when it
+    // actually leaves, at the tide change after this one.
+    case 'SPECIES_DYING':
+      return { text: `${getCard(event.definitionId).name} is dying`, kind: 'dying' };
+
+    case 'SPECIES_STEADIED':
+      return { text: `${getCard(event.definitionId).name} steadies`, kind: 'steadied' };
 
     case 'TIDE_CHANGED':
       // Coloured to the phase it is turning into, so the log matches whatever

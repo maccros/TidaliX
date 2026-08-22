@@ -333,9 +333,10 @@ describe('client', () => {
     expect(lines.some((l) => l.includes('Hard') && l.includes('next turn'))).toBe(true);
   });
 
-  it('warns on a card the coming tide will kill by itself', async () => {
+  it('warns on a card the coming tide would leave dying, before it happens', async () => {
     // The one loss a player can still prevent, and the one they would otherwise
-    // discover only after it happened.
+    // find out about only after ending their turn. Healthy right now — this is
+    // the earlier, lighter warning; see the next test for the real thing.
     const { createInstance, effectiveStats, CARDS } = await import('@tidalix/engine');
     const { CardView } = await import('./CardView.tsx');
     const def = CARDS.find((c) => c.id === 'whitetip-reef-shark')!;
@@ -349,14 +350,33 @@ describe('client', () => {
           stats={effectiveStats(inst, 'low', def)}
           phase="low"
           state="idle"
-          dying
+          atRisk
         />,
+      );
+    });
+    const card = container.querySelector('.card')!;
+    expect(card.classList.contains('is-at-risk')).toBe(true);
+    expect(card.classList.contains('is-dying')).toBe(false);
+    expect(container.querySelector('.chip--at-risk')?.textContent).toBe('at risk');
+    expect(card.getAttribute('aria-label')).toContain('at risk');
+  });
+
+  it('marks a card actually dying — already at zero, staying on the board until the next tide change', async () => {
+    const { createInstance, effectiveStats, CARDS } = await import('@tidalix/engine');
+    const { CardView } = await import('./CardView.tsx');
+    const def = CARDS.find((c) => c.id === 'whitetip-reef-shark')!;
+    const inst = createInstance(def.id, 0);
+    inst.dying = true;
+
+    act(() => {
+      root.render(
+        <CardView instance={inst} stats={effectiveStats(inst, 'low', def)} phase="low" state="idle" />,
       );
     });
     const card = container.querySelector('.card')!;
     expect(card.classList.contains('is-dying')).toBe(true);
     expect(container.querySelector('.chip--dying')?.textContent).toBe('dying');
-    expect(card.getAttribute('aria-label')).toContain('dying at the next tide');
+    expect(card.getAttribute('aria-label')).toContain('removed at the next tide change');
   });
 
   it('records draws, turns and card powers in the log, without leaking the AI hand', () => {
@@ -782,6 +802,12 @@ describe('log wording', () => {
     // rendering them, which the app does. Here we assert the shapes that broke:
     expect(seen.has('DAMAGE_DEALT')).toBe(true);
     expect(seen.has('CARD_DESTROYED')).toBe(true);
+    // Dying is rare enough on any one seed that it needs real bot play across
+    // many of them to prove it fires at all, the same reasoning as the two
+    // above — a hand-built engine test proves the mechanics; this proves the
+    // AI actually produces the situation in games nobody scripted.
+    expect(seen.has('SPECIES_DYING')).toBe(true);
+    expect(seen.has('SPECIES_STEADIED')).toBe(true);
   });
 
   it('leads a card with its niche, then its traits', async () => {

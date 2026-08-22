@@ -117,6 +117,7 @@ export function createInstance(definitionId: string, owner: PlayerId): CardInsta
     playedOnTideStep: null,
     hasAttacked: false,
     poisoned: false,
+    dying: false,
   };
 }
 
@@ -256,7 +257,11 @@ export interface BoardCardView {
   reefGuard: boolean;
   /** Damage it shrugs off from every source. */
   armour: number;
-  /** The coming tide kills it on its own, with no other interaction. */
+  /**
+   * Healthy now, but the coming tide would leave it at zero on its own, with
+   * no other interaction. A card that is already `dying` (below) never shows
+   * this too — it is past the point of a warning.
+   */
   dyingNextPhase: boolean;
   /** Damage it deals back on top of its attack. */
   spines: number;
@@ -264,6 +269,12 @@ export interface BoardCardView {
   toxic: boolean;
   /** This card can eat a toxic one and survive it. */
   toxinImmune: boolean;
+  /**
+   * At zero health from something other than a fresh blow — a neighbour's
+   * aura going away, or the tide dropping its ceiling. Still on the board;
+   * removed for good at the next tide change.
+   */
+  dying: boolean;
   /** Already marked by a toxin — dead on the next sweep, whatever its health. */
   poisoned: boolean;
   /** The taxon it would add to a conservation pile. */
@@ -303,6 +314,7 @@ export function boardView(state: GameState, player: PlayerId): BoardCardView[] {
       spines: stats.spines,
       toxic: def.keywords?.includes('toxic') ?? false,
       toxinImmune: def.keywords?.includes('toxin-immune') ?? false,
+      dying: inst.dying,
       poisoned: inst.poisoned,
       taxon: def.taxon,
       canAttack: canAttack(state, inst),

@@ -321,6 +321,16 @@ export interface CardInstance {
    * whole point of a toxin: it is not damage, it is a decision you already made.
    */
   poisoned: boolean;
+  /**
+   * At or below zero health from something other than a blow just landed on
+   * it — a neighbour's aura going away, or the tide dropping its ceiling.
+   * Unlike `poisoned`, this is not a one-way mark: read fresh every sweep, so
+   * a card that recovers (the aura comes back, it gets healed) comes off the
+   * list on its own. It is only ever removed for real at the next tide
+   * change, which is what makes it worth a status a player can see coming
+   * rather than a cascade that resolves invisibly mid-action.
+   */
+  dying: boolean;
 }
 
 export interface PlayerState {
@@ -554,8 +564,26 @@ export type GameEvent =
       instanceId: string;
       definitionId: string;
       owner: PlayerId;
-      /** Whether it ran out of health or ate something it should not have. */
-      cause: 'damage' | 'toxin';
+      /**
+       * Whether it ran out of health this action, ate something it should not
+       * have, or was already dying and this is the tide change that takes it.
+       */
+      cause: 'damage' | 'toxin' | 'dying';
+    }
+  | {
+      /** Newly at zero health from something other than a fresh blow. Stays on
+       * the board — see `CardInstance.dying`. */
+      type: 'SPECIES_DYING';
+      instanceId: string;
+      definitionId: string;
+      owner: PlayerId;
+    }
+  | {
+      /** Was dying, and no longer is — the aura came back, or it was healed. */
+      type: 'SPECIES_STEADIED';
+      instanceId: string;
+      definitionId: string;
+      owner: PlayerId;
     }
   | {
       type: 'SPECIES_RELEASED';

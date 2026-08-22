@@ -454,19 +454,32 @@ button { font: inherit; color: inherit; }
 .chip--symbiosis { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--ink); }
 .chip--exposed { background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--warn); font-weight: 700; }
 .chip--poisoned { background: var(--warn); color: var(--surface); font-weight: 700; }
+/* Filled, the same weight as poisoned: a rule the resolver is already
+   running, not a warning about one that might. It is already at zero health
+   and stays on the board only until the next tide change removes it. */
 .chip--dying { background: var(--warn); color: var(--surface); font-weight: 700; }
+/* Outlined rather than filled — a warning, not yet the thing itself. Healthy
+   right now; would join `dying` the moment the tide turns, unless the player
+   does something about it first. */
+.chip--at-risk { border: 1px solid var(--warn); color: var(--warn); }
 
 /*
- * The coming tide will kill this card on its own. Marked loudly, because it is
- * the one loss the player can still prevent — by attacking with it now, or by
- * releasing it — and the one they would otherwise only find out about after the
- * fact. A state, not an identity, so it earns its colour.
+ * Already at zero health and staying on the board only until the next tide
+ * change takes it for good — see `CardInstance.dying`. Marked loudly, because
+ * it is the one loss a player can still do something about (protect it,
+ * release it, or just watch it go) rather than the game just taking a card
+ * off them. A state, not an identity, so it earns its colour.
  */
 .card.is-dying {
   border-color: var(--warn);
   box-shadow: inset 0 0 0 1px var(--warn);
 }
 .card.is-dying .card__art { border-color: color-mix(in srgb, var(--warn) 45%, #dbe4e6); }
+
+/* Healthy now, but the coming tide would leave it at zero on its own — see
+   `diesAtNextPhase`. A lighter mark than `is-dying`: a single border, no
+   fill, so the warning never reads as loud as the real thing. */
+.card.is-at-risk { border-color: var(--warn); }
 
 /* ---- Player bars ---- */
 .player {
@@ -780,6 +793,8 @@ button { font: inherit; color: inherit; }
    reads the same everywhere it appears — not the general teal accent. */
 .log__line--arrival { color: var(--b-dash); }
 .log__line--toxin { color: var(--warn); }
+.log__line--dying { color: var(--warn); font-style: italic; }
+.log__line--steadied { color: var(--good); }
 .log__line--over { color: var(--ink); }
 .log__line--win { color: var(--victory); font-weight: 700; }
 .log__line--loss { color: var(--defeat); font-weight: 700; }

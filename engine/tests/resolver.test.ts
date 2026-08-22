@@ -598,9 +598,11 @@ describe('combat', () => {
 });
 
 describe('the tide as a threat in its own right', () => {
-  it('drowns a damaged card when the falling tide drops its health ceiling', () => {
+  it('marks a damaged card dying when the falling tide drops its health ceiling, and takes it the tide after', () => {
     // Green sea turtle: 3/7, +2 health at high tide. Marked with 8 damage it
-    // survives at high water (ceiling 9) and dies the moment the tide falls.
+    // survives at high water (ceiling 9) but is at zero the moment the tide
+    // falls (ceiling 7) — with no fresh blow behind that drop, it is marked
+    // dying rather than removed outright.
     let s = stackedGame([], ['green-sea-turtle']).state;
     s = until(s, canAct(1, 5, 'high'));
 
@@ -612,11 +614,23 @@ describe('the tide as a threat in its own right', () => {
     onBoard.damage = 8;
     expect(boardView(marked, 1).find((v) => v.instanceId === turtle.instanceId)?.health).toBe(1);
 
-    const { state: after, events } = must(marked, { type: 'END_TURN', player: 1 });
-    expect(after.phase).toBe('falling');
+    const { state: dying, events: dyingEvents } = must(marked, { type: 'END_TURN', player: 1 });
+    expect(dying.phase).toBe('falling');
+    const stillThere = dying.players[1].board.find((c) => c.instanceId === turtle.instanceId);
+    expect(stillThere?.dying).toBe(true);
+    expect(dyingEvents).toContainEqual(
+      expect.objectContaining({ type: 'SPECIES_DYING', definitionId: 'green-sea-turtle' }),
+    );
+    expect(dyingEvents.some((e) => e.type === 'CARD_DESTROYED')).toBe(false);
+
+    // One full round on, the tide turns again and takes it — before player 1's
+    // own next turn, which is the whole point: it is never a surprise.
+    const roundLater = must(dying, { type: 'END_TURN', player: dying.activePlayer }).state;
+    const { state: after, events } = must(roundLater, { type: 'END_TURN', player: roundLater.activePlayer });
+    expect(after.phase).toBe('low');
     expect(after.players[1].board.find((c) => c.instanceId === turtle.instanceId)).toBeUndefined();
     expect(events).toContainEqual(
-      expect.objectContaining({ type: 'CARD_DESTROYED', definitionId: 'green-sea-turtle' }),
+      expect.objectContaining({ type: 'CARD_DESTROYED', definitionId: 'green-sea-turtle', cause: 'dying' }),
     );
   });
 });

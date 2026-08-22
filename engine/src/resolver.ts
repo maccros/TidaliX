@@ -10,7 +10,10 @@
  * continuous: `effectiveStats` reads the live phase every time a card is looked
  * at, so a phase change re-stats the whole board at once, for free. Damage,
  * by contrast, is marked permanently on the instance — which is why a card
- * damaged at high tide can die the moment a falling tide lowers its ceiling.
+ * damaged at high tide can end up at zero health the moment a falling tide
+ * lowers its ceiling. That does not kill it outright: a drop in health from
+ * something other than a fresh blow — the tide, or a neighbour's aura going
+ * away — marks it `dying` instead. See `sweepDeaths` and `sweepDyingCards`.
  */
 
 import type {
@@ -494,6 +497,7 @@ function release(state: GameState, action: ReleaseAction): ActionResult {
   card.playedOnTideStep = null;
   card.hasAttacked = false;
   card.poisoned = false;
+  card.dying = false;
   draftPlayer.conservation.push(card);
   draftPlayer.releasesThisTurn += 1;
 
@@ -523,8 +527,14 @@ function endTurn(state: GameState, action: EndTurnAction): ActionResult {
     draft.phase = nextPhase(from);
     draft.tideStep += 1;
     events.push({ type: 'TIDE_CHANGED', from, to: draft.phase });
+    // Whatever was already dying — marked on some earlier action, this tide
+    // change or a previous one — is taken now, before the new phase gets a
+    // chance to mark anything of its own. Order matters: a card that only
+    // just went to zero because of *this* phase change gets marked below,
+    // not swept here, so it always gets one full tide change of warning.
+    sweepDyingCards(draft, events);
     // The new phase re-stats both boards; anything whose ceiling fell below its
-    // marked damage drowns (or dries out) right here.
+    // marked damage is marked dying here rather than removed outright.
     sweepDeaths(draft, events);
   }
 
@@ -541,13 +551,26 @@ function endTurn(state: GameState, action: EndTurnAction): ActionResult {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Remove everything at or below zero health, then re-check the win condition.
+ * Remove whatever a fresh blow this action actually killed, then re-check the
+ * win condition.
  *
- * Symbiosis makes this a fixpoint rather than a single pass: an anemonefish
- * standing only because of its anemone drops when the anemone does, and that in
- * turn can pull down whatever was leaning on the anemonefish. Loop until a pass
- * kills nothing. The board is finite and every pass strictly shrinks it, so this
- * always terminates.
+ * A card that just took attack or retaliation damage (or ate something toxic)
+ * and is now at or below zero health dies here, immediately — that is a real
+ * kill, not a status. A card at or below zero health *without* having taken
+ * one of those blows this action is at zero for some other reason — a
+ * neighbour's aura going away, or the tide dropping its ceiling — and is
+ * marked `dying` instead of removed; see `CardInstance.dying` and
+ * `sweepDyingCards`, which is what actually takes it, at the next tide
+ * change. A dying card that recovers (the aura comes back, it gets healed)
+ * comes off the mark here too, on the same pass that finds it healthy again.
+ *
+ * Symbiosis makes the kill side of this a fixpoint rather than a single pass:
+ * an anemonefish standing only because of its anemone drops when the anemone
+ * does, and that in turn can pull down whatever was leaning on the
+ * anemonefish. Loop until a pass kills nothing. The board is finite and every
+ * pass strictly shrinks it, so this always terminates. Marking or clearing
+ * `dying` never removes a card from the board, so it cannot itself start a
+ * new cascade — only an actual kill does.
  */
 function sweepDeaths(draft: GameState, events: GameEvent[]): void {
   let killedSomething = true;
@@ -564,9 +587,16 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
         const outOfHealth =
           effectiveStats(inst, draft.phase, getCard(inst.definitionId), player.board, across)
             .health <= 0;
+        // Any DAMAGE_DEALT counts, arrival included — a dash's strike or sweep
+        // is a fresh blow the same as an attack, and settles in the same pass
+        // it lands, not as a status. Only a stat ceiling dropping out from
+        // under old damage, with no blow behind it, is what "dying" means.
+        const tookAFreshBlow = events.some(
+          (e) => e.type === 'DAMAGE_DEALT' && e.targetId === inst.instanceId,
+        );
         // A toxin is not damage and cannot be out-healed: once marked, the card
         // is dead on the next sweep whatever its health has since become.
-        if (outOfHealth || inst.poisoned) {
+        if (inst.poisoned || (outOfHealth && tookAFreshBlow)) {
           player.discard.push(inst);
           events.push({
             type: 'CARD_DESTROYED',
@@ -576,6 +606,24 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
             cause: inst.poisoned ? 'toxin' : 'damage',
           });
           killedSomething = true;
+        } else if (outOfHealth && !inst.dying) {
+          inst.dying = true;
+          events.push({
+            type: 'SPECIES_DYING',
+            instanceId: inst.instanceId,
+            definitionId: inst.definitionId,
+            owner: inst.owner,
+          });
+          survivors.push(inst);
+        } else if (!outOfHealth && inst.dying) {
+          inst.dying = false;
+          events.push({
+            type: 'SPECIES_STEADIED',
+            instanceId: inst.instanceId,
+            definitionId: inst.definitionId,
+            owner: inst.owner,
+          });
+          survivors.push(inst);
         } else {
           survivors.push(inst);
         }
@@ -585,6 +633,39 @@ function sweepDeaths(draft: GameState, events: GameEvent[]): void {
   }
 
   checkWinner(draft, events);
+}
+
+/**
+ * Takes everything already marked `dying` — set on some earlier action, and
+ * left on the board since — for real. Called once, right as the tide turns,
+ * before that new phase gets its own chance to mark anything: a card only
+ * ever gets one tide change of warning, never zero and never two.
+ *
+ * A flat pass, not a fixpoint: unlike `sweepDeaths`, nothing here depends on
+ * a stat that could shift mid-pass, so simultaneous removals need no special
+ * handling. Whatever this removal exposes downstream — a partner's aura
+ * gone, revealing yet another card at zero health — is the next sweepDeaths
+ * call's problem, and it is indirect there too, so it is marked, not killed.
+ */
+function sweepDyingCards(draft: GameState, events: GameEvent[]): void {
+  for (const player of draft.players) {
+    const survivors: CardInstance[] = [];
+    for (const inst of player.board) {
+      if (inst.dying) {
+        player.discard.push(inst);
+        events.push({
+          type: 'CARD_DESTROYED',
+          instanceId: inst.instanceId,
+          definitionId: inst.definitionId,
+          owner: inst.owner,
+          cause: 'dying',
+        });
+      } else {
+        survivors.push(inst);
+      }
+    }
+    player.board = survivors;
+  }
 }
 
 /**
