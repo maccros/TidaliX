@@ -661,10 +661,16 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 3,
     keywords: ['surge'],
+    // The old note leaned on speed for the scout too, the same weak fact
+    // already carrying its surge — and the card's own text isn't about
+    // speed at all. Reef squid keep station in a school and flash colour
+    // changes down the line to warn each other off a threat before it's
+    // close enough to matter; that's the real reason one of them draws a
+    // card, not a reflex.
     arrival: {
       kind: 'scout',
       amount: 1,
-      note: 'reads the water and moves before anything else has noticed',
+      note: 'catches the colour-change running down the line before the threat itself arrives',
     },
     tide: {
       rising: { attack: 1 },
@@ -704,14 +710,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
+    // Used to carry mend, healing the whole reef the moment it landed. But
+    // what this animal is actually known for — shedding an arm that grows
+    // into a second, separate star — is personal regeneration, not a gift
+    // to anything else nearby. Dropped the dash; cost held rather than
+    // dropped a flat notch, since a vanilla 1/4 for 2 still lands in line
+    // with this cost tier's other unadorned bodies (Spanish Dancer's 1/3).
     cost: 2,
     attack: 1,
     health: 4,
-    arrival: {
-      kind: 'mend',
-      amount: 1,
-      note: 'regrows what it loses, and steadies the reef around it',
-    },
     tide: {
       low: { health: 1 },
     },
@@ -756,7 +763,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 2,
+    cost: 3,
     attack: 1,
     health: 2,
     // A second cleaner, so the cleaning-station aura is not one card deep.
@@ -767,6 +774,14 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'picks parasites off anything patient enough to queue',
       },
     ],
+    // A real cleaner shrimp, the same reasoning as the wrasse's mend — but a
+    // single shrimp working one crevice, not a station the whole reef lines
+    // up for, so it heals less than the wrasse's.
+    arrival: {
+      kind: 'mend',
+      amount: 1,
+      note: 'picks parasites out of the mouth of whatever stops for it',
+    },
     tide: {
       rising: { health: 1 },
     },
@@ -895,7 +910,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 2,
+    cost: 3,
     attack: 0,
     health: 4,
     auras: [
@@ -905,6 +920,15 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'a thicket to hang in out of the current',
       },
     ],
+    // Its own text is a suspension feeder's whole method: broadside to the
+    // current, taking whatever gets carried past. Giant Clam and Reef Manta
+    // Ray get the same forage for the same reason; this was the one
+    // already-written case that had gone unmarked.
+    arrival: {
+      kind: 'forage',
+      amount: 2,
+      note: 'every polyp opens into the current at once',
+    },
     tide: {
       rising: { energy: 1 },
       falling: { energy: 1 },
