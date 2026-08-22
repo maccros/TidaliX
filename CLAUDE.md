@@ -61,6 +61,17 @@ retaliation, poison the same way. `toxin-immune` answers both directions.
 An arrival never triggers it: only a kill made through `strike()` (an attack
 or a retaliation) counts as the bite.
 
+**A `strike` dash and `surge` are different powers, not two speeds of the
+same one.** A strike dash is a guaranteed hit with no retaliation risk, read
+straight off the target's life the moment the card lands — an automatic bite
+or blow the animal delivers just by arriving. Surge grants no damage on its
+own; it only lifts summoning sickness, so the player can choose to risk a
+real attack — live stats, retaliation and all — the same turn instead of the
+next one. A card can carry both without being redundant: the dash is what it
+lands on arrival, surge is it being fast enough to also fight for real that
+same turn. Give a species `surge` only for documented speed or explosive
+reflexes, not because it already has a `strike` dash.
+
 ## Vocabulary
 
 Two orthogonal classifications, and they must not collapse into each other:

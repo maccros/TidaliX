@@ -18,7 +18,18 @@ export type CardType = 'creature' | 'structure';
  * the resolver about it produces dead card text, so keep this list honest.
  */
 export type Keyword =
-  /** May attack the turn it is played. */
+  /**
+   * May attack the turn it is played.
+   *
+   * A different power from a `strike` dash, not a faster version of it. A
+   * strike is a guaranteed hit that costs the attacker nothing — read
+   * straight off the target's life, no retaliation. Surge grants no damage
+   * by itself; it only lifts summoning sickness, so the player can choose to
+   * risk a real attack — the creature's live stats, retaliation and all —
+   * the same turn instead of waiting one. A card can carry both without
+   * being redundant: the dash is the automatic blow it lands on arrival,
+   * surge is it being fast enough to also fight for real that same turn.
+   */
   | 'surge'
   /** Enemies must attack this before anything else on its side. */
   | 'reef-guard'
@@ -230,7 +241,16 @@ export interface TideEffect {
  * as one where none of them do.
  */
 export type ArrivalEffect =
-  /** Damage one enemy creature. Needs a target chosen when the card is played. */
+  /**
+   * Damage one enemy creature. Needs a target chosen when the card is played.
+   *
+   * A guaranteed hit with no retaliation risk — read straight off the
+   * target's life the way a toxin is, not run through combat. This models an
+   * automatic bite or blow the animal lands just by arriving, not speed: a
+   * card with a strike dash still cannot make a normal attack the turn it is
+   * played unless it also carries `surge`, which is a different power (see
+   * that keyword) rather than a faster version of this one.
+   */
   | { kind: 'strike'; amount: number; note: string }
   /** Damage every enemy creature. */
   | { kind: 'sweep'; amount: number; note: string }
