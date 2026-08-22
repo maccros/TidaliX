@@ -60,10 +60,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 2,
+    cost: 3,
     attack: 2,
     health: 2,
     keywords: ['surge'],
+    // A crab's own hard shell, same tier as a turtle's.
+    armour: 1,
     tide: {
       low: { attack: 1, health: 1 },
       high: { exposed: true },
@@ -102,10 +104,13 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 3,
+    cost: 4,
     attack: 4,
     health: 2,
     keywords: ['pierce'],
+    // A stomatopod's own body armour — famous for its club, but the body
+    // behind the club is a hardened shell too.
+    armour: 1,
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -491,7 +496,9 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 4,
     health: 3,
     keywords: ['toxic'],
-    armour: 1,
+    // Was armour: the fish has no body armour at all — its whole defence is
+    // the venomous fin spines themselves, which is spines, not toughness.
+    spines: 2,
     arrival: {
       kind: 'strike',
       amount: 1,
@@ -514,7 +521,12 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 3,
     health: 6,
     keywords: ['toxic'],
-    armour: 2,
+    // Was armour: a starfish has no shell. What it actually has, and what its
+    // own name says, is a body covered in venomous spines. Kept at 1 rather
+    // than fire coral's 2: at 2, its retaliation (attack 3 + spines) would
+    // exactly kill the giant triton — the one card built specifically to
+    // answer it — turning a clean counter into an even trade.
+    spines: 1,
     auras: [
       {
         affects: 'frame-builder',
@@ -581,12 +593,16 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'mollusc',
     niche: 'bottom-crawler',
-    cost: 4,
+    cost: 5,
     attack: 3,
     health: 5,
     // The crown-of-thorns' actual predator, and the reason `pierce` exists: a
-    // starfish behind armour 3 and a toxin was otherwise close to unanswerable.
+    // starfish behind armour and a toxin was otherwise close to unanswerable.
+    // (The starfish now carries spines instead of armour, which pierce does
+    // nothing against — see the spines value on crown-of-thorns-starfish.)
     keywords: ['pierce', 'toxin-immune'],
+    // A genuine large snail shell.
+    armour: 1,
     arrival: {
       kind: 'strike',
       amount: 3,
@@ -744,10 +760,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 5,
+    cost: 6,
     attack: 5,
     health: 5,
     keywords: ['surge'],
+    // The largest arthropod alive, and it has the exoskeleton to match.
+    armour: 1,
     tide: {
       low: { attack: 2 },
       high: { attack: -2, exposed: true },
@@ -825,10 +843,13 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 4,
+    cost: 5,
     attack: 0,
     health: 9,
     keywords: ['reef-guard'],
+    // A massive, dense boulder coral — unlike the fast-growing, brittle
+    // branching corals (staghorn, table), this is the genuinely hard one.
+    armour: 1,
     auras: [
       {
         affects: 'frame-builder',
@@ -873,9 +894,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 4,
+    cost: 5,
     attack: 3,
     health: 5,
+    // Unlike a manta, an eagle ray keeps its venomous tail barb and uses it.
+    keywords: ['toxic'],
+    spines: 2,
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -934,13 +958,16 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'reptile',
     niche: 'open-water',
-    cost: 5,
+    cost: 6,
     attack: 5,
-    health: 6,
-    // The turtle that goes through a shell rather than around it. It lost its
-    // own shell in the board-wide armour pass — armour 1 rounded down to
-    // nothing rather than to a fraction, so the point went to health instead.
+    health: 5,
+    // Has a shell like the other two turtles, same as they do. A prior pass
+    // had traded its armour for a point of health instead, on the reasoning
+    // that armour 1 "rounded down to nothing" — reversed here: the shell is
+    // real, so the armour comes back and the health point it was standing in
+    // for comes back out.
     keywords: ['pierce'],
+    armour: 1,
     tide: {
       high: { attack: 1 },
       falling: { attack: 1 },
@@ -979,10 +1006,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 3,
+    cost: 4,
     attack: 2,
     health: 4,
     keywords: ['toxic'],
+    // Two venomous barbs held over its back, and it strikes back with them.
+    spines: 2,
     tide: {
       rising: { attack: 1 },
       low: { exposed: true },

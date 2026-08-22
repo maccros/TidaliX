@@ -55,25 +55,25 @@ beforeEach(() => resetInstanceIds());
 describe('armour', () => {
   it('is printed on the animals that are hard to hurt, not derived from anything', () => {
     expect(getCard('blackspotted-puffer').armour).toBe(2);
-    expect(getCard('red-lionfish').armour).toBe(1);
-    expect(getCard('crown-of-thorns-starfish').armour).toBe(2);
+    expect(getCard('giant-clam').armour).toBe(1);
+    expect(getCard('green-sea-turtle').armour).toBe(1);
     // A big soft predator shrugs off nothing.
     expect(getCard('great-barracuda').armour).toBeUndefined();
   });
 
   it('is kept apart from spines — they answer two different problems', () => {
-    // Armour goes on animals that also have an attack, so they already answer a
-    // blow by fighting back and the armour is on top. Spines go on the animals
-    // with no attack at all, which would otherwise answer with nothing.
-    for (const id of ['blackspotted-puffer', 'red-lionfish', 'crown-of-thorns-starfish']) {
+    // Armour goes on animals with a hard shell or hide. Spines go on animals
+    // that strike back with tentacles or literal spines when attacked — a
+    // different physical answer to the same problem, not a stronger version
+    // of the same one. A card carries whichever its own body actually has,
+    // never both for the same feature.
+    for (const id of ['blackspotted-puffer', 'hawksbill-turtle', 'tasselled-wobbegong']) {
       expect(getCard(id).armour, id).toBeGreaterThan(0);
       expect(getCard(id).spines, id).toBeUndefined();
-      expect(getCard(id).attack, id).toBeGreaterThan(0);
     }
-    for (const id of ['long-spined-urchin', 'bubble-tip-anemone']) {
+    for (const id of ['long-spined-urchin', 'bubble-tip-anemone', 'red-lionfish', 'crown-of-thorns-starfish']) {
       expect(getCard(id).spines, id).toBeGreaterThan(0);
       expect(getCard(id).armour, id).toBeUndefined();
-      expect(getCard(id).attack, id).toBe(0);
     }
   });
 
@@ -105,14 +105,14 @@ describe('armour', () => {
     // An armoured attacker takes the counter-blow on its armour as well. Damage
     // is damage; armour does not care which direction it came from.
     let s = bareGame();
-    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, armour 2
+    s = place(s, 0, ['blackspotted-puffer']); // 2 attack, armour 2
     s = place(s, 1, ['coral-grouper']); // 4 attack at low tide
 
     const { events } = expectOk(
       applyAction(s, {
         type: 'ATTACK',
         player: 0,
-        attackerId: find(s, 0, 'crown-of-thorns-starfish').instanceId,
+        attackerId: find(s, 0, 'blackspotted-puffer').instanceId,
         targetId: find(s, 1, 'coral-grouper').instanceId,
       }),
     );
@@ -121,11 +121,10 @@ describe('armour', () => {
       (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
         e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation',
     );
-    // The grouper's 4 attack, plus 1 because the starfish is exposed at low
-    // water, minus 2 absorbed by its armour.
-    expect(back?.amount).toBe(3);
+    // The grouper's 4 attack, minus 2 absorbed by the puffer's armour.
+    expect(back?.amount).toBe(2);
     expect(back?.absorbed).toBe(2);
-    expect(back?.exposedBonus).toBe(1);
+    expect(back?.exposedBonus).toBe(0);
   });
 
   it('leaves the unarmed defenders to spines, which is their whole answer', () => {
@@ -145,9 +144,10 @@ describe('armour', () => {
     );
 
     expect(after.players[1].board[0]?.damage).toBe(4); // no armour, so all of it lands
-    // 4 spines, plus 1 because a mantis shrimp is exposed at low water.
+    // 4 spines, plus 1 because a mantis shrimp is exposed at low water, minus
+    // 1 absorbed by the mantis shrimp's own armour.
     expect(events).toContainEqual(
-      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 5, exposedBonus: 1 }),
+      expect.objectContaining({ type: 'DAMAGE_DEALT', cause: 'retaliation', amount: 4, exposedBonus: 1, absorbed: 1 }),
     );
     // Into a 2-health shrimp: attacking a wall can simply lose you the card.
     expect(after.players[0].board).toHaveLength(0);

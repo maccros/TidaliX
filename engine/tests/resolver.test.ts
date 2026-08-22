@@ -437,7 +437,7 @@ describe('combat', () => {
 
   it('lets a surge card attack the turn it arrives', () => {
     let s = stackedGame(['sally-lightfoot-crab'], []).state;
-    s = until(s, canAct(0, 2, 'low'));
+    s = until(s, canAct(0, 3, 'low')); // crab now costs 3
     const crab = inHand(s, 0, 'sally-lightfoot-crab');
     s = must(s, { type: 'PLAY_CARD', player: 0, instanceId: crab.instanceId }).state;
 
@@ -570,7 +570,7 @@ describe('combat', () => {
 
   it('allows only one attack per card per turn', () => {
     let s = stackedGame(['sally-lightfoot-crab'], []).state;
-    s = until(s, canAct(0, 2));
+    s = until(s, canAct(0, 3)); // crab now costs 3
     const crab = inHand(s, 0, 'sally-lightfoot-crab');
     s = must(s, { type: 'PLAY_CARD', player: 0, instanceId: crab.instanceId }).state;
     s = must(s, { type: 'ATTACK', player: 0, attackerId: crab.instanceId, targetId: 'face' }).state;
@@ -582,7 +582,7 @@ describe('combat', () => {
 
   it('rejects an attack on a card that is not there', () => {
     let s = stackedGame(['sally-lightfoot-crab'], []).state;
-    s = until(s, canAct(0, 2));
+    s = until(s, canAct(0, 3)); // crab now costs 3
     const crab = inHand(s, 0, 'sally-lightfoot-crab');
     s = must(s, { type: 'PLAY_CARD', player: 0, instanceId: crab.instanceId }).state;
     expectError(
@@ -626,7 +626,7 @@ describe('win conditions', () => {
     let s = stackedGame(['sally-lightfoot-crab'], [], {
       config: { startingHandSize: 0, startingLife: 3 },
     }).state;
-    s = until(s, canAct(0, 2, 'low'));
+    s = until(s, canAct(0, 3, 'low')); // crab now costs 3
     const crab = inHand(s, 0, 'sally-lightfoot-crab');
     s = must(s, { type: 'PLAY_CARD', player: 0, instanceId: crab.instanceId }).state;
 

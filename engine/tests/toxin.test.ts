@@ -140,7 +140,7 @@ describe('eating something toxic', () => {
     // care about the venom.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
     s = place(s, 0, ['green-sea-turtle']); // 3 attack, 9 health at high, toxin-immune, armour 1
-    s = place(s, 1, ['red-lionfish']); // 4 attack, 3 health, armour 1
+    s = place(s, 1, ['red-lionfish']); // 4 attack, 3 health, spines 2
 
     const marked = structuredClone(s);
     marked.players[1].board[0]!.damage = 2; // 1 health left, so the turtle can finish it
@@ -157,10 +157,10 @@ describe('eating something toxic', () => {
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[1].board).toHaveLength(0);
     // Alive, and marked only by the retaliation — immunity is to the venom, not
-    // to the animal fighting back. The lionfish returns 4, of which the turtle's
-    // shell eats 1.
+    // to the animal fighting back. The lionfish returns its 4 attack plus 2
+    // spines, of which the turtle's shell eats 1.
     expect(after.players[0].board).toHaveLength(1);
-    expect(after.players[0].board[0]?.damage).toBe(3);
+    expect(after.players[0].board[0]?.damage).toBe(5);
     expect(after.players[0].board[0]?.poisoned).toBe(false);
   });
 
