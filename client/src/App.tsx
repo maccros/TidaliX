@@ -824,18 +824,15 @@ function ConservationPanel({
       <p className="conserve__hint">
         {target > 0 && (
           <>
-            Protect {target} different taxa to win. A species matures after one full cycle of
-            the tide.
-            <br />
-          </>
-        )}
-        {target === 0 && (
-          <>
-            A species matures after one full cycle of the tide.
+            <b>
+              Protect {target} <span className="good">different taxa</span> to win.
+            </b>
             <br />
           </>
         )}
         You may release <b>one species per turn</b>.
+        <br />
+        A species matures after one full cycle of the tide.
       </p>
     </section>
   );
