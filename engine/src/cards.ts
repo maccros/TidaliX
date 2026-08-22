@@ -44,9 +44,22 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'bottom-crawler',
+    // Gained scout: genuinely mobile, periscope-like eyes give it near-360°
+    // vision, documented as used specifically to watch for predators while
+    // it hunts and defends its burrow on the open flat — a real early-warning
+    // sense, not speed or feeding. Cost held at 1 rather than the usual +1:
+    // this is the set's cheapest, most reliable opener, and set.test.ts
+    // guards that a 2-energy, 4-card opening hand has something to play in
+    // most games. A cost bump here would be the set's own quota, not this
+    // card's biology, dictating the number.
     cost: 1,
     attack: 1,
     health: 2,
+    arrival: {
+      kind: 'scout',
+      amount: 1,
+      note: 'the eyes swivel independently, watching the whole flat at once',
+    },
     tide: {
       low: { attack: 2 },
       high: { attack: -1, exposed: true },
@@ -79,9 +92,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'mollusc',
     niche: 'reef-dweller',
-    cost: 4,
+    // Pierce: a documented shell-driller — a salivary papilla works as an
+    // accessory radula, mechanically and chemically drilling through
+    // bivalve and gastropod shells before a paralytic toxin goes in through
+    // the hole. As clean a fit for "drilling radula" as the giant triton's.
+    cost: 5,
     attack: 3,
     health: 4,
+    keywords: ['pierce'],
     arrival: {
       kind: 'scout',
       amount: 1,
@@ -112,11 +130,19 @@ export const CARDS: readonly CardDefinition[] = [
     // fact surge already covers, not a distinct mechanism the way a moray's
     // second jaws or a triton's drilling radula are. Dropped the dash
     // outright rather than keep two traits saying the same thing; cost
-    // dropped with it.
-    cost: 3,
+    // dropped with it. Gained scout on a distinct real sense instead: 12-16
+    // channel colour vision plus linear and circular polarization vision,
+    // UV-sensitive, and it actively rotates its eyes to scan and align on
+    // objects of interest — a genuine investigative sense, not speed.
+    cost: 4,
     attack: 4,
     health: 2,
     keywords: ['pierce', 'surge'],
+    arrival: {
+      kind: 'scout',
+      amount: 1,
+      note: 'each eye swivels and locks onto anything worth a second look',
+    },
     tide: {
       rising: { attack: 1 },
       low: { exposed: true },
@@ -130,12 +156,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 5,
+    // Lost toxin-immune: its own text claimed lionfish predation, but that's
+    // Nassau and tiger grouper (different genera). Diet studies specific to
+    // this species (P. leopardus) list damselfish, parrotfish, fusiliers and
+    // small crustaceans — no toxic prey. Cost dropped with the keyword.
+    cost: 4,
     attack: 4,
     health: 4,
-    keywords: ['toxin-immune'],
-    // Printed as the Giant Moray's twin — same cost, same body, same keyword —
-    // until this went on it. It is also the only attack the reef itself grants.
+    // Printed as the Giant Moray's twin — same cost, same body — until this
+    // went on it. It is also the only attack the reef itself grants.
     auras: [
       {
         affects: 'reef-dweller',
@@ -152,7 +181,7 @@ export const CARDS: readonly CardDefinition[] = [
       rising: { attack: 1 },
       high: { attack: 1 },
     },
-    text: 'One of the few animals that will take a lionfish, spines and all.',
+    text: 'Ambushes fusiliers and damselfish from a crevice, and swallows them whole before they react.',
   },
   {
     id: 'moorish-idol',
@@ -222,11 +251,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'reptile',
     niche: 'open-water',
-    cost: 5,
+    // Lost reef-guard and toxin-immune, both mismatches on research: it's a
+    // mobile grazer with no documented blocking/territorial behaviour (a
+    // hard shell protects only itself), and its adult diet is seagrass and
+    // algae — jellyfish-eating is a juvenile, opportunistic habit, not the
+    // adult specialism its own card text is themed on. (The real toxin-eater
+    // is the leatherback, not in this set.) A shell is still armour.
+    cost: 4,
     attack: 3,
     health: 7,
-    keywords: ['reef-guard', 'toxin-immune'],
-    // A shell is armour. It was carrying reef-guard and nothing to back it up.
     armour: 1,
     tide: {
       high: { health: 2 },
@@ -290,14 +323,18 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 5,
     health: 2,
     // Open water, not the reef itself — a coral head does not shelter this.
-    // Genuinely one of the fastest-striking predatory fish, reactive enough
-    // to attack anything that flashes like prey — the dash is the strike,
-    // surge is the same speed making it ready for a full attack too.
+    // Genuinely one of the fastest-striking predatory fish, which covers
+    // surge — but the strike dash used to lean on that same speed, and
+    // research backs the same problem the mantis shrimp and frogfish had:
+    // barracuda predation is ram-feeding, driven primarily by velocity, not
+    // a separate weapon. Rewritten around what actually is distinct — dual
+    // rows of teeth, some backward-curving, built to shear on impact rather
+    // than just deliver a fast hit.
     keywords: ['surge'],
     arrival: {
       kind: 'strike',
       amount: 2,
-      note: 'takes whatever the current funnels past it first',
+      note: 'the backward-curving teeth shear on the way through, not just the speed of the hit',
     },
     tide: {
       falling: { attack: 2 },
@@ -361,9 +398,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 3,
+    // Reef-guard: solitary and genuinely territorial, more so with age —
+    // documented to establish and aggressively defend a patrol territory
+    // against intruders with body-posture displays and nipping. A better-
+    // cited case than any turtle in this set ever was.
+    cost: 4,
     attack: 3,
     health: 3,
+    keywords: ['reef-guard'],
     tide: {
       rising: { attack: 1 },
       falling: { attack: 1 },
@@ -498,7 +540,10 @@ export const CARDS: readonly CardDefinition[] = [
     attack: 2,
     health: 5,
     keywords: ['toxic'],
-    armour: 2,
+    // Lacks the true erectile spines of a porcupinefish (Diodontidae) — just
+    // tough, leathery skin. Downgraded from 2 so it no longer outranks a
+    // giant clam's shell or a turtle's carapace, both armour 1.
+    armour: 1,
     tide: {
       rising: { health: 1 },
     },
@@ -511,10 +556,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 4,
+    // Lost toxic: the venom lives entirely in the spines (spines already says
+    // that), and the flesh itself is not toxic — it's commercially fished and
+    // eaten once the spines are removed, and documented predators (grouper,
+    // sharks, moray) eat lionfish whole and survive. Kills the attacker that
+    // triggers the spines; doesn't poison whatever eats the rest of it.
+    cost: 3,
     attack: 4,
     health: 3,
-    keywords: ['toxic'],
     // Was armour: the fish has no body armour at all — its whole defence is
     // the venomous fin spines themselves, which is spines, not toughness.
     spines: 2,
@@ -527,7 +576,7 @@ export const CARDS: readonly CardDefinition[] = [
       falling: { attack: 1 },
       low: { exposed: true },
     },
-    text: 'Herds prey into a corner with its fans. The venom is for whatever tries it.',
+    text: 'Herds prey into a corner with its fans. The spines are for whatever tries it.',
   },
   {
     id: 'crown-of-thorns-starfish',
@@ -660,6 +709,11 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 3,
     attack: 3,
     health: 3,
+    // Surge's real justification, on research: giant axons — the same
+    // unusually large, ultra-fast nerve fibers that made squid a classic
+    // neuroscience model organism — drive a jet-propulsion escape reflex
+    // fast enough to cover 100 feet in 3 seconds. Not the schooling/colour
+    // story below, which is real but belongs to the scout dash instead.
     keywords: ['surge'],
     // The old note leaned on speed for the scout too, the same weak fact
     // already carrying its surge — and the card's own text isn't about
@@ -803,14 +857,26 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    // Was surge, and cost 6 for it: a real coconut crab is slow and
-    // methodical, not a fast striker — its whole identity, here and in
-    // reality, is grip strength. Dropped a cost with the keyword.
-    cost: 5,
+    // Was surge, dropped: a real coconut crab is slow and methodical, not a
+    // fast striker — its whole identity, here and in reality, is grip
+    // strength and smell. Two additions this round both real and distinct:
+    // pierce for the crushing pinch itself (its own text already says "a
+    // grip that opens a coconut," and it's a documented crusher of other
+    // hard-shelled animals, not just coconuts) and scout for a
+    // disproportionately large olfactory brain region — more interneurons
+    // devoted to smell than a honeybee — used to detect food odour over long
+    // range. Two real, unrelated mechanisms, so cost rose with both.
+    cost: 6,
     attack: 5,
     health: 5,
     // The largest arthropod alive, and it has the exoskeleton to match.
     armour: 1,
+    keywords: ['pierce'],
+    arrival: {
+      kind: 'scout',
+      amount: 1,
+      note: 'follows a food scent across open ground long before anything is in sight',
+    },
     tide: {
       low: { attack: 2 },
       high: { attack: -2, exposed: true },
@@ -846,10 +912,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'reptile',
     niche: 'open-water',
-    cost: 4,
+    // Lost reef-guard: smaller-bodied than the other turtles, and it feeds by
+    // threading its narrow beak into crevices — the opposite of physically
+    // blocking access to anything. Toxin-immune stands on its own: a real
+    // spongivore specialist, 70-95% of its diet sponges loaded with silica
+    // spicules and toxic compounds it's documented to tolerate.
+    cost: 3,
     attack: 2,
     health: 6,
-    keywords: ['reef-guard', 'toxin-immune'],
+    keywords: ['toxin-immune'],
     armour: 1,
     tide: {
       high: { health: 1 },
@@ -866,11 +937,16 @@ export const CARDS: readonly CardDefinition[] = [
     // Lost toxic: the sting is genuinely painful, but several reef fish do
     // eat fire coral without dying — a deterrent, not a guaranteed kill the
     // way a pufferfish's tetrodotoxin is. Spines alone still says the sting
-    // is real; cost came down to match Bubble-tip Anemone's spines-plus-wall
-    // package at the same tier.
+    // is real. Gained reef-guard on the same evidence that already justifies
+    // the bubble-tip anemone's: a real, documented, intensely painful
+    // nematocyst sting that deters contact — a stinging barrier something
+    // else has to get past, same as the anemone. Cost held at 2 rather than
+    // bumped: same reef-guard-plus-spines-2 package as the anemone, 1 more
+    // health, at the anemone's own price.
     cost: 2,
     attack: 0,
     health: 5,
+    keywords: ['reef-guard'],
     spines: 2,
     auras: [
       {
@@ -952,14 +1028,18 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 6,
+    // Lost toxic: the barb's venom is a real, painful vasodilator, but
+    // stingray-envenomation deaths are documented as caused by the barb's
+    // physical trauma, not toxin — and hammerhead sharks are well documented
+    // eating eagle rays unharmed, barbs found embedded harmlessly in their
+    // jaws. Kept spines, which still says the barb is real and used.
+    cost: 5,
     attack: 3,
     health: 5,
-    // Unlike a manta, an eagle ray keeps its venomous tail barb and uses it.
-    // Pierce too — its own text was already saying it: a snout built to shovel
+    // Pierce: its own text was already saying it — a snout built to shovel
     // shellfish out of the sand and crush them in flattened plates, the same
     // durophagous case as the loggerhead's jaws.
-    keywords: ['toxic', 'pierce'],
+    keywords: ['pierce'],
     spines: 2,
     arrival: {
       kind: 'strike',
@@ -979,10 +1059,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 5,
+    // Lost reef-guard: the "guardian of the ledge" framing is dive-tourism
+    // folklore, not biology. Real sources describe it as docile and
+    // non-territorial — it aggregates communally with other nurse sharks
+    // rather than guarding one, and only bites defensively if cornered or
+    // handled, true of nearly any animal. Its real identity (sedentary,
+    // cave-dwelling, powerful suction) is already fully carried by strike.
+    cost: 4,
     attack: 2,
     health: 7,
-    keywords: ['reef-guard'],
     arrival: {
       kind: 'strike',
       amount: 2,
@@ -1047,9 +1132,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 4,
+    // Gained surge: the threat display its own card text already describes —
+    // arched back, dropped fins — is a real, documented escalation that ends
+    // in a genuinely fast, lightning slashing attack if the warning isn't
+    // heeded. The mechanic now matches the flavour text already printed.
+    cost: 5,
     attack: 3,
     health: 4,
+    keywords: ['surge'],
     // The only aura in the set that grants attack to the big animals: this is
     // the shark that hunts in numbers and makes the others braver.
     auras: [
@@ -1072,10 +1162,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 4,
+    // Lost toxic, same reasoning as the eagle ray: the barb venom is real and
+    // painful, but no case report backs "genuinely dangerous to eat" the way
+    // a pufferfish's tetrodotoxin is, and the broader stingray-venom
+    // literature attributes deaths to the barb's physical trauma, not toxin.
+    // Spines still says the barb is real and used.
+    cost: 3,
     attack: 2,
     health: 4,
-    keywords: ['toxic'],
     // Two venomous barbs held over its back, and it strikes back with them.
     spines: 2,
     tide: {
@@ -1091,11 +1185,20 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
+    // Eats sea stars for a living, which is why it goes through their armour.
+    // Gained toxin-immune this round: a documented sustained predator
+    // specifically of crown-of-thorns starfish — field studies link its
+    // abundance to the absence of COTS outbreaks, the same evidence class
+    // as the giant triton's. (It also has petal-like sensory antennules
+    // that chemically detect starfish prey — real, but scout stayed off
+    // this card to keep the dash-holding half of the set a minority; the
+    // real trait is still true, just not spent here.) Cost held at 2: the
+    // body is still the smallest in the set, and toxin-immune is dead
+    // weight most games with no toxic card in play.
     cost: 2,
     attack: 2,
     health: 2,
-    // Eats sea stars for a living, which is why it goes through their armour.
-    keywords: ['pierce'],
+    keywords: ['pierce', 'toxin-immune'],
     tide: {
       low: { attack: 1 },
     },
@@ -1164,14 +1267,23 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'bottom-crawler',
+    // A prior pass dropped its strike dash as "the same speed as surge" and
+    // gave it surge instead. Research reverses that call: the frogfish's
+    // real fast trait is an ultra-fast suction-feeding strike (2-6ms, mouth
+    // expanding 12x, one of the fastest vertebrate feeding movements) — the
+    // same category of mechanism as the coral grouper's and nurse shark's
+    // confirmed strikes, not raw speed. Meanwhile a frogfish is otherwise
+    // characteristically slow — it walks on modified fins and ambushes from
+    // a standstill — a poor fit for surge's full-attack reflex. Swapped
+    // back: strike restored, surge dropped.
     cost: 4,
     attack: 3,
     health: 4,
-    // Used to carry a strike dash too, but the dash's own note was just the
-    // same six-millisecond speed surge already covers, not a separate
-    // mechanism — no distinct bite, no venom, nothing the strike added that
-    // surge didn't already say. Dropped the dash; cost dropped with it.
-    keywords: ['surge'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'waves the lure once, and the mouth expands twelvefold and shuts in six milliseconds',
+    },
     tide: {
       low: { attack: 1 },
       high: { attack: -1 },
@@ -1212,10 +1324,15 @@ export const CARDS: readonly CardDefinition[] = [
     // at up to 4 knots. Millions of nematocysts along three metres of
     // trailing tentacle mean one hunting pass through a school can sting
     // several animals at once, not just the one it was aimed at.
-    cost: 5,
+    // Gained spines: a contact-triggered nematocyst sting, the same
+    // mechanism already justifying the anemone's and fire coral's spines —
+    // if anything a stronger case, among the most potent venom of any
+    // animal. Models what happens to whatever actually lands a hit on it.
+    cost: 6,
     attack: 3,
     health: 4,
     keywords: ['toxic'],
+    spines: 2,
     auras: [
       {
         affects: 'open-water',
@@ -1276,6 +1393,10 @@ export const CARDS: readonly CardDefinition[] = [
     // the cost-4 one (a flat 7 combined across every card that carries no
     // keyword there), so the cost moved with the trait rather than just
     // dropping by one.
+    // Also a genuinely well-documented ambush strike (jaw fires in under
+    // 50ms via real suction feeding, same category as the coral grouper's
+    // and nurse shark's) — but left off this card to keep the dash-holding
+    // half of the set a minority. Real trait, just not spent here.
     cost: 5,
     attack: 4,
     health: 5,

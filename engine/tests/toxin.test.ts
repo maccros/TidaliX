@@ -72,15 +72,15 @@ beforeEach(() => resetInstanceIds());
 describe('the toxic keyword', () => {
   it('is printed on real animals, and immunity on their real predators', () => {
     expect(isToxic('blackspotted-puffer')).toBe(true);
-    expect(isToxic('red-lionfish')).toBe(true);
+    expect(isToxic('box-jellyfish')).toBe(true);
     expect(isToxic('crown-of-thorns-starfish')).toBe(true);
 
-    expect(isToxinImmune('coral-grouper')).toBe(true);
     expect(isToxinImmune('giant-moray')).toBe(true);
-    expect(isToxinImmune('green-sea-turtle')).toBe(true);
+    expect(isToxinImmune('giant-triton')).toBe(true);
+    expect(isToxinImmune('hawksbill-turtle')).toBe(true);
 
     // And nothing is both, which would be a card that poisons itself.
-    for (const card of [getCard('blackspotted-puffer'), getCard('red-lionfish')]) {
+    for (const card of [getCard('blackspotted-puffer'), getCard('box-jellyfish')]) {
       expect(card.keywords).not.toContain('toxin-immune');
     }
   });
@@ -90,14 +90,14 @@ describe('eating something toxic', () => {
   it('kills the eater outright when the toxic card dies to the attack', () => {
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
     s = place(s, 0, ['bumphead-parrotfish']); // 7 attack at high tide
-    s = place(s, 1, ['red-lionfish']); // 3 health
+    s = place(s, 1, ['box-jellyfish']); // 4 health
 
-    const { state: after, events } = eat(s, 'bumphead-parrotfish', 'red-lionfish');
+    const { state: after, events } = eat(s, 'bumphead-parrotfish', 'box-jellyfish');
 
     expect(events).toContainEqual(
       expect.objectContaining({ type: 'SPECIES_POISONED' }),
     );
-    expect(destroyedIn(events)).toContainEqual({ id: 'red-lionfish', cause: 'damage' });
+    expect(destroyedIn(events)).toContainEqual({ id: 'box-jellyfish', cause: 'damage' });
     expect(destroyedIn(events)).toContainEqual({ id: 'bumphead-parrotfish', cause: 'toxin' });
     expect(after.players[0].board).toHaveLength(0);
     expect(after.players[1].board).toHaveLength(0);
@@ -106,11 +106,11 @@ describe('eating something toxic', () => {
   it('names both animals in the event, so a client can narrate the trade', () => {
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
     s = place(s, 0, ['bumphead-parrotfish']);
-    s = place(s, 1, ['red-lionfish']);
+    s = place(s, 1, ['box-jellyfish']);
 
     const attackerId = find(s, 0, 'bumphead-parrotfish').instanceId;
-    const targetId = find(s, 1, 'red-lionfish').instanceId;
-    const { events } = eat(s, 'bumphead-parrotfish', 'red-lionfish');
+    const targetId = find(s, 1, 'box-jellyfish').instanceId;
+    const { events } = eat(s, 'bumphead-parrotfish', 'box-jellyfish');
 
     expect(events).toContainEqual({
       type: 'SPECIES_POISONED',
@@ -135,43 +135,44 @@ describe('eating something toxic', () => {
   });
 
   it('spares a predator that eats toxic prey for a living', () => {
-    // A green sea turtle really does eat venomous animals. It takes the
-    // lionfish's counter-blow like anything else would, and simply does not
-    // care about the venom.
+    // A hawksbill turtle really does eat toxic prey for a living — a
+    // documented spongivore specialist tolerant of the compounds sponges
+    // carry. It takes the jellyfish's counter-sting like anything else
+    // would, and simply does not care about the venom.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
-    s = place(s, 0, ['green-sea-turtle']); // 3 attack, 9 health at high, toxin-immune, armour 1
-    s = place(s, 1, ['red-lionfish']); // 4 attack, 3 health, spines 2
+    s = place(s, 0, ['hawksbill-turtle']); // 2 attack, 7 health at high, toxin-immune, armour 1
+    s = place(s, 1, ['box-jellyfish']); // 3 attack, 4 health, spines 2
 
     const marked = structuredClone(s);
-    marked.players[1].board[0]!.damage = 2; // 1 health left, so the turtle can finish it
+    marked.players[1].board[0]!.damage = 3; // 1 health left, so the turtle can finish it
 
     const { state: after, events } = expectOk(
       applyAction(marked, {
         type: 'ATTACK',
         player: 0,
-        attackerId: find(marked, 0, 'green-sea-turtle').instanceId,
-        targetId: find(marked, 1, 'red-lionfish').instanceId,
+        attackerId: find(marked, 0, 'hawksbill-turtle').instanceId,
+        targetId: find(marked, 1, 'box-jellyfish').instanceId,
       }),
     );
 
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[1].board).toHaveLength(0);
     // Alive, and marked only by the retaliation — immunity is to the venom, not
-    // to the animal fighting back. The lionfish returns its 4 attack plus 2
+    // to the animal fighting back. The jellyfish returns its 3 attack plus 2
     // spines, of which the turtle's shell eats 1.
     expect(after.players[0].board).toHaveLength(1);
-    expect(after.players[0].board[0]?.damage).toBe(5);
+    expect(after.players[0].board[0]?.damage).toBe(4);
     expect(after.players[0].board[0]?.poisoned).toBe(false);
   });
 
   it('does not fire when the toxic attacker survives the counter-blow', () => {
-    // Killing something is not the same as being eaten. The lionfish is still
-    // toxic, but nothing died from biting it, so nothing is poisoned.
+    // Killing something is not the same as being eaten. The jellyfish is
+    // still toxic, but nothing died from biting it, so nothing is poisoned.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'falling' } });
-    s = place(s, 0, ['red-lionfish']); // 5 attack at falling tide
+    s = place(s, 0, ['box-jellyfish']); // 3 attack at this phase
     s = place(s, 1, ['moorish-idol']); // 2 health
 
-    const { state: after, events } = eat(s, 'red-lionfish', 'moorish-idol');
+    const { state: after, events } = eat(s, 'box-jellyfish', 'moorish-idol');
 
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[0].board).toHaveLength(1);
@@ -215,8 +216,8 @@ describe('eating something toxic', () => {
   it('spares a predator that survives eating a toxic attacker, same as it would on defence', () => {
     // Immunity does not care which side of the bite it is on.
     let s = bareGame();
-    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, 6 health, armour 2
-    s = place(s, 1, ['coral-grouper']); // 4 attack, 4 health, toxin-immune
+    s = place(s, 0, ['crown-of-thorns-starfish']); // 3 attack, 6 health, spines 1
+    s = place(s, 1, ['giant-moray']); // 4 attack, 4 health, toxin-immune
 
     const marked = structuredClone(s);
     marked.players[0].board[0]!.damage = 3; // 3 health left; the counter-blow finishes it
@@ -226,7 +227,7 @@ describe('eating something toxic', () => {
         type: 'ATTACK',
         player: 0,
         attackerId: find(marked, 0, 'crown-of-thorns-starfish').instanceId,
-        targetId: find(marked, 1, 'coral-grouper').instanceId,
+        targetId: find(marked, 1, 'giant-moray').instanceId,
       }),
     );
 
@@ -244,9 +245,9 @@ describe('eating something toxic', () => {
     // phase change. It dies anyway: a toxin is a decision already made.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
     s = place(s, 0, ['bumphead-parrotfish']);
-    s = place(s, 1, ['red-lionfish']);
+    s = place(s, 1, ['box-jellyfish']);
 
-    const { state: after } = eat(s, 'bumphead-parrotfish', 'red-lionfish');
+    const { state: after } = eat(s, 'bumphead-parrotfish', 'box-jellyfish');
     expect(after.players[0].board).toHaveLength(0);
     expect(after.players[0].discard.some((c) => c.definitionId === 'bumphead-parrotfish')).toBe(true);
   });

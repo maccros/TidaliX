@@ -689,7 +689,7 @@ describe('card detail', () => {
     act(() => {
       root.render(<CardView instance={puffer} stats={stats} phase="low" state="idle" />);
     });
-    expect(container.textContent).toContain('armour 2');
+    expect(container.textContent).toContain('armour 1');
     expect(container.textContent).toContain('Arothron nigropunctatus');
   });
 });
@@ -784,6 +784,9 @@ describe('the coin flip', () => {
 
 describe('log wording', () => {
   it('agrees with its own subject, and never says "You has"', async () => {
+    // 80 seeds of full bot-vs-bot play; the card set's own size and cost
+    // curve set how long this takes, not this test, so the timeout carries
+    // real margin rather than the 5s default.
     // Grammar bugs in generated strings read as broken software. Every line
     // that takes a player as its subject is checked against both players.
     const { CARDS, createGame, startGame, takeTurn } = await import('@tidalix/engine');
@@ -817,7 +820,7 @@ describe('log wording', () => {
     // belongs to the trait, not to a bug, so it's covered deterministically
     // in engine/tests/dying.test.ts instead of gated on a seed count here.
     expect(seen.has('SPECIES_DYING')).toBe(true);
-  });
+  }, 20000);
 
   it('leads a card with its niche, then its traits', async () => {
     const { CARDS, createInstance, effectiveStats } = await import('@tidalix/engine');

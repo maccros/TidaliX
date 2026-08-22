@@ -54,7 +54,7 @@ beforeEach(() => resetInstanceIds());
 
 describe('armour', () => {
   it('is printed on the animals that are hard to hurt, not derived from anything', () => {
-    expect(getCard('blackspotted-puffer').armour).toBe(2);
+    expect(getCard('blackspotted-puffer').armour).toBe(1);
     expect(getCard('giant-clam').armour).toBe(1);
     expect(getCard('green-sea-turtle').armour).toBe(1);
     // A big soft predator shrugs off nothing.
@@ -80,7 +80,7 @@ describe('armour', () => {
   it('absorbs damage off the top of every attack', () => {
     let s = bareGame();
     s = place(s, 0, ['whitetip-reef-shark']); // 3 attack at low tide
-    s = place(s, 1, ['blackspotted-puffer']); // 5 health, armour 2
+    s = place(s, 1, ['blackspotted-puffer']); // 5 health, armour 1
 
     const { state: after, events } = expectOk(
       applyAction(s, {
@@ -95,17 +95,17 @@ describe('armour', () => {
       (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
         e.type === 'DAMAGE_DEALT' && e.cause === 'attack',
     );
-    // 3 attack into 2 armour: 1 gets through, and the event says so.
-    expect(hit?.amount).toBe(1);
-    expect(hit?.absorbed).toBe(2);
-    expect(after.players[1].board[0]?.damage).toBe(1);
+    // 3 attack into 1 armour: 2 gets through, and the event says so.
+    expect(hit?.amount).toBe(2);
+    expect(hit?.absorbed).toBe(1);
+    expect(after.players[1].board[0]?.damage).toBe(2);
   });
 
   it('protects against retaliation too, not only against attacks', () => {
     // An armoured attacker takes the counter-blow on its armour as well. Damage
     // is damage; armour does not care which direction it came from.
     let s = bareGame();
-    s = place(s, 0, ['blackspotted-puffer']); // 2 attack, armour 2
+    s = place(s, 0, ['blackspotted-puffer']); // 2 attack, armour 1
     s = place(s, 1, ['coral-grouper']); // 4 attack at low tide
 
     const { events } = expectOk(
@@ -121,9 +121,9 @@ describe('armour', () => {
       (e): e is Extract<GameEvent, { type: 'DAMAGE_DEALT' }> =>
         e.type === 'DAMAGE_DEALT' && e.cause === 'retaliation',
     );
-    // The grouper's 4 attack, minus 2 absorbed by the puffer's armour.
-    expect(back?.amount).toBe(2);
-    expect(back?.absorbed).toBe(2);
+    // The grouper's 4 attack, minus 1 absorbed by the puffer's armour.
+    expect(back?.amount).toBe(3);
+    expect(back?.absorbed).toBe(1);
     expect(back?.exposedBonus).toBe(0);
   });
 
