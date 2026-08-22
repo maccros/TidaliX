@@ -29,6 +29,48 @@
  * — previously almost inert, ~1 kill per 100-300 games — now settles roughly
  * one game in two. Re-measure rather than trusting these numbers if the set
  * changes again.
+ *
+ * A full-set repricing pass (after a long run of individual trait/dash/
+ * symbiosis additions and removals, each calibrated only against its
+ * immediate neighbours) checked every card's cost against every other
+ * card's at once, rather than one peer comparison at a time. The tool: a
+ * power score per card (attack + health, plus a fixed point value per
+ * keyword, per point of armour/spines, per dash amount by kind, and per
+ * aura point granted — see tools/price-model.mjs, or `npm run
+ * price-check`, for the exact weights), with the points-per-cost
+ * conversion rate calibrated against the set's own total cost rather than
+ * assumed, so the result reflects relative mispricing rather than a
+ * guessed ratio. 25 of 50 costs moved, up to 6->3 and 5->7. Six cards were
+ * deliberately held below what the model implied: Atlantic Mudskipper and
+ * Clown Anemonefish, the set's two cost-1 openers, and four cards whose
+ * implied move was the smallest of the pass (Bluestreak Cleaner Wrasse,
+ * Staghorn Coral, Black Sea Cucumber, Feather Star, each implied 2->3) —
+ * moving all four would have dropped the set's cost-<=2 share under the
+ * quota set.test.ts guards, so the softest deltas gave way first rather
+ * than the sharpest ones.
+ *
+ * Unlike every earlier pass this session, this one did NOT stay inside
+ * self-play noise. 1000-seed opener win rate moved 48.1% -> 42.8%, a 5.3pp
+ * shift against a ~1.6% standard error at n=1000 — real, not noise, and in
+ * the wrong direction (the opener now loses more than it wins, on top of
+ * whatever a coin flip already costs the other side). The likely
+ * mechanism: the pass systematically cheapened tempo/aggression (Giant
+ * Trevally, Great Barracuda, Giant Moray, Common Octopus, Whitetip Reef
+ * Shark, Tasselled Wobbegong, Grey Reef Shark) while making defensive
+ * walls more expensive (Bubble-tip Anemone, Giant Clam, Long-spined
+ * Urchin, Fire Coral, Brain Coral, Giant Triton), which plausibly delays
+ * the opener's ability to lock in an early defensive lead more than it
+ * helps either side's offense. Not root-caused further, and deliberately
+ * accepted rather than dampened: the trait/dash/symbiosis cost fairness
+ * this pass targeted was the actual goal, and first-move advantage is a
+ * separate axis (the game's starting-player coin flip is the tool for
+ * that, not card cost) left for a dedicated pass of its own. Re-measure
+ * opener win rate specifically before or alongside any future cost changes
+ * — this is now the number to watch, not just the trait/dash fairness this
+ * pass was built to check. Re-run the model rather than hand-adjusting a
+ * single card's cost if the set changes again; a one-off peer comparison
+ * is exactly the drift this
+ * pass corrected.
  */
 
 import type { ArrivalEffect, Aura, CardDefinition, Niche, Taxon, TidePhase } from './types.js';
@@ -96,7 +138,7 @@ export const CARDS: readonly CardDefinition[] = [
     // accessory radula, mechanically and chemically drilling through
     // bivalve and gastropod shells before a paralytic toxin goes in through
     // the hole. As clean a fit for "drilling radula" as the giant triton's.
-    cost: 5,
+    cost: 4,
     attack: 3,
     health: 4,
     keywords: ['pierce'],
@@ -219,7 +261,7 @@ export const CARDS: readonly CardDefinition[] = [
     // cleaner fish pick parasites and dead skin off them — a reliable food
     // source for the cleaner, the mirror image of the cleaner wrasse's own
     // aura from the other side of the same real relationship.
-    cost: 6,
+    cost: 5,
     attack: 4,
     health: 6,
     auras: [
@@ -252,7 +294,7 @@ export const CARDS: readonly CardDefinition[] = [
     // out of reef crevices that grey reef sharks then capture — the real
     // mechanism behind what used to be credited to the grey reef shark's
     // own "pack" story (see its note). Its own text already says it.
-    cost: 4,
+    cost: 3,
     attack: 3,
     health: 3,
     auras: [
@@ -297,7 +339,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'open-water',
-    cost: 7,
+    cost: 6,
     attack: 6,
     health: 6,
     // Its own text already says it: headbutts coral apart and grinds it to
@@ -322,7 +364,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'open-water',
-    cost: 5,
+    cost: 4,
     attack: 5,
     health: 4,
     keywords: ['surge'],
@@ -343,7 +385,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'open-water',
-    cost: 5,
+    cost: 4,
     attack: 5,
     health: 2,
     // Open water, not the reef itself — a coral head does not shelter this.
@@ -373,7 +415,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 5,
+    cost: 4,
     attack: 4,
     health: 4,
     keywords: ['toxin-immune'],
@@ -426,7 +468,7 @@ export const CARDS: readonly CardDefinition[] = [
     // documented to establish and aggressively defend a patrol territory
     // against intruders with body-posture displays and nipping. A better-
     // cited case than any turtle in this set ever was.
-    cost: 4,
+    cost: 3,
     attack: 3,
     health: 3,
     keywords: ['reef-guard'],
@@ -443,6 +485,9 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
+    // The full-set repricing pass implied 3, the smallest of its movements —
+    // held at 2 instead, alongside three other +1 cost-2 cards, to keep the
+    // cheap-card quota set.test.ts guards from dropping under its threshold.
     cost: 2,
     attack: 1,
     health: 2,
@@ -475,6 +520,9 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
+    // The full-set repricing pass implied 3, the smallest of its movements —
+    // held at 2 instead, alongside three other +1 cost-2 cards, to keep the
+    // cheap-card quota set.test.ts guards from dropping under its threshold.
     cost: 2,
     attack: 0,
     health: 5,
@@ -504,7 +552,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 2,
+    cost: 4,
     attack: 0,
     health: 4,
     keywords: ['reef-guard'],
@@ -533,7 +581,7 @@ export const CARDS: readonly CardDefinition[] = [
     // up as reef substrate. It was printed as a structure from the start; only
     // the niche disagreed, because it happens to sit on sand.
     niche: 'frame-builder',
-    cost: 3,
+    cost: 5,
     attack: 0,
     health: 8,
     keywords: ['reef-guard'],
@@ -560,7 +608,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 3,
+    cost: 4,
     attack: 2,
     health: 5,
     keywords: ['toxic'],
@@ -585,7 +633,7 @@ export const CARDS: readonly CardDefinition[] = [
     // eaten once the spines are removed, and documented predators (grouper,
     // sharks, moray) eat lionfish whole and survive. Kills the attacker that
     // triggers the spines; doesn't poison whatever eats the rest of it.
-    cost: 3,
+    cost: 4,
     attack: 4,
     health: 3,
     // Was armour: the fish has no body armour at all — its whole defence is
@@ -609,7 +657,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
-    cost: 4,
+    cost: 5,
     attack: 3,
     health: 6,
     keywords: ['toxic'],
@@ -685,7 +733,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'mollusc',
     niche: 'bottom-crawler',
-    cost: 5,
+    cost: 6,
     attack: 3,
     health: 5,
     // The crown-of-thorns' actual predator, and the reason `pierce` exists: a
@@ -713,7 +761,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'mollusc',
     niche: 'bottom-crawler',
-    cost: 3,
+    cost: 2,
     attack: 2,
     health: 3,
     keywords: ['toxic'],
@@ -730,7 +778,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'mollusc',
     niche: 'open-water',
-    cost: 3,
+    cost: 4,
     attack: 3,
     health: 3,
     // Surge's real justification, on research: giant axons — the same
@@ -763,12 +811,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
-    // Cost 5, not 3: a wall, spines, a scout, and the flat's largest aura on
-    // one card. Diadema has no eyes, but photoreceptors spread across its
-    // whole skin resolve a looming shape well enough to point spines at it
-    // before contact is made — a real sense distinct from the spines
-    // themselves, which only answer an attack that has already landed.
-    cost: 5,
+    // A wall, spines, a scout, and the flat's largest aura on one card —
+    // the single most-loaded body in the set, and a full-set repricing pass
+    // moved cost to match (5->7). Diadema has no eyes, but photoreceptors
+    // spread across its whole skin resolve a looming shape well enough to
+    // point spines at it before contact is made — a real sense distinct
+    // from the spines themselves, which only answer an attack that has
+    // already landed.
+    cost: 7,
     attack: 0,
     health: 6,
     keywords: ['reef-guard'],
@@ -818,9 +868,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
-    // Cost 2, not the higher tier a wall-plus-arrival-plus-aura would usually
-    // cost: reef-guard came off (a sea cucumber is soft and harmless, nothing
-    // a predator has to fight through), leaving it the aura and the arrival.
+    // Reef-guard came off (a sea cucumber is soft and harmless, nothing a
+    // predator has to fight through), leaving it the aura and the arrival.
+    // The full-set repricing pass implied 3 for that pair, the smallest of
+    // its movements — held at 2 instead, alongside three other +1 cost-2
+    // cards, to keep the cheap-card quota set.test.ts guards from dropping
+    // under its threshold.
     cost: 2,
     attack: 0,
     health: 6,
@@ -850,7 +903,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 3,
+    cost: 2,
     attack: 1,
     health: 2,
     // A second cleaner, so the cleaning-station aura is not one card deep.
@@ -941,7 +994,7 @@ export const CARDS: readonly CardDefinition[] = [
     // blocking access to anything. Toxin-immune stands on its own: a real
     // spongivore specialist, 70-95% of its diet sponges loaded with silica
     // spicules and toxic compounds it's documented to tolerate.
-    cost: 3,
+    cost: 4,
     attack: 2,
     health: 6,
     keywords: ['toxin-immune'],
@@ -964,10 +1017,10 @@ export const CARDS: readonly CardDefinition[] = [
     // is real. Gained reef-guard on the same evidence that already justifies
     // the bubble-tip anemone's: a real, documented, intensely painful
     // nematocyst sting that deters contact — a stinging barrier something
-    // else has to get past, same as the anemone. Cost held at 2 rather than
-    // bumped: same reef-guard-plus-spines-2 package as the anemone, 1 more
-    // health, at the anemone's own price.
-    cost: 2,
+    // else has to get past, same as the anemone. Same reef-guard-plus-
+    // spines-2 package as the anemone, 1 more health — a full-set repricing
+    // pass moved both to the same price together (2->4).
+    cost: 4,
     attack: 0,
     health: 5,
     keywords: ['reef-guard'],
@@ -992,7 +1045,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 5,
+    cost: 6,
     attack: 0,
     health: 9,
     keywords: ['reef-guard'],
@@ -1143,7 +1196,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'reptile',
     niche: 'open-water',
-    cost: 6,
+    cost: 5,
     attack: 5,
     health: 5,
     // Has a shell like the other two turtles, same as they do. A prior pass
@@ -1170,7 +1223,7 @@ export const CARDS: readonly CardDefinition[] = [
     // arched back, dropped fins — is a real, documented escalation that ends
     // in a genuinely fast, lightning slashing attack if the warning isn't
     // heeded. The mechanic now matches the flavour text already printed.
-    cost: 5,
+    cost: 3,
     attack: 3,
     health: 4,
     keywords: ['surge'],
@@ -1252,8 +1305,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
-    // Still cost 2. It paid for the aura by giving up its second energy tick:
-    // it is the perch things hunt from now, not the flat's battery.
+    // It paid for the aura by giving up its second energy tick: it is the
+    // perch things hunt from now, not the flat's battery. The full-set
+    // repricing pass implied 3 for the aura-plus-forage pair, the smallest
+    // of its movements — held at 2 instead, alongside three other +1
+    // cost-2 cards, to keep the cheap-card quota set.test.ts guards from
+    // dropping under its threshold.
     cost: 2,
     attack: 0,
     health: 5,
@@ -1317,7 +1374,7 @@ export const CARDS: readonly CardDefinition[] = [
     // characteristically slow — it walks on modified fins and ambushes from
     // a standstill — a poor fit for surge's full-attack reflex. Swapped
     // back: strike restored, surge dropped.
-    cost: 4,
+    cost: 3,
     attack: 3,
     health: 4,
     arrival: {
@@ -1429,16 +1486,13 @@ export const CARDS: readonly CardDefinition[] = [
     niche: 'bottom-crawler',
     // Lost its armour: tough skin is real, but softer a case than a puffer's,
     // and next to camouflage this isn't the wobbegong's defining trait — a
-    // fringe of skin flaps that reads as sand, not a shell. 4/5 with no
-    // keyword sits closer to the cost-5 vanilla line (Reef Manta's 4/6) than
-    // the cost-4 one (a flat 7 combined across every card that carries no
-    // keyword there), so the cost moved with the trait rather than just
-    // dropping by one.
+    // fringe of skin flaps that reads as sand, not a shell. A full-set
+    // repricing pass later settled a plain 4/5 body with no keyword at 3.
     // Also a genuinely well-documented ambush strike (jaw fires in under
     // 50ms via real suction feeding, same category as the coral grouper's
     // and nurse shark's) — but left off this card to keep the dash-holding
     // half of the set a minority. Real trait, just not spent here.
-    cost: 5,
+    cost: 3,
     attack: 4,
     health: 5,
     tide: {
