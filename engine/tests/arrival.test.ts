@@ -80,7 +80,7 @@ describe('the arrival vocabulary', () => {
   });
 
   it('only asks for a target when the effect actually needs one', () => {
-    expect(arrivalNeedsTarget(arrivalOf('peacock-mantis-shrimp'))).toBe(true);
+    expect(arrivalNeedsTarget(arrivalOf('tawny-nurse-shark'))).toBe(true);
     expect(arrivalNeedsTarget(arrivalOf('giant-clam'))).toBe(false);
     expect(arrivalNeedsTarget(arrivalOf('atlantic-mudskipper'))).toBe(false);
   });
@@ -90,7 +90,7 @@ describe('a targeted arrival', () => {
   it('damages the creature it was aimed at, the moment it lands', () => {
     let s = bareGame();
     s = place(s, 1, ['coral-grouper', 'clown-triggerfish']);
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'tawny-nurse-shark');
     const victim = find(withCard, 1, 'clown-triggerfish');
 
     const { state: after, events } = expectOk(
@@ -113,7 +113,7 @@ describe('a targeted arrival', () => {
   it('is refused without a target while there is something to hit', () => {
     let s = bareGame();
     s = place(s, 1, ['coral-grouper']);
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'tawny-nurse-shark');
 
     const result = applyAction(withCard, { type: 'PLAY_CARD', player: 0, instanceId });
     expect(result.ok).toBe(false);
@@ -124,7 +124,7 @@ describe('a targeted arrival', () => {
     let s = bareGame();
     s = place(s, 0, ['coral-grouper']); // your own card is not a legal target
     s = place(s, 1, ['clown-triggerfish']);
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'tawny-nurse-shark');
 
     const result = applyAction(withCard, {
       type: 'PLAY_CARD',
@@ -140,7 +140,7 @@ describe('a targeted arrival', () => {
     // Refusing this would strand the card in hand for a reason the player
     // cannot see anywhere on the table.
     const s = bareGame();
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'tawny-nurse-shark');
 
     const { state: after, events } = expectOk(
       applyAction(withCard, { type: 'PLAY_CARD', player: 0, instanceId }),
@@ -175,7 +175,7 @@ describe('a targeted arrival', () => {
   it('is offered through legalActions once per target, not once per card', () => {
     let s = bareGame();
     s = place(s, 1, ['coral-grouper', 'clown-triggerfish', 'giant-moray']);
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'tawny-nurse-shark');
 
     const plays = legalActions(withCard).filter(
       (a): a is Extract<typeof a, { type: 'PLAY_CARD' }> =>
@@ -270,7 +270,7 @@ describe('arrivals and the rest of the rules', () => {
     // on the enemy board, so it is rejected like any other bad target.
     let s = bareGame();
     s = place(s, 1, ['coral-grouper']);
-    const { state: withCard, instanceId } = inHand(s, 0, 'peacock-mantis-shrimp');
+    const { state: withCard, instanceId } = inHand(s, 0, 'tawny-nurse-shark');
 
     const result = applyAction(withCard, {
       type: 'PLAY_CARD',

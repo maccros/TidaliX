@@ -104,21 +104,19 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 4,
-    attack: 4,
-    health: 2,
     // Was armour too: a stomatopod does have a shell, but toughness isn't
     // what this animal is actually known for — everything about it is the
-    // club. Swapped for surge instead: the same extreme speed that makes the
-    // strike-on-arrival plausible also means it's ready to throw a real
-    // attack the same turn, not just its one fixed dash. Different result
-    // from the same trait, not a restatement of it.
+    // club. Swapped for surge: the same extreme speed that used to justify a
+    // strike dash. But on a closer look the dash's own justification was
+    // purely that speed ("fast enough to cavitate the water") — the same
+    // fact surge already covers, not a distinct mechanism the way a moray's
+    // second jaws or a triton's drilling radula are. Dropped the dash
+    // outright rather than keep two traits saying the same thing; cost
+    // dropped with it.
+    cost: 3,
+    attack: 4,
+    health: 2,
     keywords: ['pierce', 'surge'],
-    arrival: {
-      kind: 'strike',
-      amount: 2,
-      note: 'opens with a strike fast enough to cavitate the water',
-    },
     tide: {
       rising: { attack: 1 },
       low: { exposed: true },
@@ -132,7 +130,7 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 4,
+    cost: 5,
     attack: 4,
     health: 4,
     keywords: ['toxin-immune'],
@@ -145,6 +143,11 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'headstands at a crevice until a moray goes in, and takes what bolts out',
       },
     ],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'the mouth snaps open into a sudden vacuum, and prey many times its speed gets pulled straight in',
+    },
     tide: {
       rising: { attack: 1 },
       high: { attack: 1 },
@@ -309,10 +312,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'reef-dweller',
-    cost: 4,
+    cost: 5,
     attack: 4,
     health: 4,
     keywords: ['toxin-immune'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'the pharyngeal jaws shoot forward and clamp before the prey ever clears the crevice',
+    },
     tide: {
       falling: { attack: 1 },
       low: { health: 1 },
@@ -938,10 +946,15 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 4,
+    cost: 5,
     attack: 2,
     health: 7,
     keywords: ['reef-guard'],
+    arrival: {
+      kind: 'strike',
+      amount: 2,
+      note: 'flares its gill slits and the suction alone rips prey loose from the crevice it was hiding in',
+    },
     tide: {
       low: { health: 1 },
       falling: { attack: 1 },
@@ -1118,19 +1131,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'bottom-crawler',
-    cost: 5,
+    cost: 4,
     attack: 3,
     health: 4,
-    // The dash is the reflex; surge is a separate result of the same
-    // speed — a full attack the same turn, not just the one fixed strike.
-    // Its own note already says it: six milliseconds, among the fastest
-    // strikes of any vertebrate.
+    // Used to carry a strike dash too, but the dash's own note was just the
+    // same six-millisecond speed surge already covers, not a separate
+    // mechanism — no distinct bite, no venom, nothing the strike added that
+    // surge didn't already say. Dropped the dash; cost dropped with it.
     keywords: ['surge'],
-    arrival: {
-      kind: 'strike',
-      amount: 2,
-      note: 'waves the lure once, and the mouth is open and shut in six milliseconds',
-    },
     tide: {
       low: { attack: 1 },
       high: { attack: -1 },
