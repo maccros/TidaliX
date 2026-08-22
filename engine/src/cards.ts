@@ -234,9 +234,13 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'fish',
     niche: 'open-water',
-    cost: 6,
+    cost: 7,
     attack: 6,
     health: 6,
+    // Its own text already says it: headbutts coral apart and grinds it to
+    // sand. A real, documented durophagous predator — the strongest case in
+    // the set for pierce, and it had none. The one card at this price.
+    keywords: ['pierce'],
     arrival: {
       kind: 'strike',
       amount: 3,
@@ -705,12 +709,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'echinoderm',
     niche: 'bottom-crawler',
-    // Cost 3, not 2: it carries the only aura the flat has, on top of a wall and
-    // an arrival.
-    cost: 3,
+    // Cost 2, not the higher tier a wall-plus-arrival-plus-aura would usually
+    // cost: reef-guard came off (a sea cucumber is soft and harmless, nothing
+    // a predator has to fight through), leaving it the aura and the arrival.
+    cost: 2,
     attack: 0,
     health: 6,
-    keywords: ['reef-guard'],
     arrival: {
       kind: 'forage',
       amount: 1,
@@ -760,10 +764,12 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'crustacean',
     niche: 'bottom-crawler',
-    cost: 6,
+    // Was surge, and cost 6 for it: a real coconut crab is slow and
+    // methodical, not a fast striker — its whole identity, here and in
+    // reality, is grip strength. Dropped a cost with the keyword.
+    cost: 5,
     attack: 5,
     health: 5,
-    keywords: ['surge'],
     // The largest arthropod alive, and it has the exoskeleton to match.
     armour: 1,
     tide: {
@@ -894,11 +900,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'creature',
     taxon: 'shark-ray',
     niche: 'open-water',
-    cost: 5,
+    cost: 6,
     attack: 3,
     health: 5,
     // Unlike a manta, an eagle ray keeps its venomous tail barb and uses it.
-    keywords: ['toxic'],
+    // Pierce too — its own text was already saying it: a snout built to shovel
+    // shellfish out of the sand and crush them in flattened plates, the same
+    // durophagous case as the loggerhead's jaws.
+    keywords: ['toxic', 'pierce'],
     spines: 2,
     arrival: {
       kind: 'strike',
@@ -1162,10 +1171,16 @@ export const CARDS: readonly CardDefinition[] = [
     niche: 'frame-builder',
     // The only frame-builder with an attack, and it earns it: Fungia catches and
     // digests jellyfish. Every other coral in the set is a wall.
+    //
+    // Was reef-guard too, until it lost it: its own defining trait is being
+    // unattached and free-living ("cemented to nothing... rights itself if
+    // you turn it over") — the opposite of something a predator has to get
+    // past. Cost held at 2 rather than dropping with the keyword: 1/5 here
+    // is still a modest edge over Blue Sea Star's 1/4 at the same cost, not
+    // one big enough to need its own price cut.
     cost: 2,
     attack: 1,
     health: 5,
-    keywords: ['reef-guard'],
     tide: {
       low: { health: 1 },
       falling: { attack: 1 },
