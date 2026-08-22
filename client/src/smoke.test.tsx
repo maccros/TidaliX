@@ -453,7 +453,7 @@ describe('client', () => {
     expect(container.textContent).not.toContain('Right now');
   });
 
-  it('states every symbiosis gift in one shape, with the niche wearing its badge', async () => {
+  it('states every symbiosis in one shape, arrow first, with the niche wearing its badge', async () => {
     const { createInstance, getCard } = await import('@tidalix/engine');
     const { CardDetail } = await import('./CardDetail.tsx');
 
@@ -471,8 +471,10 @@ describe('client', () => {
         );
       });
 
-      expect(container.textContent).toContain('Symbiosis gift');
+      expect(container.textContent).toContain('Symbiosis');
+      expect(container.textContent).not.toContain('Symbiosis gift');
       const row = container.querySelector('.detail__auras li')!;
+      expect(row.querySelector('.detail__aura-arrow')?.textContent).toBe('→');
       // The niche is the same badge here as it is in the traits list above, so
       // a gift points at something the player can recognise on another card.
       const badge = row.querySelector(`.tag--niche-${def.auras![0]!.affects}`);

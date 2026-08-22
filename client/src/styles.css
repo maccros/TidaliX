@@ -680,6 +680,9 @@ button { font: inherit; color: inherit; }
   text-transform: uppercase; opacity: 0.8; color: var(--b-dash);
 }
 .detail__arrival-mark { opacity: 0.8; color: var(--b-dash); }
+/* Same mark and colour as the card face's symbiosis line — good, not b-dash,
+   the same way the delta above already is. */
+.detail__aura-arrow { opacity: 0.8; color: var(--good); }
 /* Both notes are the same kind of sentence in the same place, so they are the
    same size and both break to their own line under the effect they explain. */
 .detail__auranote, .detail__arrivalnote {

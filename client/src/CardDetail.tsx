@@ -261,13 +261,14 @@ export function CardDetail({ instance, phase, stats, zone, release, onClose }: C
 
         {def.auras && def.auras.length > 0 && (
           <section className="detail__section">
-            <h3 className="detail__h">Symbiosis gift</h3>
+            <h3 className="detail__h">Symbiosis</h3>
             {/* One shape per line: what it gives, who to, how far it reaches.
                 The niche wears the same badge it wears everywhere else, so the
                 line points at something the player can find on a card. */}
             <ul className="detail__auras">
               {def.auras.map((aura, i) => (
                 <li key={i}>
+                  <span className="detail__aura-arrow">→</span>
                   <b>{deltaLabel(aura.grants)}</b>
                   <span className="detail__to">to</span>
                   <span className={`tag tag--niche tag--niche-${aura.affects}`}>{aura.affects}</span>

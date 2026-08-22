@@ -1228,9 +1228,14 @@ export function nicheOf(definitionId: string): Niche {
 /**
  * Every symbiosis currently live on a board: which card is granting what to
  * which. Clients draw the links from this; nothing in the resolver needs it.
+ *
+ * `enemyBoard` is the opposing side, needed only for an aura marked
+ * `crossesWaterline` (a crown-of-thorns' outbreak) — every other aura is
+ * friendly-only, so passing it changes nothing for the rest of the set.
  */
 export function activeSymbioses(
   board: readonly { instanceId: string; definitionId: string }[],
+  enemyBoard: readonly { instanceId: string; definitionId: string }[] = [],
 ): { sourceId: string; targetId: string; aura: Aura }[] {
   const links: { sourceId: string; targetId: string; aura: Aura }[] = [];
   for (const source of board) {
@@ -1239,6 +1244,11 @@ export function activeSymbioses(
     for (const aura of auras) {
       for (const target of board) {
         if (target.instanceId === source.instanceId) continue;
+        if (nicheOf(target.definitionId) !== aura.affects) continue;
+        links.push({ sourceId: source.instanceId, targetId: target.instanceId, aura });
+      }
+      if (!aura.crossesWaterline) continue;
+      for (const target of enemyBoard) {
         if (nicheOf(target.definitionId) !== aura.affects) continue;
         links.push({ sourceId: source.instanceId, targetId: target.instanceId, aura });
       }

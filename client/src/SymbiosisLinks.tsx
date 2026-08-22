@@ -66,8 +66,12 @@ export function SymbiosisLinks({
       const origin = container.getBoundingClientRect();
       const next: Link[] = [];
 
-      for (const board of boards) {
-        for (const link of activeSymbioses(board)) {
+      for (let i = 0; i < boards.length; i++) {
+        const board = boards[i] ?? [];
+        // The other side, for the one aura (crown-of-thorns) that crosses
+        // the waterline — every other aura is friendly-only and ignores it.
+        const enemyBoard = boards[(i + 1) % boards.length] ?? [];
+        for (const link of activeSymbioses(board, enemyBoard)) {
           const from = nodes.get(link.sourceId);
           const to = nodes.get(link.targetId);
           if (!from || !to) continue;

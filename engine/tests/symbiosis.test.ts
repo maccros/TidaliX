@@ -339,6 +339,25 @@ describe('symbiosis', () => {
     expect(pairs).toContainEqual(['Staghorn Coral', 'Clown Anemonefish']);
   });
 
+  it('reports a crossing link into the enemy board, given it', () => {
+    let s = bareGame();
+    s = place(s, 0, ['crown-of-thorns-starfish']);
+    s = place(s, 1, ['table-coral']);
+
+    // Same as a client that never passes the enemy board: the crossing aura
+    // has nothing on this side to reach, so it reports nothing.
+    expect(activeSymbioses(s.players[0].board)).toHaveLength(0);
+
+    const links = activeSymbioses(s.players[0].board, s.players[1].board);
+    const starfish = s.players[0].board[0]!.instanceId;
+    const coral = s.players[1].board[0]!.instanceId;
+    expect(links).toContainEqual({
+      sourceId: starfish,
+      targetId: coral,
+      aura: getCard('crown-of-thorns-starfish').auras![0],
+    });
+  });
+
   it('separates the tide swing from the symbiosis swing in the stat breakdown', () => {
     // A moorish idol is a reef-dweller, so the staghorn shelters it. The tide
     // swing and the symbiosis swing are reported apart, which is the point.
