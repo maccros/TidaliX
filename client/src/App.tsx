@@ -1115,7 +1115,9 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
       return { text: `${getCard(event.definitionId).name} dies`, kind: 'death' };
 
     case 'TIDE_CHANGED':
-      return { text: `The tide turns: ${event.from} → ${event.to}`, kind: 'tide' };
+      // Coloured to the phase it is turning into, so the log matches whatever
+      // the board is about to show — not a fixed accent regardless of phase.
+      return { text: `The tide turns: ${event.from} → ${event.to}`, kind: `tide-${event.to}` };
 
     case 'SPECIES_RELEASED':
       return {
@@ -1128,7 +1130,7 @@ function describe(event: GameEvent, state: GameState): { text: string; kind: str
       const how = event.reason === 'conservation' ? 'the conservation pile' : 'damage';
       return {
         text: `${event.winner === YOU ? 'You win' : 'The AI wins'} on ${how}.`,
-        kind: 'over',
+        kind: event.winner === YOU ? 'win' : 'loss',
       };
     }
 

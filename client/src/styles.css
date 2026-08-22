@@ -25,6 +25,13 @@
   --warn: #a8432b;
   --good: #2f8570;
 
+  /* The game-over line only, so a win or a loss reads as the one
+     unmistakable line in the whole log rather than blending into the
+     colours everything else already uses. Measured against --surface: 4.59:1
+     and 6.80:1. */
+  --victory: #8a6d0a;
+  --defeat: #7238ad;
+
   /*
    * One hue per badge, and equal visual weight across all of them.
    *
@@ -98,6 +105,9 @@
     --falling: #97a7c6;
     --warn: #e5765f;
     --good: #58bda1;
+
+    --victory: #e8c34a;
+    --defeat: #c79bf0;
 
     --b-toxic:        #f6514c;
     --b-coral:        #f4842f;
@@ -749,7 +759,12 @@ button { font: inherit; color: inherit; }
   background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--radius);
   font-size: 0.74rem; font-family: var(--mono); color: var(--ink-soft);
 }
-.log__line--tide { color: var(--accent); font-weight: 700; }
+/* Coloured to the phase it is turning into, so the log matches the board it
+   describes rather than one fixed accent regardless of which tide it is. */
+.log__line--tide-low { color: var(--low); font-weight: 700; }
+.log__line--tide-rising { color: var(--rising); font-weight: 700; }
+.log__line--tide-high { color: var(--high); font-weight: 700; }
+.log__line--tide-falling { color: var(--falling); font-weight: 700; }
 .log__line--setup { color: var(--ink-soft); font-style: italic; }
 .log__line--turn {
   color: var(--accent); font-weight: 700; text-transform: capitalize;
@@ -759,10 +774,15 @@ button { font: inherit; color: inherit; }
 .log__line--heal { color: var(--good); }
 .log__line--conserve { color: var(--good); font-weight: 700; }
 .log__line--death { color: var(--warn); }
+.log__line--attack { color: var(--warn); }
 .log__line--retaliation { color: var(--warn); }
-.log__line--arrival { color: var(--accent); }
+/* The dash's own colour, same as the card face and full card, so a dash
+   reads the same everywhere it appears — not the general teal accent. */
+.log__line--arrival { color: var(--b-dash); }
 .log__line--toxin { color: var(--warn); }
 .log__line--over { color: var(--ink); }
+.log__line--win { color: var(--victory); font-weight: 700; }
+.log__line--loss { color: var(--defeat); font-weight: 700; }
 .log__line--error { color: var(--warn); font-style: italic; }
 
 @media (max-width: 720px) {
