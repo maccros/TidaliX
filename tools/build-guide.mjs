@@ -60,29 +60,39 @@ const GROUPS = [
     phase: 'low',
     title: 'Low tide — the exposed flat',
     blurb:
-      'The water has drained off the reef flat. These are the animals that keep hunting on foot, in air, or in inches of water, while everything built for deep water is stranded and vulnerable.',
-    ids: ['atlantic-mudskipper', 'sally-lightfoot-crab', 'tasselled-wobbegong', 'common-octopus', 'long-spined-urchin'],
+      'The water has drained off the reef flat. These are the animals that keep working it on foot, in air, or in inches of water, while everything built for deep water is stranded and vulnerable.',
+    ids: [
+      'atlantic-mudskipper', 'sally-lightfoot-crab', 'tasselled-wobbegong', 'common-octopus', 'long-spined-urchin',
+      'blue-ringed-octopus', 'coconut-crab', 'blue-sea-star', 'sea-cucumber', 'harlequin-shrimp',
+      'giant-triton', 'banded-sea-krait',
+    ],
   },
   {
     phase: 'rising',
     title: 'Rising tide — the flood',
     blurb:
       'Water climbs back over the crest and carries plankton with it. This is the phase that pays: the flood is the richest income in the game, and the reason banking through a lean low tide is worth doing.',
-    ids: ['peacock-mantis-shrimp', 'coral-grouper', 'warty-frogfish', 'moorish-idol'],
+    ids: [
+      'peacock-mantis-shrimp', 'coral-grouper', 'warty-frogfish', 'moorish-idol',
+      'bigfin-reef-squid', 'banded-coral-shrimp', 'feather-star', 'blue-spotted-ribbontail-ray',
+    ],
   },
   {
     phase: 'high',
     title: 'High tide — over the crest',
     blurb:
       'The reef is fully submerged and the big open-water animals come in over the top. The heaviest bodies in the set live here, and most of them pay for it when the water leaves.',
-    ids: ['reef-manta-ray', 'box-jellyfish', 'whitetip-reef-shark', 'green-sea-turtle', 'bumphead-parrotfish', 'giant-trevally'],
+    ids: [
+      'reef-manta-ray', 'box-jellyfish', 'whitetip-reef-shark', 'green-sea-turtle', 'bumphead-parrotfish', 'giant-trevally',
+      'hawksbill-turtle', 'spotted-eagle-ray', 'olive-sea-snake', 'loggerhead-turtle', 'grey-reef-shark',
+    ],
   },
   {
     phase: 'falling',
     title: 'Falling tide — the drain',
     blurb:
       'The flat empties into the channels and funnels everything living on it past a few narrow points. Ambush predators hold station and wait.',
-    ids: ['great-barracuda', 'giant-moray'],
+    ids: ['great-barracuda', 'giant-moray', 'tawny-nurse-shark'],
   },
   {
     phase: null,
@@ -95,20 +105,38 @@ const GROUPS = [
     phase: null,
     title: 'Residents — the mid phases',
     blurb:
-      'Species that never leave the reef and barely notice the cycle. They swing little, which makes them the stable core of a deck rather than its peaks — and two of them are the best symbiosis enablers in the set.',
-    ids: ['clown-anemonefish', 'clown-triggerfish', 'mushroom-coral', 'bluestreak-cleaner-wrasse'],
+      'Species that never leave the reef and barely notice the cycle. They swing little, which makes them the stable core of a deck rather than its peaks — and three of them carry a symbiosis gift besides.',
+    ids: ['clown-anemonefish', 'clown-triggerfish', 'mushroom-coral', 'bluestreak-cleaner-wrasse', 'spanish-dancer', 'mandarinfish'],
   },
   {
     phase: null,
     title: 'Structures — the reef itself',
     blurb:
-      'They do not attack. They hold ground, pay energy on the flood and at high water, shelter the fish that live in them, and bake when the tide goes out — every one of them is exposed at low tide. The two corals also build into each other: each is worth more health with another coral beside it, which is the closest thing in the set to a reef being a structure rather than a pile of cards.',
-    ids: ['staghorn-coral', 'table-coral', 'bubble-tip-anemone', 'giant-clam'],
+      'They do not attack. They hold ground, pay energy on the flood and at high water, shelter the fish that live in them, and bake when the tide goes out — every one of them is exposed at low tide. Several also build into each other: a frame-builder aura reads any other frame-builder on the board, so a wall of them is worth more than the sum of its cards — the closest thing in the set to a reef being a structure rather than a pile of cards.',
+    ids: ['staghorn-coral', 'table-coral', 'bubble-tip-anemone', 'giant-clam', 'fire-coral', 'brain-coral', 'sea-fan'],
   },
 ];
 
+const groupedIds = new Set(GROUPS.flatMap((g) => g.ids));
+const missing = CARDS.filter((c) => !groupedIds.has(c.id)).map((c) => c.id);
+if (missing.length > 0) {
+  throw new Error(`build-guide: ${missing.length} card(s) missing from every GROUPS entry: ${missing.join(', ')}`);
+}
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const fmt = (n) => (n > 0 ? `+${n}` : `${n}`);
+
+/** Describe the first-turn draw/energy asymmetry straight from config, so it can't drift. */
+function secondPlayerCompNote() {
+  const bonuses = [];
+  if (cfg.secondPlayerBonusCards) bonuses.push(`+${cfg.secondPlayerBonusCards} card${cfg.secondPlayerBonusCards === 1 ? '' : 's'}`);
+  if (cfg.secondPlayerBonusEnergy) bonuses.push(`+${cfg.secondPlayerBonusEnergy} energy`);
+  const skip = cfg.firstPlayerSkipsDraw
+    ? 'Player 1 opens without drawing (everyone still starts with the same hand size)'
+    : 'Player 1 draws normally on their first turn';
+  if (bonuses.length === 0) return `${skip}.`;
+  return `${skip}; player 2's first turn is compensated with ${bonuses.join(' and ')}, to offset the tempo of moving second.`;
+}
 
 function peakPhases(card) {
   const totals = P.map((p) => card.per[p].a + card.per[p].h);
@@ -463,6 +491,7 @@ const html = `<title>TidaliX Field Guide</title>
           <li>The game opens at <b>low tide</b>.</li>
           <li>Hand cap <span class="num">${cfg.maxHandSize}</span>; drawing past it discards the drawn card.</li>
           <li>The reef holds <span class="num">${cfg.maxBoardSize}</span> cards a side.</li>
+          <li>${secondPlayerCompNote()}</li>
         </ul>
       </div>
 
