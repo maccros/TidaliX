@@ -77,11 +77,11 @@ export const GUARDIANS_OF_THE_REEF: StarterDeck = {
   blurb: 'Corals and reef-dwellers, built to defend the structure they share.',
   list: expand(
     [
-      'clown-anemonefish', 'moorish-idol', 'mushroom-coral', 'staghorn-coral',
-      'clown-triggerfish', 'sea-fan', 'table-coral', 'fire-coral',
+      'clown-anemonefish', 'staghorn-coral', 'clown-triggerfish', 'sea-fan',
+      'table-coral', 'fire-coral', 'bubble-tip-anemone', 'coral-grouper',
     ],
     [
-      'bubble-tip-anemone', 'coral-grouper', 'common-octopus', 'banded-sea-krait',
+      'moorish-idol', 'mushroom-coral', 'common-octopus', 'banded-sea-krait',
       'blackspotted-puffer', 'red-lionfish', 'giant-moray', 'brain-coral', 'giant-clam',
       'reef-manta-ray', 'harlequin-shrimp', 'peacock-mantis-shrimp', 'box-jellyfish',
       'bluestreak-cleaner-wrasse',
