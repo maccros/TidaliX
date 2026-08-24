@@ -123,6 +123,33 @@
  * changes (1000 seeds, same harness as the full repricing pass): 56.5% ->
  * 57.3%, a 0.8pp move inside the ~1.6% standard error at this sample size —
  * no material balance shift.
+ *
+ * A full research-backed tide audit followed: every one of the 50 species'
+ * printed attack/health/energy swings and `exposed` phases, checked against
+ * real tidal/diel behaviour, not just plausibility. Four research passes (one
+ * per ~12-13 cards) found the large majority CONFIRMED by direct citation
+ * (mudskipper, octopus, manta ray, sea turtle, eagle ray, urchin's
+ * neighbours, corals/anemone/clam feeding on tidal current, and more) or
+ * QUESTIONABLE-but-uncontradicted — a species' real tidal behaviour often
+ * isn't studied at the hour-by-hour resolution a card needs, so "no citation
+ * found" was not treated as "wrong"; only an actual contradiction moved a
+ * card. Two did:
+ *
+ * - Banded Sea Krait: `low: {attack: 1}` contradicted both the research and
+ *   the card's own printed text ("Hunts eels inside the reef, then comes
+ *   ashore to digest them") — it hunts submerged, in flooded crevices, and
+ *   is documented as vulnerable and swimming-impaired on land. Moved the
+ *   bonus to `rising`, where it's actually hunting; same magnitude, so no
+ *   cost change.
+ * - Grey Reef Shark: `low: {exposed: true}` made it the only pelagic shark
+ *   in the set physically stranded/vulnerable at low tide — Whitetip Reef
+ *   Shark and Tawny Nurse Shark both retreat to deep water or a cave with no
+ *   exposed penalty, the real pattern for a free-swimming predator, unlike
+ *   the sand-flat-foraging rays that do carry `exposed`. Dropped the flag,
+ *   kept the attack penalty (real loss of hunting ground). Checked
+ *   price-model.mjs afterward: both moves stayed inside rounding of their
+ *   current cost, so neither needed a price change, and no fresh opener
+ *   win-rate measurement was needed since neither is a magnitude change.
  */
 
 import type { ArrivalEffect, Aura, CardDefinition, Niche, Taxon, TidePhase } from './types.js';
@@ -1034,8 +1061,14 @@ export const CARDS: readonly CardDefinition[] = [
       amount: 2,
       note: 'goes into the crevice after whatever is hiding in it',
     },
+    // Was low, moved to rising: a tide-behaviour research pass caught this
+    // contradicting the card's own text. It hunts eels submerged in flooded
+    // crevices — it needs the water there to hunt at all — and is
+    // documented as vulnerable and swimming-impaired on land, which is
+    // exactly the opposite of a low-tide combat bonus. Kept the total
+    // magnitude the same, just moved it to a phase it's actually submerged.
     tide: {
-      low: { attack: 1 },
+      rising: { attack: 1 },
       high: { attack: 1 },
     },
     text: 'Hunts eels inside the reef, then comes ashore to digest them.',
@@ -1308,9 +1341,17 @@ export const CARDS: readonly CardDefinition[] = [
         note: 'keeps to a daytime shoal, and a shoal comes home fed more often than any one shark alone',
       },
     ],
+    // Dropped `exposed` at low tide: a tide-behaviour research pass caught
+    // this as the one pelagic shark in the set marked as physically
+    // stranded/vulnerable when the flat drains, unlike Whitetip Reef Shark
+    // and Tawny Nurse Shark, which retreat to deep water or a cave with no
+    // exposed penalty — the real pattern for a free-swimming predator, not
+    // a sand-flat forager like the rays that do carry `exposed`. It loses
+    // hunting ground at low tide (kept the attack penalty) without being
+    // caught out by it.
     tide: {
       high: { attack: 1 },
-      low: { attack: -1, exposed: true },
+      low: { attack: -1 },
     },
     text: 'Arches its back and drops its fins as a warning. It only warns once.',
   },
