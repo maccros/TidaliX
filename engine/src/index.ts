@@ -112,3 +112,13 @@ export { applyAction, legalActions, startGame } from './resolver.js';
 
 export { DIFFICULTIES, DIFFICULTY_NOTE, chooseAction, takeTurn } from './bot.js';
 export type { BotProfile, Difficulty } from './bot.js';
+
+export {
+  CLAWS_OF_THE_FLAT,
+  GUARDIANS_OF_THE_REEF,
+  NATURE_DECK,
+  STARTER_DECKS,
+  TITANS_OF_THE_CREST,
+  getStarterDeck,
+} from './decks.js';
+export type { StarterDeck } from './decks.js';

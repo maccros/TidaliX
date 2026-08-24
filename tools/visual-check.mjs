@@ -198,8 +198,14 @@ async function main() {
           const page = await browser.newPage();
           await page.emulateMedia({ colorScheme: scheme });
           await page.goto(BASE);
-          await page.waitForSelector('.board, #root');
-          failures += await checkOverflow(page, scheme);
+          // A new game opens on deck setup, not the board — check both, since
+          // the setup screen is a real layout in its own right and the board
+          // is the one this check has always existed for.
+          await page.waitForSelector('.setup');
+          failures += await checkOverflow(page, `${scheme} setup`);
+          await page.click('.setup__start');
+          await page.waitForSelector('.app');
+          failures += await checkOverflow(page, `${scheme} board`);
           await page.close();
         }
       }

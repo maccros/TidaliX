@@ -43,11 +43,26 @@ cascades resolve.
 **A card's tide line must match the real animal.** If the card and the species
 disagree, the card is wrong. This is a design rule, not flavour.
 
-**Fifty playable species, one copy of each.** The deck *is* the set. Adding a
-species means cutting one; aim additions at whichever taxon, niche or trait is
-thinnest, and cut whatever is a duplicate of something better. `set.test.ts`
-guards the shape that falls out of this — notably that the opener, on two energy
-and four cards, has something to play in most games.
+**Fifty playable species.** `set.test.ts` guards the shape that falls out of
+this — notably that the opener, on two energy and four cards, has something to
+play in most games. Adding a species means cutting one from the roster; aim
+additions at whichever taxon, niche or trait is thinnest, and cut whatever is a
+duplicate of something better.
+
+**Nature is the set; the three themed decks are a curated deal from it.**
+Nature (`engine/src/decks.ts`) is the original one-copy-of-each 50, the deck the
+whole game was designed and priced against — pick it on both sides and nothing
+about balance changes. The three themed starter decks (Claws of the Flat,
+Titans of the Crest, Guardians of the Reef) each highlight one niche, run 30
+cards with up to 2 copies of a species, and pull in a deliberate supporting
+cast from other niches for real reasons — an aura with no target in its own
+niche, a tide-phase alignment, a documented predator/prey relationship, a
+keyword or dash the niche has no native source for — never padding. Between
+the three, every one of the 50 species appears at least once, and every deck
+carries every keyword and every dash kind at least once; `decks.test.ts`
+guards both. A themed deck is priced the same as Nature's cards — it does not
+get its own cost curve, so nothing about the balance work above assumes only
+one deck exists.
 
 **No depth mechanic.** Considered and deliberately dropped; nearly the whole
 roster is reef-dwelling. Do not propose reintroducing it.

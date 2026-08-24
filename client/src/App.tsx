@@ -10,6 +10,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DIFFICULTIES,
   DIFFICULTY_NOTE,
+  NATURE_DECK,
+  STARTER_DECKS,
   TAXON_LABEL,
   TIDE_CYCLE,
   allTaxa,
@@ -23,6 +25,7 @@ import {
   diesAtNextPhase,
   effectiveStats,
   getCard,
+  getStarterDeck,
   legalActions,
   startGame,
   statsFor,
@@ -36,12 +39,14 @@ import {
   type GameEvent,
   type GameState,
   type PlayerId,
+  type StarterDeck,
   type TidePhase,
 } from '@tidalix/engine';
 
 import { CardView, type CardState } from './CardView.tsx';
 import { CardDetail } from './CardDetail.tsx';
 import { EnergyPanel } from './EnergyPanel.tsx';
+import { NewGameSetup } from './NewGameSetup.tsx';
 import { SymbiosisLinks } from './SymbiosisLinks.tsx';
 
 const YOU: PlayerId = 0;
@@ -61,12 +66,18 @@ const capitalise = (s: string) => s[0]!.toUpperCase() + s.slice(1);
  */
 function openingLine(
   seed: number,
+  playerDeck: StarterDeck,
+  opponentDeck: StarterDeck,
   difficulty: Difficulty,
   first: PlayerId,
 ): { text: string; kind: string } {
   const who = first === YOU ? 'You go first' : 'The AI goes first';
+  const decks =
+    playerDeck.id === opponentDeck.id
+      ? playerDeck.name
+      : `${playerDeck.name} vs ${opponentDeck.name}`;
   return {
-    text: `New game · ${capitalise(difficulty)} opponent · ${who} · seed ${seed}`,
+    text: `New game · ${decks} · ${capitalise(difficulty)} opponent · ${who} · seed ${seed}`,
     kind: 'setup',
   };
 }
@@ -85,10 +96,20 @@ const PHASE_NOTE: Record<TidePhase, string> = {
  * the opening hand's last draw and the first turn header happen there. Throwing
  * them away left the log missing turn one entirely.
  */
-function newGame(seed: number): { state: GameState; events: GameEvent[] } {
+function newGame(
+  seed: number,
+  playerDeck: StarterDeck,
+  opponentDeck: StarterDeck,
+): { state: GameState; events: GameEvent[] } {
   // The coin flip is worth about 63% of games, so it is a flip, not a gift. It
   // is derived from the seed, so a linked game still replays exactly.
-  return startGame(createGame({ seed, startingPlayer: 'random' }));
+  return startGame(
+    createGame({
+      seed,
+      startingPlayer: 'random',
+      decks: [[...playerDeck.list], [...opponentDeck.list]],
+    }),
+  );
 }
 
 /**
@@ -112,7 +133,19 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [seed, setSeed] = useState(
     () => fixedSeed ?? seedFromUrl() ?? Math.floor(Math.random() * 100000),
   );
-  const [opening] = useState(() => newGame(seed));
+  const [difficulty, setDifficulty] = useState<Difficulty>(DEFAULT_DIFFICULTY);
+  // The board underneath is real game state from the moment the app mounts —
+  // React's rules of hooks mean it has to be, since every hook below needs
+  // something to compute over — but nothing shows it until the player has
+  // actually chosen a deck. It opens on Nature vs Nature until then, the same
+  // default a linked ?seed= URL should reproduce.
+  const [playerDeck, setPlayerDeck] = useState<StarterDeck>(NATURE_DECK);
+  const [opponentDeck, setOpponentDeck] = useState<StarterDeck>(NATURE_DECK);
+  const [setupOpen, setSetupOpen] = useState(true);
+  // Distinguishes the very first load (nothing to cancel back to yet) from a
+  // reopened setup screen mid-game (where "back to game" should be offered).
+  const [everStarted, setEverStarted] = useState(false);
+  const [opening] = useState(() => newGame(seed, playerDeck, opponentDeck));
   const [state, setState] = useState<GameState>(opening.state);
   const [selected, setSelected] = useState<string | null>(null);
   /**
@@ -123,13 +156,12 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
   const [aiming, setAiming] = useState<string | null>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
   const [log, setLog] = useState<{ text: string; kind: string }[]>(() => [
-    openingLine(seed, DEFAULT_DIFFICULTY, opening.state.activePlayer),
+    openingLine(seed, playerDeck, opponentDeck, DEFAULT_DIFFICULTY, opening.state.activePlayer),
     ...orderForLog(opening.events)
       .map((e) => describe(e, opening.state))
       .filter((l): l is { text: string; kind: string } => l !== null),
   ]);
   const [botThinking, setBotThinking] = useState(false);
-  const [difficulty, setDifficulty] = useState<Difficulty>(DEFAULT_DIFFICULTY);
 
   const [boardEl, setBoardEl] = useState<HTMLElement | null>(null);
   const nodes = useRef(new Map<string, HTMLElement>());
@@ -149,23 +181,33 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
     if (lines.length) setLog((prev) => [...prev.slice(-400), ...lines]);
   }, []);
 
-  const restart = useCallback(
-    (nextSeed: number) => {
+  const startNewGame = useCallback(
+    (
+      nextSeed: number,
+      nextPlayerDeck: StarterDeck,
+      nextOpponentDeck: StarterDeck,
+      nextDifficulty: Difficulty,
+    ) => {
       nodes.current.clear();
-      const fresh = newGame(nextSeed);
+      const fresh = newGame(nextSeed, nextPlayerDeck, nextOpponentDeck);
       setSeed(nextSeed);
+      setPlayerDeck(nextPlayerDeck);
+      setOpponentDeck(nextOpponentDeck);
+      setDifficulty(nextDifficulty);
       setState(fresh.state);
       setSelected(null);
       setAiming(null);
       setInspecting(null);
       setLog([
-        openingLine(nextSeed, difficulty, fresh.state.activePlayer),
+        openingLine(nextSeed, nextPlayerDeck, nextOpponentDeck, nextDifficulty, fresh.state.activePlayer),
         ...orderForLog(fresh.events)
           .map((e) => describe(e, fresh.state))
           .filter((l): l is { text: string; kind: string } => l !== null),
       ]);
+      setSetupOpen(false);
+      setEverStarted(true);
     },
-    [difficulty],
+    [],
   );
 
   const run = useCallback(
@@ -403,6 +445,33 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
 
   const canHitFace = selected !== null && targets.has('face');
 
+  // The board underneath is real, but nothing about it is worth showing until
+  // a deck's been chosen — an early return here, after every hook above has
+  // already run, is what keeps that choice from ever flashing a half-set-up
+  // game board behind it.
+  if (setupOpen) {
+    return (
+      <NewGameSetup
+        playerDeckId={playerDeck.id}
+        opponentDeckId={opponentDeck.id}
+        difficulty={difficulty}
+        onStart={(nextPlayerId, nextOpponentId, nextDifficulty) =>
+          startNewGame(
+            // The very first confirm honours a fixed/linked/?seed= game
+            // exactly, same as before this screen existed; only a *second*
+            // "New game" generates a fresh random one — replaying the same
+            // seed forever would defeat the point of asking again.
+            everStarted ? Math.floor(Math.random() * 100000) : seed,
+            getStarterDeck(nextPlayerId),
+            getStarterDeck(nextOpponentId),
+            nextDifficulty,
+          )
+        }
+        {...(everStarted ? { onCancel: () => setSetupOpen(false) } : {})}
+      />
+    );
+  }
+
   return (
     <div className="app">
       <TideTrack state={state} />
@@ -510,7 +579,7 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
         >
           End turn
         </button>
-        <button type="button" className="btn" onClick={() => restart(Math.floor(Math.random() * 100000))}>
+        <button type="button" className="btn" onClick={() => setSetupOpen(true)}>
           New game
         </button>
         <label className="bar__difficulty" title={DIFFICULTY_NOTE[difficulty]}>

@@ -33,11 +33,17 @@ function remount() {
  * Seed 7 is fixed deliberately. The engine is deterministic, so this pins the
  * opening hand *and* the coin flip for the first turn — and 7 is one of the
  * seeds where the player moves first, which most of these cases need.
+ *
+ * A new game now opens on the deck-setup screen rather than the board, so
+ * every test drives through it first — Nature vs Nature, same as the old
+ * default — via the same "Start game" button a player clicks.
  */
 function render(seed = 7) {
   act(() => {
     root.render(<App seed={seed} />);
   });
+  const start = container.querySelector<HTMLButtonElement>('.setup__start');
+  if (start) act(() => start.click());
 }
 
 describe('client', () => {

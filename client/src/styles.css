@@ -882,3 +882,67 @@ button { font: inherit; color: inherit; }
   background: #f2f6f7; border: 1px solid #dbe4e6; border-radius: 4px;
   padding: 0.5rem; margin-bottom: 0.55rem;
 }
+
+/* ---- New-game setup ---- */
+.setup {
+  min-height: 100vh;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem clamp(0.6rem, 4vw, 1.5rem) 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+.setup__head { text-align: center; }
+.setup__eyebrow {
+  margin: 0 0 0.3rem;
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.setup__title { margin: 0; font-family: var(--serif); font-size: 2.4rem; }
+.setup__x { color: var(--accent); }
+.setup__tagline { margin: 0.4rem 0 0; color: var(--ink-soft); }
+
+.setup__h {
+  margin: 0 0 0.5rem;
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+
+.setup__decks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.6rem;
+}
+.setup__deck {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 0.7rem 0.85rem;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.setup__deck:hover { background: var(--sunken); }
+.setup__deck.is-picked {
+  border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+}
+.setup__deckname { font-family: var(--serif); font-weight: 600; font-size: 1rem; }
+.setup__decksize { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-faint); }
+.setup__deckblurb { font-size: 0.78rem; color: var(--ink-soft); line-height: 1.4; }
+
+.setup__diffs { display: flex; gap: 0.5rem; }
+.setup__diff {
+  flex: 1;
+  text-transform: capitalize; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 0.55rem; font-weight: 600;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.setup__diff:hover { background: var(--sunken); }
+.setup__diff.is-picked {
+  border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+}
+
+.setup__actions { display: flex; justify-content: center; gap: 0.6rem; }
+.setup__start { padding: 0.6rem 1.6rem; font-size: 1rem; }
