@@ -71,6 +71,24 @@
  * single card's cost if the set changes again; a one-off peer comparison
  * is exactly the drift this
  * pass corrected.
+ *
+ * A follow-up pass reviewed every printed magnitude — base attack/health,
+ * armour, spines, dash amount, aura grants, tide deltas — against the real
+ * animal and against every other card's own printed reasoning, not just
+ * whether a trait was present. Grepped every card's comments for an explicit
+ * relative claim ("same as", "stronger than", "less than", ...) and checked
+ * it against the printed number. Every claim held except one: Box
+ * Jellyfish's own comment argued its venom was "if anything a stronger
+ * case" than Fire Coral's and Bubble-tip Anemone's, both spines 2, while
+ * printing the same spines value as them — Chironex fleckeri is
+ * cardiotoxic and documented capable of killing an adult human in 2-5
+ * minutes, categorically past a fire coral welt or an anemone sting.
+ * Raised to spines 3. Re-ran price-check afterward: the raw score moved
+ * from 19.2 to 19.5 points, implying 6.3 against a cost of 6 — inside
+ * rounding, no cost change. (Crown-of-thorns Starfish's spines 1, held
+ * below Fire Coral's 2 specifically so its retaliation doesn't also kill
+ * the Giant Triton built to counter it, was left alone — a deliberate,
+ * already-documented balance trade against biology, not a contradiction.)
  */
 
 import type { ArrivalEffect, Aura, CardDefinition, Niche, Taxon, TidePhase } from './types.js';
@@ -1424,13 +1442,17 @@ export const CARDS: readonly CardDefinition[] = [
     // several animals at once, not just the one it was aimed at.
     // Gained spines: a contact-triggered nematocyst sting, the same
     // mechanism already justifying the anemone's and fire coral's spines —
-    // if anything a stronger case, among the most potent venom of any
-    // animal. Models what happens to whatever actually lands a hit on it.
+    // but not the same magnitude. Those are a painful deterrent; this is a
+    // cardiotoxic venom documented capable of killing an adult human in 2-5
+    // minutes, among the most potent of any animal. Printed above them at 3
+    // rather than tied with them at 2, on a full-set magnitude review that
+    // caught this card arguing its own case was stronger while carrying the
+    // same number.
     cost: 6,
     attack: 3,
     health: 4,
     keywords: ['toxic'],
-    spines: 2,
+    spines: 3,
     auras: [
       {
         affects: 'open-water',

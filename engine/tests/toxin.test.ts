@@ -141,7 +141,7 @@ describe('eating something toxic', () => {
     // would, and simply does not care about the venom.
     let s = bareGame({ config: { startingHandSize: 0, startingPhase: 'high' } });
     s = place(s, 0, ['hawksbill-turtle']); // 2 attack, 7 health at high, toxin-immune, armour 1
-    s = place(s, 1, ['box-jellyfish']); // 3 attack, 4 health, spines 2
+    s = place(s, 1, ['box-jellyfish']); // 3 attack, 4 health, spines 3
 
     const marked = structuredClone(s);
     marked.players[1].board[0]!.damage = 3; // 1 health left, so the turtle can finish it
@@ -158,10 +158,10 @@ describe('eating something toxic', () => {
     expect(events.some((e) => e.type === 'SPECIES_POISONED')).toBe(false);
     expect(after.players[1].board).toHaveLength(0);
     // Alive, and marked only by the retaliation — immunity is to the venom, not
-    // to the animal fighting back. The jellyfish returns its 3 attack plus 2
+    // to the animal fighting back. The jellyfish returns its 3 attack plus 3
     // spines, of which the turtle's shell eats 1.
     expect(after.players[0].board).toHaveLength(1);
-    expect(after.players[0].board[0]?.damage).toBe(4);
+    expect(after.players[0].board[0]?.damage).toBe(5);
     expect(after.players[0].board[0]?.poisoned).toBe(false);
   });
 
