@@ -9,6 +9,13 @@ import { useState } from 'react';
 
 import { DIFFICULTIES, DIFFICULTY_NOTE, STARTER_DECKS, type Difficulty } from '@tidalix/engine';
 
+/**
+ * Not a real deck — a client-side sentinel resolved to one of the four real
+ * ones at random when the game starts. The engine only ever sees a real
+ * deck id; `resolveDeckId` in App.tsx is where this gets turned into one.
+ */
+export const RANDOM_DECK_ID = 'random';
+
 export interface NewGameSetupProps {
   playerDeckId: string;
   opponentDeckId: string;
@@ -18,6 +25,12 @@ export interface NewGameSetupProps {
   onCancel?: () => void;
 }
 
+/**
+ * The full picker, with what each deck is — used once, for "Your deck". The
+ * opponent picker just names the same four decks again beneath it, so it
+ * only needs the names: repeating the description would be telling the
+ * player something they read one section up.
+ */
 function DeckPicker({
   label,
   value,
@@ -50,6 +63,57 @@ function DeckPicker({
             </button>
           );
         })}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={value === RANDOM_DECK_ID}
+          className={`setup__deck setup__deck--random${value === RANDOM_DECK_ID ? ' is-picked' : ''}`}
+          onClick={() => onChange(RANDOM_DECK_ID)}
+        >
+          <span className="setup__deckname">Random</span>
+          <span className="setup__deckblurb">One of the four, drawn when the game starts.</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CompactDeckPicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <div className="setup__deckpicker">
+      <h3 className="setup__h">{label}</h3>
+      <div className="setup__decks setup__decks--compact" role="radiogroup" aria-label={label}>
+        {STARTER_DECKS.map((deck) => (
+          <button
+            key={deck.id}
+            type="button"
+            role="radio"
+            aria-checked={value === deck.id}
+            className={`setup__deck setup__deck--compact${value === deck.id ? ' is-picked' : ''}`}
+            onClick={() => onChange(deck.id)}
+          >
+            {deck.name}
+          </button>
+        ))}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={value === RANDOM_DECK_ID}
+          className={`setup__deck setup__deck--compact setup__deck--random${
+            value === RANDOM_DECK_ID ? ' is-picked' : ''
+          }`}
+          onClick={() => onChange(RANDOM_DECK_ID)}
+        >
+          Random
+        </button>
       </div>
     </div>
   );
@@ -77,7 +141,7 @@ export function NewGameSetup({
       </header>
 
       <DeckPicker label="Your deck" value={player} onChange={setPlayer} />
-      <DeckPicker label="Opponent's deck" value={opponent} onChange={setOpponent} />
+      <CompactDeckPicker label="Opponent's deck" value={opponent} onChange={setOpponent} />
 
       <div className="setup__difficulty">
         <h3 className="setup__h">Opponent difficulty</h3>

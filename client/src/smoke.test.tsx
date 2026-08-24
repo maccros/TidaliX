@@ -785,6 +785,47 @@ describe('the coin flip', () => {
   });
 });
 
+describe('new-game setup', () => {
+  it('opens on the setup screen, not the board', () => {
+    act(() => {
+      root.render(<App seed={7} />);
+    });
+    expect(container.querySelector('.setup')).not.toBeNull();
+    expect(container.querySelector('.app')).toBeNull();
+  });
+
+  it('names each deck once: full detail for yours, names only for the opponent', () => {
+    act(() => {
+      root.render(<App seed={7} />);
+    });
+    // "Your deck" gets the full card, blurb included.
+    const yours = container.querySelector('.setup__deckpicker');
+    expect(yours?.querySelector('.setup__deckblurb')).not.toBeNull();
+    // The opponent picker repeats the same four names, not the description.
+    const compact = container.querySelector('.setup__decks--compact');
+    expect(compact?.querySelector('.setup__deckblurb')).toBeNull();
+    expect(compact?.textContent).toContain('Claws of the Flat');
+  });
+
+  it('resolves "Random" to one of the four real decks, independently per side', () => {
+    act(() => {
+      root.render(<App seed={7} />);
+    });
+    const pickers = container.querySelectorAll('.setup__decks');
+    for (const picker of pickers) {
+      const random = [...picker.querySelectorAll('button')].find((b) => b.textContent?.startsWith('Random'));
+      act(() => random!.click());
+    }
+    act(() => {
+      container.querySelector<HTMLButtonElement>('.setup__start')!.click();
+    });
+    const opening = container.querySelector('.log__line')?.textContent ?? '';
+    const realDecks = ['Nature', 'Claws of the Flat', 'Titans of the Crest', 'Guardians of the Reef'];
+    expect(opening).not.toContain('Random');
+    expect(realDecks.some((name) => opening.includes(name))).toBe(true);
+  });
+});
+
 describe('log wording', () => {
   it('agrees with its own subject, and never says "You has"', async () => {
     // 80 seeds of full bot-vs-bot play; the card set's own size and cost

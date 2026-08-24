@@ -45,7 +45,7 @@ import {
 import { CardView, type CardState } from './CardView.tsx';
 import { CardDetail } from './CardDetail.tsx';
 import { EnergyPanel } from './EnergyPanel.tsx';
-import { NewGameSetup } from './NewGameSetup.tsx';
+import { NewGameSetup, RANDOM_DECK_ID } from './NewGameSetup.tsx';
 import { SymbiosisLinks } from './SymbiosisLinks.tsx';
 
 const YOU: PlayerId = 0;
@@ -87,6 +87,16 @@ const PHASE_NOTE: Record<TidePhase, string> = {
   high: 'Water covers the crest. The big open-water animals come in.',
   falling: 'The flat empties into the channels. Ambush predators hold station.',
 };
+
+/**
+ * Turns a setup-screen deck choice into a real deck. `RANDOM_DECK_ID` is the
+ * only id `getStarterDeck` doesn't know — resolved here, independently for
+ * each side, so "Random" on one side never has to match the other's draw.
+ */
+function resolveDeckId(id: string): StarterDeck {
+  if (id !== RANDOM_DECK_ID) return getStarterDeck(id);
+  return STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)]!;
+}
 
 /**
  * A fresh game, and the events that opened it.
@@ -461,8 +471,8 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
             // "New game" generates a fresh random one — replaying the same
             // seed forever would defeat the point of asking again.
             everStarted ? Math.floor(Math.random() * 100000) : seed,
-            getStarterDeck(nextPlayerId),
-            getStarterDeck(nextOpponentId),
+            resolveDeckId(nextPlayerId),
+            resolveDeckId(nextOpponentId),
             nextDifficulty,
           )
         }

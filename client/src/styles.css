@@ -917,6 +917,16 @@ button { font: inherit; color: inherit; }
 .setup__deckname { font-family: var(--serif); font-weight: 600; font-size: 1rem; }
 .setup__decksize { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-faint); }
 .setup__deckblurb { font-size: 0.78rem; color: var(--ink-soft); line-height: 1.4; }
+/* Wildcard, on both pickers: dashed rather than solid, since it isn't a
+   fixed deck like the other four — it stands for whichever one gets drawn. */
+.setup__deck--random { border-style: dashed; }
+
+/* The opponent picker: same four decks, already described one section up —
+   just their names, in a row, not the full card again. */
+.setup__decks--compact { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.setup__deck--compact {
+  flex-direction: row; padding: 0.5rem 0.9rem; font-weight: 600; font-size: 0.85rem;
+}
 
 .setup__diffs { display: flex; gap: 0.5rem; }
 .setup__diff {
