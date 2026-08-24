@@ -89,6 +89,40 @@
  * below Fire Coral's 2 specifically so its retaliation doesn't also kill
  * the Giant Triton built to counter it, was left alone — a deliberate,
  * already-documented balance trade against biology, not a contradiction.)
+ *
+ * Two follow-up checks, prompted by a direct question about whether pierce's
+ * growing count was quietly eroding armour's value, and whether price-model.mjs
+ * actually accounted for the tide at all. Both were real gaps, checked rather
+ * than assumed:
+ *
+ * Armour vs pierce: measured directly (self-play, 1000 games, every
+ * DAMAGE_DEALT event against an armoured target). Armour still absorbs
+ * damage on 60.5% of hits that land on an armoured creature. Pierce (8/50
+ * cards) accounts for only 8.6% of the bypasses — the bigger bypass source
+ * is arrival damage (30.9%), which has always ignored armour by design and
+ * predates every pierce card in the set. Armour's price weight was not
+ * touched; the measurement did not support the concern.
+ *
+ * Tide was a real blind spot: price-model.mjs scored base attack/health,
+ * armour, spines, keywords, dash, and auras, but never read a card's `tide`
+ * field at all — every printed attack/health/energy swing and every
+ * `exposed` phase was invisible to the cost model. Added a tide-averaged
+ * term (each phase's swing weighted the same as the base stat it modifies,
+ * averaged over the four-phase cycle since a long game spends roughly a
+ * quarter of its time in each one; `exposed` penalised at the same weight
+ * as `config.exposedBonusDamage`). Re-running the model found two overpriced
+ * cards the base-stats-only version missed entirely because their real
+ * downside was never counted: Coconut Crab (6->5 — a terrestrial crab that
+ * drowns in deep water, printed as -2 attack and exposed at high tide, a
+ * heavy penalty no earlier pass had priced) and Brain Coral (6->5 — the
+ * priciest structure in the set, but with the thinnest tide income of any
+ * frame-builder: every structure shares the low-tide exposed penalty, but
+ * Staghorn, Table and Sea Fan all pay energy on two phases against this
+ * one's one; a boundary case at implied 5.4, not a clean miss). Every other
+ * card converged inside rounding. Re-measured opener win rate after both
+ * changes (1000 seeds, same harness as the full repricing pass): 56.5% ->
+ * 57.3%, a 0.8pp move inside the ~1.6% standard error at this sample size —
+ * no material balance shift.
  */
 
 import type { ArrivalEffect, Aura, CardDefinition, Niche, Taxon, TidePhase } from './types.js';
@@ -961,7 +995,13 @@ export const CARDS: readonly CardDefinition[] = [
     // disproportionately large olfactory brain region — more interneurons
     // devoted to smell than a honeybee — used to detect food odour over long
     // range. Two real, unrelated mechanisms, so cost rose with both.
-    cost: 6,
+    // A tide-aware repricing pass (see tools/price-model.mjs) caught what the
+    // set's earlier cost passes never counted: its own printed downside. A
+    // terrestrial crab drowns in deep water, which is exactly why it carries
+    // -2 attack and exposed at high tide — a real, heavy tide penalty that
+    // was invisible to a model scoring only base stats and traits. Counting
+    // it dropped the implied cost to 5.
+    cost: 5,
     attack: 5,
     health: 5,
     // The largest arthropod alive, and it has the exoskeleton to match.
@@ -1063,7 +1103,14 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 6,
+    // A tide-aware repricing pass (tools/price-model.mjs) caught this as the
+    // priciest structure in the set carrying the stingiest tide profile of
+    // any of them: every frame-builder structure shares the same exposed-
+    // at-low-tide cost, but Staghorn, Table and Sea Fan all pay energy on
+    // two phases where this pays on one. A boundary case (implied 5.4, not
+    // a clean miss), but consistent once measured against its own peers
+    // rather than in isolation.
+    cost: 5,
     attack: 0,
     health: 9,
     keywords: ['reef-guard'],

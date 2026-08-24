@@ -35,6 +35,27 @@ const ARRIVAL_POINTS = {
   scout: 3,      // card advantage
 };
 const AURA_POINT = 1.5; // per point granted, per stat (attack or health treated equally)
+const ENERGY_POINT = 1.5; // matches the aura energy weight above — a point of energy outvalues a point of stat
+const EXPOSED_PENALTY = 1; // matches config.exposedBonusDamage: one phase exposed costs about one extra hit's worth
+
+// The tide is not a one-shot trait, it is live for the entire game — a card
+// spends roughly a quarter of a long game in each phase, so its printed
+// attack/health/energy swings and its `exposed` phases are priced on their
+// average over the full four-phase cycle, at the same per-point rate as the
+// base stats and aura grants they modify. Missing this was the model's own
+// blind spot: it scored every trait touching a card's stats except the one
+// already printed on nearly every card in the set.
+function tideScore(c) {
+  const phases = ['low', 'rising', 'high', 'falling'];
+  let sum = 0;
+  for (const p of phases) {
+    const e = c.tide?.[p];
+    if (!e) continue;
+    sum += (e.attack ?? 0) + (e.health ?? 0) + (e.energy ?? 0) * ENERGY_POINT;
+    if (e.exposed) sum -= EXPOSED_PENALTY;
+  }
+  return sum / phases.length;
+}
 
 function powerScore(c) {
   let p = (c.attack ?? 0) + (c.health ?? 0);
@@ -44,9 +65,10 @@ function powerScore(c) {
   if (c.arrival) p += (ARRIVAL_POINTS[c.arrival.kind] ?? 0) * c.arrival.amount;
   for (const aura of c.auras ?? []) {
     if (aura.crossesWaterline) continue; // COTS's outbreak debuff — different sign, scored separately below
-    const g = (aura.grants.attack ?? 0) + (aura.grants.health ?? 0) + (aura.grants.energy ?? 0) * 1.5;
+    const g = (aura.grants.attack ?? 0) + (aura.grants.health ?? 0) + (aura.grants.energy ?? 0) * ENERGY_POINT;
     p += g * AURA_POINT;
   }
+  p += tideScore(c);
   return p;
 }
 
