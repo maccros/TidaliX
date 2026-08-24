@@ -274,12 +274,14 @@ describe('symbiosis', () => {
     const one = place(bareGame(), 0, ['moorish-idol', 'staghorn-coral']);
     const two = place(bareGame(), 0, ['moorish-idol', 'staghorn-coral', 'table-coral']);
 
-    // Staghorn is the nursery: +0/+2 of shelter. Table coral is the canopy, and
-    // shade is somewhere to hunt from as well as hide in: +1/+1.
+    // Staghorn is the nursery: +0/+3 of shelter (raised from +2 on the
+    // frame-builder aura balance pass). Table coral is the canopy, and
+    // shade is somewhere to hunt from as well as hide in: +2/+1 (attack
+    // raised from +1 on the same pass).
     expect(statOf(bare, 0, 'moorish-idol').maxHealth).toBe(2);
-    expect(statOf(one, 0, 'moorish-idol').maxHealth).toBe(4);
-    expect(statOf(two, 0, 'moorish-idol').maxHealth).toBe(5);
-    expect(statOf(two, 0, 'moorish-idol').attack).toBe(3);
+    expect(statOf(one, 0, 'moorish-idol').maxHealth).toBe(5);
+    expect(statOf(two, 0, 'moorish-idol').maxHealth).toBe(6);
+    expect(statOf(two, 0, 'moorish-idol').attack).toBe(4);
   });
 
   it('lets corals build the framework into each other', () => {
@@ -369,8 +371,8 @@ describe('symbiosis', () => {
     const stats = statOf(s, 0, 'moorish-idol');
 
     expect(s.phase).toBe('low');
-    expect(stats.symbiosisBonus).toEqual({ attack: 0, health: 2 });
-    expect(stats.maxHealth).toBe(4);
+    expect(stats.symbiosisBonus).toEqual({ attack: 0, health: 3 });
+    expect(stats.maxHealth).toBe(5);
 
     // And a mudskipper, which lives on the flat rather than in the coral, gets
     // nothing from it — the niche is doing real work.

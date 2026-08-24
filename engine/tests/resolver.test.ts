@@ -506,7 +506,7 @@ describe('combat', () => {
   it('adds bonus damage when the phase leaves the defender exposed', () => {
     let s = stackedGame(['whitetip-reef-shark'], ['staghorn-coral']).state;
 
-    s = until(s, canAct(1, 2));
+    s = until(s, canAct(1, 4)); // staghorn now costs 4
     const coral = inHand(s, 1, 'staghorn-coral');
     s = must(s, { type: 'PLAY_CARD', player: 1, instanceId: coral.instanceId }).state;
 
@@ -559,7 +559,7 @@ describe('combat', () => {
 
   it('will not let a zero-attack structure attack at all', () => {
     let s = stackedGame(['staghorn-coral'], []).state;
-    s = until(s, canAct(0, 2));
+    s = until(s, canAct(0, 4)); // staghorn now costs 4
     const coral = inHand(s, 0, 'staghorn-coral');
     s = must(s, { type: 'PLAY_CARD', player: 0, instanceId: coral.instanceId }).state;
     expectError(

@@ -612,7 +612,9 @@ describe('card detail', () => {
     const { CardView } = await import('./CardView.tsx');
 
     // An anemonefish standing next to its anemone: +1 health from the tide
-    // (rising) and +2 from the host it is immune to.
+    // (rising) and +1/+2 from the host it is immune to (the anemone's aura
+    // gained the attack half on a balance pass: hosted anemonefish are
+    // documented bolder and more aggressive near their anemone).
     const fish = createInstance('clown-anemonefish', 0);
     const anemone = createInstance('bubble-tip-anemone', 0);
     const stats = effectiveStats(fish, 'rising', getCard('clown-anemonefish'), [fish, anemone]);
@@ -628,7 +630,7 @@ describe('card detail', () => {
     // Both halves of a delta carry a sign, zero included — the same rule the
     // live-stats column follows, so a chip and a row read alike.
     expect(text).toContain('tide +0/+1');
-    expect(text).toContain('symbiosis +0/+2');
+    expect(text).toContain('symbiosis +1/+2');
     // Its own niche, and its aura pointed back at the host.
     expect(text).toContain('reef-dweller');
     expect(text).toContain('frame-builder');

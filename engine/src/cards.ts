@@ -547,7 +547,15 @@ export const CARDS: readonly CardDefinition[] = [
     // documented to establish and aggressively defend a patrol territory
     // against intruders with body-posture displays and nipping. A better-
     // cited case than any turtle in this set ever was.
-    cost: 3,
+    //
+    // Held at 3 rather than dropping to the model's implied 2.85 (softest
+    // cost-3 delta after Whitetip Reef Shark and Olive Sea Snake, both
+    // skipped here since they're Titans of the Crest cards and this pin
+    // exists specifically to replace Staghorn Coral in the cheap-card
+    // quota — no sense softening the very deck the frame-builder aura
+    // pass was meant to help catch up to). This one's native to Guardians
+    // of the Reef instead.
+    cost: 2,
     attack: 3,
     health: 3,
     keywords: ['reef-guard'],
@@ -599,16 +607,31 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    // The full-set repricing pass implied 3, the smallest of its movements —
-    // held at 2 instead, alongside three other +1 cost-2 cards, to keep the
-    // cheap-card quota set.test.ts guards from dropping under its threshold.
-    cost: 2,
+    // Was held at 2 (the full-set repricing pass implied 3, the smallest of
+    // its movements) to protect the cheap-card quota set.test.ts guards.
+    // The frame-builder aura pass broke that: implied cost is now 4, not a
+    // marginal gap anymore, and holding a genuinely strong two-aura 0/5
+    // wall at the cheapest slot in the game would warp the opening turns
+    // more than the quota is worth protecting it for. Paying the real price
+    // now; the quota holds without it (Black Sea Cucumber, Bluestreak
+    // Cleaner Wrasse and Feather Star still anchor it).
+    cost: 4,
     attack: 0,
     health: 5,
+    // Reef-dweller grant raised 2->3: a themed-deck balance pass found every
+    // frame-builder's aura in the set was health-only except Table Coral's,
+    // while the game is decided by life total in effectively every game
+    // (measured self-play) — a wall that only ever makes its neighbours
+    // tougher, never more dangerous, can stall a loss but rarely flips one.
+    // Kept this one health rather than adding attack: its own claim is
+    // already the strongest protection story on the card ("nothing large
+    // can reach into" a staghorn thicket), not a boldness or ambush one, so
+    // the honest move is to make that protection hit harder, not invent an
+    // attack angle the biology doesn't support.
     auras: [
       {
         affects: 'reef-dweller',
-        grants: { health: 2 },
+        grants: { health: 3 },
         note: 'a nursery of branches nothing large can reach into',
       },
       {
@@ -631,16 +654,25 @@ export const CARDS: readonly CardDefinition[] = [
     type: 'structure',
     taxon: 'cnidarian',
     niche: 'frame-builder',
-    cost: 4,
+    // Moved 4->5 on the frame-builder aura balance pass: the aura gained an
+    // attack component (below).
+    cost: 5,
     attack: 0,
     health: 4,
     keywords: ['reef-guard'],
     spines: 2,
+    // Gained the attack half on a balance pass: documented behavioural
+    // ecology shows anemonefish grow measurably bolder and more aggressive
+    // the closer they are to their host, with proximity to the anemone
+    // directly correlated with escalated territorial displays against
+    // intruders — a resident that fights harder with a refuge at its back,
+    // not just one that survives longer. The health half was already the
+    // strongest single grant of its kind in the set; kept it there.
     auras: [
       {
         affects: 'reef-dweller',
-        grants: { health: 2 },
-        note: 'stinging tentacles its resident is immune to',
+        grants: { attack: 1, health: 2 },
+        note: 'stinging tentacles its resident is immune to, and fights boldly with a refuge at its back',
       },
     ],
     tide: {
@@ -660,12 +692,27 @@ export const CARDS: readonly CardDefinition[] = [
     // up as reef substrate. It was printed as a structure from the start; only
     // the niche disagreed, because it happens to sit on sand.
     niche: 'frame-builder',
-    cost: 5,
+    // Moved 5->6 with the aura gained below — a card that used to have none.
+    cost: 6,
     attack: 0,
     health: 8,
     keywords: ['reef-guard'],
     // Two shells that weigh as much as a person, and they close.
     armour: 1,
+    // Gained an aura on a balance pass, the one frame-builder in the set
+    // that had none: pontoniinid shrimp and pea crabs live commensally
+    // inside a giant clam's mantle cavity, anchored against the current
+    // its own gills generate — one species, Paranchistus armatus, is
+    // documented as obligate specifically to T. gigas, this card's own
+    // species. Long clam lifespans mean the shelter is genuinely secure
+    // across generations, not a fleeting hiding spot.
+    auras: [
+      {
+        affects: 'bottom-crawler',
+        grants: { health: 1 },
+        note: 'shrimp and pea crabs live anchored inside the mantle, sheltered for generations',
+      },
+    ],
     arrival: {
       kind: 'forage',
       amount: 2,
@@ -776,10 +823,16 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 4,
     attack: 0,
     health: 7,
+    // Reef-dweller attack grant raised 1->2 on a balance pass: this was
+    // already the one frame-builder aura in the set with an attack
+    // component, and its own claim — a broad, flat plate wide enough to
+    // ambush from — supports leaning harder into it rather than inventing
+    // a new mechanism. Health held: the shade is real cover, but the plate
+    // itself is what turns a hiding fish into a hunting one.
     auras: [
       {
         affects: 'reef-dweller',
-        grants: { attack: 1, health: 1 },
+        grants: { attack: 2, health: 1 },
         note: 'a whole storey of shade to hunt out of',
       },
       {
@@ -1110,16 +1163,23 @@ export const CARDS: readonly CardDefinition[] = [
     // nematocyst sting that deters contact — a stinging barrier something
     // else has to get past, same as the anemone. Same reef-guard-plus-
     // spines-2 package as the anemone, 1 more health — a full-set repricing
-    // pass moved both to the same price together (2->4).
-    cost: 4,
+    // pass moved both to the same price together (2->4). Moved together
+    // again here, 4->5, when the anemone's aura gained an attack component
+    // and this one's own health grant doubled.
+    cost: 5,
     attack: 0,
     health: 5,
     keywords: ['reef-guard'],
     spines: 2,
+    // Frame-builder grant raised 1->2 on a balance pass: purely structural
+    // growth, same as every other coral-to-coral aura in the set, so the
+    // honest lever is magnitude, not a new attack claim this species'
+    // biology doesn't support — it stings intruders, it doesn't make its
+    // neighbours bolder.
     auras: [
       {
         affects: 'frame-builder',
-        grants: { health: 1 },
+        grants: { health: 2 },
         note: 'grows into the framework beside it',
       },
     ],
@@ -1143,17 +1203,26 @@ export const CARDS: readonly CardDefinition[] = [
     // two phases where this pays on one. A boundary case (implied 5.4, not
     // a clean miss), but consistent once measured against its own peers
     // rather than in isolation.
-    cost: 5,
+    //
+    // Moved 5->6 on the frame-builder aura balance pass: the health grant
+    // that boundary case was weighed against just went from 2 to 3.
+    cost: 6,
     attack: 0,
     health: 9,
     keywords: ['reef-guard'],
     // A massive, dense boulder coral — unlike the fast-growing, brittle
     // branching corals (staghorn, table), this is the genuinely hard one.
     armour: 1,
+    // Frame-builder grant raised 2->3 on a balance pass: already the
+    // densest, hardest structure in the set by its own description — the
+    // one other coral the rest of the reef anchors against — so it's the
+    // natural top of the tier Fire Coral was just raised to, not tied with
+    // it. Purely structural again: a boulder coral doesn't make anything
+    // bolder, it makes the framework itself harder to break.
     auras: [
       {
         affects: 'frame-builder',
-        grants: { health: 2 },
+        grants: { health: 3 },
         note: 'the boulder the rest of the reef builds against',
       },
     ],
@@ -1173,10 +1242,15 @@ export const CARDS: readonly CardDefinition[] = [
     cost: 3,
     attack: 0,
     health: 4,
+    // Reef-dweller grant raised 1->2 on a balance pass: a real but more
+    // modest case than Staghorn's — sea fans host camouflaged reef life
+    // (pygmy seahorses among them) clinging to the branches, shelter
+    // rather than concealment on Staghorn's scale, so it moves up a tier
+    // rather than to the top of one.
     auras: [
       {
         affects: 'reef-dweller',
-        grants: { health: 1 },
+        grants: { health: 2 },
         note: 'a thicket to hang in out of the current',
       },
     ],
