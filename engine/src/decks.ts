@@ -33,15 +33,14 @@ function expand(x2: readonly string[], x1: readonly string[]): string[] {
 export const NATURE_DECK: StarterDeck = {
   id: 'nature',
   name: 'Nature',
-  blurb: 'All fifty species, one copy of each. The full set the game was priced against.',
+  blurb: 'All fifty species, one copy of each — the reef in full.',
   list: starterDeckList(),
 };
 
 export const CLAWS_OF_THE_FLAT: StarterDeck = {
   id: 'claws-of-the-flat',
   name: 'Claws of the Flat',
-  blurb:
-    'The bottom-crawlers that own the drained reef flat — crabs, shrimp, urchins and octopi, cheap and numerous. Spotted Eagle Ray digs up what they eat; Mushroom Coral is the one coral that lives loose on the sand instead of the reef.',
+  blurb: 'Bottom-crawlers that own the drained flat — cheap, fast, relentless.',
   list: expand(
     [
       'atlantic-mudskipper', 'mandarinfish', 'banded-coral-shrimp', 'blue-ringed-octopus',
@@ -58,8 +57,7 @@ export const CLAWS_OF_THE_FLAT: StarterDeck = {
 export const TITANS_OF_THE_CREST: StarterDeck = {
   id: 'titans-of-the-crest',
   name: 'Titans of the Crest',
-  blurb:
-    'The open-water giants that ride the flood in over the reef crest — sharks, rays, turtles, the biggest bodies in the set. Bluestreak Cleaner Wrasse and Moorish Idol run their cleaning crew; Giant Clam stands sentinel.',
+  blurb: 'The giants that ride the flood in over the reef crest.',
   list: expand(
     [
       'blue-spotted-ribbontail-ray', 'grey-reef-shark', 'whitetip-reef-shark', 'bigfin-reef-squid',
@@ -76,8 +74,7 @@ export const TITANS_OF_THE_CREST: StarterDeck = {
 export const GUARDIANS_OF_THE_REEF: StarterDeck = {
   id: 'guardians-of-the-reef',
   name: 'Guardians of the Reef',
-  blurb:
-    'The reef-dwellers and frame-builders that hold the structure together — corals, anemones, clownfish, the reef-guard package. Reef Manta Ray visits its cleaning station; Harlequin Shrimp answers the crown-of-thorns threat.',
+  blurb: 'Corals and reef-dwellers, built to defend the structure they share.',
   list: expand(
     [
       'clown-anemonefish', 'moorish-idol', 'mushroom-coral', 'staghorn-coral',

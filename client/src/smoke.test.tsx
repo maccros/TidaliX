@@ -328,15 +328,12 @@ describe('client', () => {
     expect(first?.textContent).toContain('seed 7');
   });
 
-  it('records a mid-game opponent change, and says when it takes effect', () => {
+  it('shows the opponent difficulty read-only, not as a mid-game control', () => {
+    // Difficulty is a new-game choice now, made on the setup screen — the bar
+    // still states it, but there's nothing left to click to change it.
     render();
-    const select = container.querySelector<HTMLSelectElement>('.bar__difficulty select')!;
-    act(() => {
-      select.value = 'hard';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-    const lines = [...container.querySelectorAll('.log__line')].map((l) => l.textContent ?? '');
-    expect(lines.some((l) => l.includes('Hard') && l.includes('next turn'))).toBe(true);
+    expect(container.querySelector('.bar__difficulty select')).toBeNull();
+    expect(container.querySelector('.bar__difficulty')?.textContent).toContain('Normal');
   });
 
   it('warns on a card the coming tide would leave dying, before it happens', async () => {

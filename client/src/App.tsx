@@ -8,7 +8,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  DIFFICULTIES,
   DIFFICULTY_NOTE,
   NATURE_DECK,
   STARTER_DECKS,
@@ -582,30 +581,12 @@ export function App({ seed: fixedSeed }: AppProps = {}) {
         <button type="button" className="btn" onClick={() => setSetupOpen(true)}>
           New game
         </button>
-        <label className="bar__difficulty" title={DIFFICULTY_NOTE[difficulty]}>
+        {/* Read-only: difficulty is a new-game choice now, not something to
+            change mid-fight — but it's still worth seeing at a glance. */}
+        <span className="bar__difficulty" title={DIFFICULTY_NOTE[difficulty]}>
           <span className="bar__difficulty-label">opponent</span>
-          <select
-            value={difficulty}
-            onChange={(e) => {
-              const next = e.target.value as Difficulty;
-              setDifficulty(next);
-              setLog((prev) => [
-                ...prev,
-                {
-                  text: `Opponent set to ${capitalise(next)} — from its next turn.`,
-                  kind: 'setup',
-                },
-              ]);
-            }}
-            aria-label="Opponent difficulty"
-          >
-            {DIFFICULTIES.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </label>
+          {capitalise(difficulty)}
+        </span>
         <span className="bar__seed">seed {seed}</span>
         {aiming ? (
           <span className="bar__hint bar__hint--aim">

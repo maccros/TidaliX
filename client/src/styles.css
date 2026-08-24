@@ -822,26 +822,14 @@ button { font: inherit; color: inherit; }
   margin: 0.4rem 0 0; font-size: 0.72rem; color: var(--ink-faint); line-height: 1.45;
 }
 
-/* ---- Difficulty ---- */
-.bar__difficulty { display: inline-flex; align-items: center; gap: 0.35rem; }
+/* ---- Difficulty (read-only: a new-game choice, not a mid-game one) ---- */
+.bar__difficulty {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.74rem; text-transform: capitalize;
+}
 .bar__difficulty-label {
   font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--ink-faint);
-}
-.bar__difficulty select {
-  font: inherit; font-size: 0.78rem; text-transform: capitalize;
-  background: var(--sunken); color: var(--ink);
-  border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 0.25rem 0.4rem; cursor: pointer;
-}
-
-/* ---- Difficulty ---- */
-.bar__difficulty { display: flex; align-items: center; gap: 0.35rem; font-size: 0.74rem; }
-.bar__difficulty-label { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
-.bar__difficulty select {
-  font: inherit; font-size: 0.74rem; text-transform: capitalize;
-  background: var(--sunken); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 2px; padding: 0.15rem 0.3rem;
 }
 
 
